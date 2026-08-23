@@ -1,0 +1,4 @@
+- insert:
+    - id: dsh-messenger-gateway
+      name: '@goodandready/dsh-messenger-gateway'
+      config: {}
