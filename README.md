@@ -1,6 +1,16 @@
 # dsh-messenger-gateway
 
-Telegram-first messenger gateway for DeepSeek Harness. Discord later.
+Messenger transport for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness).
+
+## Features (building toward 1.0)
+
+- Telegram long-poll
+- Text, voice (`dsh-voice`), photos (`attachments` + `dsh-vision-bridge`), documents
+- Outbound images from tool results
+- `messenger` HTTP API: `/messenger/send`, `/ask`, `/progress`
+- Forum topics = separate agent sessions
+- Optional spoken replies (`dsh-tts`)
+- Discord — planned
 
 ## Install
 
@@ -8,18 +18,10 @@ Telegram-first messenger gateway for DeepSeek Harness. Discord later.
 dsh plugin --profile web add @goodandready/dsh-messenger-gateway
 ```
 
-Settings: **Messenger gateway** — enable Telegram, paste bot token.
+Settings → **Messenger gateway** → enable Telegram, paste bot token.
 
 ## Commands
 
-`/start` `/help` `/new` `/whoami`
-
-## Identity
-
-| Place | Value |
-|---|---|
-| package.json name | `@goodandready/dsh-messenger-gateway` |
-| cordis.patch name | `@goodandready/dsh-messenger-gateway` |
-| client loader id | `@goodandready/dsh-messenger-gateway` |
+`/start` `/help` `/new` `/whoami` `/stop`
 
 MIT
