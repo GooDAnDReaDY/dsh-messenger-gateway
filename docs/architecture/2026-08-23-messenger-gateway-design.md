@@ -1,20 +1,27 @@
-# dsh-messenger-gateway design
+# dsh-messenger-gateway — versioning
 
-## Сейчас: 0.1.x (ранний MVP)
+## Правило версий
 
-Цель ближайших коммитов — рабочий Telegram-транспорт, без претензии на релиз 1.0.
+| Версия | Когда |
+|--------|--------|
+| **0.0.1, 0.0.2, 0.0.3…** | Каждая отдельная фича (один bump = одна фича) |
+| **0.1.0** | Финальный релиз согласованного scope (замена hub на prod) |
+| **1.0.0** | Когда-нибудь потом, не планируем сейчас |
 
-### Уже в коде (0.1.0 → 0.1.1)
-- Telegram long-poll, текст, команды
-- Settings UI
-- Черновик: голос/фото/документы, outbound, messenger HTTP, topics, TTS toggle
+## Журнал 0.0.x
 
-### Дальше по порядку (всё ещё 0.1.x)
-1. Довести и smoke-тестить медиа (voice, photo, docs)
-2. Исходящие вложения из tool results
-3. messenger API (send/ask/progress) — проверить вживую
-4. Инлайн-кнопки, топики, /stop
+| Ver | Фича | Статус |
+|-----|------|--------|
+| 0.0.1 | Скелет: Telegram text, Settings, команды | done |
+| 0.0.2 | Черновик: voice/photo/docs, outbound, messenger HTTP, topics, TTS toggle, /stop | WIP, не smoke |
+| 0.0.3 | Voice inbound (dsh-voice) — довести + smoke | next |
+| 0.0.4 | Photo inbound + vision-bridge | planned |
+| 0.0.5 | Documents inbound | planned |
+| 0.0.6 | Outbound tool attachments | planned |
+| 0.0.7 | messenger API проверен | planned |
+| 0.0.8 | Inline keyboards (ask) | planned |
+| … | Discord, prod swap | → 0.1.0 |
 
-## 1.0 (далеко)
-Полный roadmap п.4: Discord, очередь, прерывание, home channel, замена dsh-im-hub-media на prod.
-Версию 1.0.0 не трогаем, пока не закрыт весь согласованный scope.
+## Scope 0.1.0 (финал этой линии)
+
+Всё из roadmap п.4 для Telegram, без Discord (Discord — после 0.1.0 или отдельной веткой 0.0.x).
