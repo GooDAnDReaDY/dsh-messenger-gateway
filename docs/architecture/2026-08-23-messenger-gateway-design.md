@@ -20,7 +20,8 @@
 | 0.0.6 | Outbound tool attachments (nested images, URL fetch, stripImageUrls) | done |
 | 0.0.7 | messenger API (HTTP + ctx.provide messenger, validation, schema) | done |
 | 0.0.8 | Inline keyboards ask (lib/ask.js, cleanup, chat guard) | done |
-| 0.0.9 | Forum topics (threadId sessions) | next |
+| 0.0.9 | Forum topics (threadId sessions + outbound message_thread_id) | done |
+| 0.0.10 | TTS replies + pre-0.1.0 polish | next |
 | … | Discord, prod swap | → 0.1.0 |
 
 ## Scope 0.1.0 (финал этой линии)

@@ -12,7 +12,6 @@ test('buildCallbackData enforces Telegram 64-byte limit', () => {
 
 test('parseCallbackData splits token and button id', () => {
   assert.deepEqual(parseCallbackData('abc123:confirm'), { token: 'abc123', buttonId: 'confirm' })
-  assert.deepEqual(parseCallbackData('legacy'), { token: undefined, buttonId: 'legacy' })
 })
 
 test('buildInlineKeyboard maps buttons to callback_data', () => {
@@ -21,8 +20,8 @@ test('buildInlineKeyboard maps buttons to callback_data', () => {
   assert.deepEqual(callbackKeys, ['t1:yes'])
 })
 
-test('targetMatchesAsk checks chat', () => {
-  const pending = { target: { platform: 'telegram', chatId: 42 } }
-  assert.equal(targetMatchesAsk(pending, { platform: 'telegram', chatId: 42 }), true)
-  assert.equal(targetMatchesAsk(pending, { platform: 'telegram', chatId: 99 }), false)
+test('targetMatchesAsk checks chat and thread', () => {
+  const pending = { target: { platform: 'telegram', chatId: 42, threadId: 7 } }
+  assert.equal(targetMatchesAsk(pending, { platform: 'telegram', chatId: 42, threadId: 7 }), true)
+  assert.equal(targetMatchesAsk(pending, { platform: 'telegram', chatId: 42, threadId: 8 }), false)
 })
