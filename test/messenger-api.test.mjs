@@ -11,8 +11,9 @@ test('validateTarget requires platform and chatId', () => {
   assert.deepEqual(validateTarget({ platform: 'telegram', chatId: 42 }), { platform: 'telegram', chatId: 42 })
 })
 
-test('normalizeAskBody requires text', () => {
+test('normalizeAskBody requires text and buttons', () => {
   assert.throws(() => normalizeAskBody({}), /text/)
+  assert.throws(() => normalizeAskBody({ text: 'hi' }), /button/)
   const body = normalizeAskBody({ text: 'ok?', buttons: [[{ id: 'yes', text: 'Yes' }]] })
   assert.equal(body.text, 'ok?')
   assert.equal(body.buttons[0][0].id, 'yes')
