@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-messenger-gateway",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Messenger gateway for DeepSeek Harness: Telegram today, Discord later.",
   "license": "MIT",
   "type": "module",
