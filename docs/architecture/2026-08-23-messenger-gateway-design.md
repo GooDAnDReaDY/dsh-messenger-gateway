@@ -13,9 +13,9 @@
 | Ver | Фича | Статус |
 |-----|------|--------|
 | 0.0.1 | Скелет: Telegram text, Settings, команды | done |
-| 0.0.2 | Черновик: voice/photo/docs, outbound, messenger HTTP, topics, TTS toggle, /stop | WIP, не smoke |
-| 0.0.3 | Voice inbound (dsh-voice) — довести + smoke | next |
-| 0.0.4 | Photo inbound + vision-bridge | planned |
+| 0.0.2 | Черновик: media, outbound, messenger HTTP, topics, TTS toggle, /stop | done (unit tests) |
+| 0.0.3 | Voice inbound via dsh-voice (signal, errors, unit test) | done (E2E smoke — с ботом) |
+| 0.0.4 | Photo inbound + vision-bridge | next |
 | 0.0.5 | Documents inbound | planned |
 | 0.0.6 | Outbound tool attachments | planned |
 | 0.0.7 | messenger API проверен | planned |
