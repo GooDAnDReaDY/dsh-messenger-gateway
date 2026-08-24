@@ -18,8 +18,8 @@
 | 0.0.4 | Photo inbound + vision-bridge (attachInboundPhoto, maxImageBytes, photoOnlyHint) | done |
 | 0.0.5 | Documents inbound (formatInboundDocument, documentOnlyHint) | done |
 | 0.0.6 | Outbound tool attachments (nested images, URL fetch, stripImageUrls) | done |
-| 0.0.7 | messenger API проверен | next |
-| 0.0.8 | Inline keyboards (ask) | planned |
+| 0.0.7 | messenger API (HTTP + ctx.provide messenger, validation, schema) | done |
+| 0.0.8 | Inline keyboards (ask) | next |
 | … | Discord, prod swap | → 0.1.0 |
 
 ## Scope 0.1.0 (финал этой линии)
