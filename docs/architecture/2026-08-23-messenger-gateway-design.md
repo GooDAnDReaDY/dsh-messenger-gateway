@@ -22,7 +22,7 @@
 | 0.0.8 | Inline keyboards ask (lib/ask.js, cleanup, chat guard) | done |
 | 0.0.9 | Forum topics (threadId sessions + outbound message_thread_id) | done |
 | 0.0.10 | TTS replies (prepareTtsText, AbortSignal, maxChars UI) | done |
-| 0.1.0 | Final Telegram scope + prod swap vs hub-media | next |
+| 0.1.0 | Final Telegram scope + prod swap vs hub-media | done |
 | … | Discord | after 0.1.0 |
 
 ## Scope 0.1.0 (финал этой линии)
