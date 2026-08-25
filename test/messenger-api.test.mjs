@@ -5,9 +5,9 @@ import {
   dispatchMessenger, httpStatusForError, resolveAskTimeoutMs,
 } from '../lib/messenger-api.js'
 
-test('validateTarget requires platform and chatId', () => {
+test('validateTarget requires platform; chatId optional for home fallback', () => {
   assert.throws(() => validateTarget({}), /platform/)
-  assert.throws(() => validateTarget({ platform: 'telegram' }), /chatId/)
+  assert.deepEqual(validateTarget({ platform: 'telegram' }), { platform: 'telegram' })
   assert.deepEqual(validateTarget({ platform: 'telegram', chatId: 42 }), { platform: 'telegram', chatId: 42 })
 })
 
