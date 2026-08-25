@@ -35,3 +35,7 @@
 - `@docs/architecture/2026-08-23-messenger-gateway-design.md`
 - `@docs/deployment/0.1.0-install.md`
 - `@docs/testing/0.1.0-smoke.md`
+
+## Release gate
+
+Перед merge/deploy: `npm run test:all` + `/dsh-messenger-gateway/status`. Код, роняющий load или prod, **не релизится**. См. `docs/testing/release-gate.md`.

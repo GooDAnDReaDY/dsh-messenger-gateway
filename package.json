@@ -32,7 +32,9 @@
   },
   "homepage": "https://github.com/GooDAnDReaDY/dsh-messenger-gateway",
   "scripts": {
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "test:load": "node scripts/verify-dsh-load.mjs",
+    "test:all": "npm test && npm run test:load"
   },
   "dsh": {
     "bundle": {
