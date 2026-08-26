@@ -1,23 +1,11 @@
-# Release gate (обязательно)
+# Release gate (maintainers)
 
-Код **не мержится и не деплоится**, пока не пройдены все пункты.
+Public npm/GitHub version lives in `package.json` (this line is independent of any private iteration tags).
 
-## Блокеры
+Before `npm publish` / GitHub Release:
 
-1. `npm test` — все unit-тесты зелёные
-2. `npm run test:load` — плагин загружается с реальными DSH-зависимостями
-3. После install + restart: `GET /dsh-messenger-gateway/status` → `running: true`
-4. Любой красный пункт = **стоп**
-
-## Инцидент 25.08.2026
-
-`z.enum` не существует в schemastery → unit-тесты прошли, prod упал. `test:load` ловит это до deploy.
-
-## Деплой
-
-```bash
-dsh plugin --profile web remove @goodandready/dsh-messenger-gateway
-dsh plugin --profile web add file:/path/to/plugin
-sudo systemctl restart dsh-web.service
-curl -s http://127.0.0.1:3080/dsh-messenger-gateway/status
-```
+1. `npm test` green
+2. `npm pack --dry-run` — only `lib/`, `cordis.patch.yml`, `README.md`, `LICENSE`, `package.json`
+3. README matches shipped features; no host paths, IPs, or secrets
+4. `package.json` version == git tag `vX.Y.Z`
+5. Scoped name matches in `package.json`, `cordis.patch.yml`, and `lib/client.js` ModuleLoader `id`

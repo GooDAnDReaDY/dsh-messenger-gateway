@@ -1,2 +1,9 @@
 node_modules/
 .DS_Store
+AGENTS.md
+AGENTS.local.md
+*.tgz
+.env*
+*.pem
+*.key
+credentials.yaml

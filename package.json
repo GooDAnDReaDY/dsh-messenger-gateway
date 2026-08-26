@@ -1,7 +1,7 @@
 {
   "name": "@goodandready/dsh-messenger-gateway",
-  "version": "0.4.2",
-  "description": "Messenger gateway for DeepSeek Harness: Telegram (steer, sessionScope, homes, notify bridge, voice).",
+  "version": "0.2.0",
+  "description": "Telegram messenger bridge for DeepSeek Harness: sessions, steer, homes, inline asks, notify bridge, and optional TTS voice notes.",
   "license": "MIT",
   "type": "module",
   "main": "./lib/index.js",
@@ -15,22 +15,21 @@
     "lib/",
     "cordis.patch.yml",
     "README.md",
-    "LICENSE",
-    "docs/"
+    "LICENSE"
   ],
   "keywords": [
     "dsh",
     "dsh-plugin",
     "telegram",
-    "discord",
     "messenger",
-    "deepseek-harness"
+    "deepseek-harness",
+    "bot"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/GooDAnDReaDY/dsh-messenger-gateway.git"
   },
-  "homepage": "https://github.com/GooDAnDReaDY/dsh-messenger-gateway",
+  "homepage": "https://github.com/GooDAnDReaDY/dsh-messenger-gateway#readme",
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "test:load": "node scripts/verify-dsh-load.mjs",
@@ -64,5 +63,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "bugs": {
+    "url": "https://github.com/GooDAnDReaDY/dsh-messenger-gateway/issues"
   }
 }

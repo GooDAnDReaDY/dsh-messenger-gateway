@@ -1,18 +1,8 @@
 # dsh-messenger-gateway
 
-- **Пакет:** `@goodandready/dsh-messenger-gateway`
-- **Версия:** 0.1.0 (Telegram scope)
+- **Package:** `@goodandready/dsh-messenger-gateway`
+- **Public version:** see `package.json` / GitHub Releases
 - **Entry:** `lib/index.js`, `lib/client.js`
-- **HTTP:** `/dsh-messenger-gateway/status`, `/config`, `/messenger/*`
+- **Tests:** `npm test`
 
-## Docs
-
-- [Architecture](docs/architecture/2026-08-23-messenger-gateway-design.md)
-- [Deploy 0.1.0](docs/deployment/0.1.0-install.md)
-- [Smoke 0.1.0](docs/testing/0.1.0-smoke.md)
-
-## Test
-
-```bash
-npm test
-```
+See [README.md](README.md) and [CHANGELOG.md](CHANGELOG.md).
