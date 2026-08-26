@@ -20,3 +20,14 @@ test('pairing store approve flow', () => {
   assert.equal(res.userId, 42)
   assert.equal(store.isApproved(42), true)
 })
+
+test('listPending and rejectCode', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'msgw-pair2-'))
+  const store = createPairingStore(join(dir, 'pairing.json'))
+  const { code } = store.requestCode(7, { username: 'u' })
+  assert.equal(store.listPending().length, 1)
+  assert.equal(store.listPending()[0].code, code)
+  const rej = store.rejectCode(code)
+  assert.equal(rej.ok, true)
+  assert.equal(store.listPending().length, 0)
+})

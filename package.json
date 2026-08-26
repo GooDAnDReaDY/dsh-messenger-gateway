@@ -1,7 +1,7 @@
 {
   "name": "@goodandready/dsh-messenger-gateway",
-  "version": "0.2.3",
-  "description": "Messenger gateway for DeepSeek Harness: Telegram transport (0.1.0 scope). Discord planned.",
+  "version": "0.3.0",
+  "description": "Messenger gateway for DeepSeek Harness: Telegram (groups, pairing UI, progress, webhook).",
   "license": "MIT",
   "type": "module",
   "main": "./lib/index.js",
@@ -34,7 +34,8 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "test:load": "node scripts/verify-dsh-load.mjs",
-    "test:all": "npm test && npm run test:load"
+    "test:all": "npm test && npm run test:load",
+    "smoke:http": "node scripts/smoke-http.mjs"
   },
   "dsh": {
     "bundle": {

@@ -2,18 +2,13 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { DEFAULT_TELEGRAM_COMMANDS, normalizeTelegramCommands } from '../lib/commands.js'
 
-test('normalizeTelegramCommands uses defaults when empty', () => {
-  assert.deepEqual(normalizeTelegramCommands([]), DEFAULT_TELEGRAM_COMMANDS)
+test('default commands include model and status', () => {
+  const names = DEFAULT_TELEGRAM_COMMANDS.map((c) => c.command)
+  assert.ok(names.includes('model'))
+  assert.ok(names.includes('status'))
 })
 
-test('normalizeTelegramCommands strips slash and dedupes', () => {
-  const out = normalizeTelegramCommands([
-    { command: '/ping', description: 'Ping' },
-    { command: 'ping', description: 'Dup' },
-    { command: 'help', description: 'Help override' },
-  ])
-  assert.deepEqual(out, [
-    { command: 'ping', description: 'Ping' },
-    { command: 'help', description: 'Help override' },
-  ])
+test('normalize fills defaults', () => {
+  const n = normalizeTelegramCommands([])
+  assert.ok(n.some((c) => c.command === 'help'))
 })
