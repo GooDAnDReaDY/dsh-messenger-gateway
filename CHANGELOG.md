@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0
+
+Telegram delivery hardening (learned from Hermes/OpenClaw/PicoClaw Telegram handling).
+
+- Rich formatting: GFM tables → bullet groups, task lists (☑/☐), `<details>` → summary + body
+- Smart network retry: resend-safe errors (connect/pool timeout, ECONNRESET, undici `not sent to telegram`) retried with backoff; ambiguous timeouts and 4xx/5xx not retried (no duplicate delivery)
+- Polling conflict detection (409 from getUpdates) logged loudly
+- Stale-topic recovery: `messenger_ask` aborts and releases callback keys on deleted thread/topic; progress sends skip silently
+- Status indicator (opt-in): bot short description Online/Offline
+
 ## 0.2.0
 
 First public feature release (npm / GitHub).
