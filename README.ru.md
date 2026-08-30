@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<h3>Dedicated Telegram Messenger Gateway with Session Scoping and TTS Voice Replies</h3>
+<h3>Шлюз Telegram с изоляцией сессий, управлением агентом и голосовыми ответами</h3>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@goodandready/dsh-messenger-gateway"><img src="https://img.shields.io/npm/v/@goodandready/dsh-messenger-gateway.svg?style=for-the-badge&color=6366f1&labelColor=1e1b4b" alt="npm version"></a>
@@ -21,22 +21,22 @@
 
 ---
 
-## ⚡ Overview
+## ⚡ Обзор
 
-**`dsh-messenger-gateway`** connects Telegram chats to isolated DSH sessions with interactive steering buttons, directory isolation, and spoken voice note responses.
+**`dsh-messenger-gateway`** связывает чаты Telegram с изолированными сессиями DeepSeek Harness, поддерживает кнопки управления, изоляцию рабочих папок и голосовые ответы через TTS.
 
 ```mermaid
 graph LR
-    TG[Telegram Chat] --> LongPoll[Long-poll / Webhook Bridge]
-    LongPoll --> SessionRouter[Session & Home Isolation]
-    SessionRouter --> Agent[DSH Agent Cycle]
-    Agent --> TTS[TTS Engine: Voice Note Synthesis]
+    TG[Чат Telegram] --> LongPoll[Шлюз Long-poll / Webhook]
+    LongPoll --> SessionRouter[Изоляция сессий и папок]
+    SessionRouter --> Agent[Цикл работы агента DSH]
+    Agent --> TTS[TTS: Синтез голосового ответа]
     TTS --> TG
 ```
 
 ---
 
-## 📦 Quick Installation
+## 📦 Быстрая установка
 
 ```bash
 dsh plugin --profile web add @goodandready/dsh-messenger-gateway
@@ -44,6 +44,6 @@ dsh plugin --profile web add @goodandready/dsh-messenger-gateway
 
 ---
 
-## 📄 License
+## 📄 Лицензия
 
 MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
