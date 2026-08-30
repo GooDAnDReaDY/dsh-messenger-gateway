@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.1
+
+- Align `peerDependencies` to DSH `0.1.1-rc.2` (manifest accuracy, no behavior change)
+- `/whoami` now also reports `chatId` / `threadId` in groups
+- `/mute` / `/unmute`: suppress notify-bridge messages for a chat
+- `/status` now shows delivery/error counters, polling-conflict flag, uptime
+- `/tts on|off|status`: per-chat TTS override (takes precedence over global/user)
+
 ## 0.3.0
 
 Telegram delivery hardening (learned from Hermes/OpenClaw/PicoClaw Telegram handling).
