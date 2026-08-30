@@ -19,3 +19,9 @@ test('shouldSpeakReply mirror', () => {
   assert.equal(shouldSpeakReply({ globalTts: false, voiceMode: 'off', inboundWasVoice: true, userPref: null }), false)
   assert.equal(shouldSpeakReply({ globalTts: false, voiceMode: 'off', inboundWasVoice: true, userPref: true }), true)
 })
+
+test('shouldSpeakReply per-chat tts pref overrides', () => {
+  assert.equal(shouldSpeakReply({ globalTts: false, voiceMode: 'mirror', inboundWasVoice: false, userPref: null, chatPref: true }), true)
+  assert.equal(shouldSpeakReply({ globalTts: false, voiceMode: 'always', inboundWasVoice: true, userPref: true, chatPref: false }), false)
+  assert.equal(shouldSpeakReply({ globalTts: true, voiceMode: 'always', inboundWasVoice: true, userPref: true, chatPref: false }), false)
+})
