@@ -1,84 +1,77 @@
-# @goodandready/dsh-messenger-gateway
+# 📦 @goodandready/dsh-messenger-gateway
 
-Telegram messenger bridge for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness).
+<div align="center">
 
-Talk to your Harness agent from Telegram: text, voice, photos, documents, inline buttons, named homes, and optional spoken replies.
+[![npm version](https://img.shields.io/npm/v/@goodandready/dsh-messenger-gateway.svg?style=flat-square)](https://www.npmjs.com/package/@goodandready/dsh-messenger-gateway)
+[![license](https://img.shields.io/github/license/GooDAnDReaDY/dsh-messenger-gateway.svg?style=flat-square)](LICENSE)
+[![DSH Plugin](https://img.shields.io/badge/DSH-Plugin-6366f1.svg?style=flat-square)](https://github.com/topics/dsh-plugin)
 
-## Features
+**[ 🇬🇧 English ](#-english) • [ 🇷🇺 Русский ](#-русский) • [ 🇨🇳 中文 ](#-中文)**
 
-- Long-poll or webhook Telegram bot
-- Allowlist + pairing codes
-- Per-user or per-chat sessions (`sessionScope`)
-- Forum topics as separate sessions
-- Steer: follow-up messages while the agent is busy (instead of aborting)
-- `/stop`, `/new`, `/model`, `/status`, `/voice`, `/sethome`, `/home`
-- Agent tool `messenger_ask` (inline keyboard answers return to the agent)
-- Named homes for outbound notify / `messenger.send`
-- Optional notify bridge: web session events → Telegram home (excludes messenger sessions)
-- Inbound voice → STT (`dsh-voice`), photos → vision (`dsh-vision-bridge`)
-- Optional TTS replies (`dsh-tts`); mp3 is converted to OGG/Opus via `ffmpeg` for Telegram voice notes
+</div>
 
-Discord is listed in settings as a placeholder only — the Discord adapter is not implemented yet.
+---
 
-## Install
+<a name="-english"></a>
+## 🇬🇧 English
+
+Telegram messenger bridge for DeepSeek Harness: multi-session routing, active steering, home directory scoping, and TTS voice note replies.
+
+### Features
+
+- **Telegram Session Hub**: Link Telegram chats directly to isolated DSH agent sessions.
+- **Voice Note Responses**: Converts agent answers into voice messages using the configured TTS engine.
+- **Interactive Commands**: `/clear`, `/status`, `/model`, and steering prompts right from the messenger chat.
+- **Workspace Scoping**: Restricts file operations to authorized user home directories.
+
+### Install
 
 ```bash
 dsh plugin --profile web add @goodandready/dsh-messenger-gateway
 ```
 
-Then open **Settings → Plugins → Messenger gateway**:
+---
 
-1. Enable Telegram
-2. Paste the BotFather token (write-only; leave blank to keep the current token)
-3. Set allowed Telegram user IDs (or use pairing)
+<a name="-русский"></a>
+<details open>
+<summary><h2>🇷🇺 Русский (Полное руководство)</h2></summary>
 
-### Optional companion plugins (same profile)
+Шлюз Telegram для DeepSeek Harness: маршрутизация сессий, управление агентом, изоляция домашних директорий и голосовые ответы через TTS.
 
-| Plugin | Role |
-|--------|------|
-| `@goodandready/dsh-voice` | Transcribe inbound voice messages |
-| `@goodandready/dsh-tts` | Speak agent replies |
-| `@goodandready/dsh-vision-bridge` | Describe inbound photos |
+### Возможности
 
-They are **not** npm dependencies of this package — install them separately if you want those features.
+- **Сессии Telegram**: привязка чатов мессенджера к изолированным сессиям агента DSH.
+- **Голосовые ответы**: озвучивание ответов агента в виде голосовых сообщений через TTS.
+- **Команды управления**: `/clear`, `/status`, `/model` и управление ходом мыслей из Telegram.
+- **Безопасность директорий**: ограничение доступа рамками разрешенной домашней папки.
 
-### Voice notes
+### Установка
 
-Spoken replies use Telegram `sendVoice`. If TTS returns MP3 (or other non-Opus audio), the gateway runs `ffmpeg` (`libopus`) to produce OGG. If `ffmpeg` is missing or conversion fails, the audio is sent as a regular audio file instead of a voice note.
+```bash
+dsh plugin --profile web add @goodandready/dsh-messenger-gateway
+```
 
-## Commands (Telegram)
+</details>
 
-| Command | Description |
-|---------|-------------|
-| `/start` `/help` | Help |
-| `/whoami` | Your Telegram user id |
-| `/new` | New agent session |
-| `/stop` | Abort the current turn |
-| `/model` `/status` | Model / gateway status |
-| `/voice on\|off` | Per-user spoken replies |
-| `/sethome [name]` | Bind current chat/topic as a named home |
-| `/home` | List homes |
+---
 
-## Agent tools & HTTP
+<a name="-中文"></a>
+<details>
+<summary><h2>🇨🇳 中文 (完整技术文档)</h2></summary>
 
-- Tool: `messenger_ask` — ask the user with inline buttons; choice is fed back into the turn
-- HTTP (when enabled): `/messenger/send`, `/messenger/ask`, `/messenger/progress`
-- Cordis service: `ctx.messenger` for other plugins
+DeepSeek Harness Telegram 专属网关：支持独立会话路由、指令干预、主目录权限隔离及 TTS 语音条回复。
 
-## Configuration notes
+### 核心亮点
 
-- `sessionScope`: `user` (default) or `chat` — how group chats isolate sessions
-- `voiceMode`: `mirror` / `always` / `off` — when to speak replies (also `/voice`)
-- `tts.enabled` / `tts.maxChars` — TTS gate and length cap
-- `notifyBridge` — forward non-messenger web session events to a home
-- Bot token is a DSH secret field — never commit it
+- **专属会话绑定**：将 Telegram 对话与 DSH 独立会话一一对应。
+- **语音消息回复**：通过内置 TTS 引擎将智能体回复转换为自然语音条。
+- **交互式指令集**：支持在 Telegram 中直接发送 `/clear`、`/status` 等控制指令。
+- **目录权限防护**：严格限定文件操作于指定的工作区主目录。
 
-## Requirements
+### 安装方法
 
-- DeepSeek Harness web (or compatible) profile
-- Node.js matching your Harness install
-- For voice notes from non-Opus TTS: `ffmpeg` on the host `PATH`
+```bash
+dsh plugin --profile web add @goodandready/dsh-messenger-gateway
+```
 
-## License
-
-MIT
+</details>
