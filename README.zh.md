@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<h3>DeepSeek Harness Telegram 专属会话路由网关与语音条回复插件</h3>
+<h3>DeepSeek Harness Telegram 专属网关（支持交互按钮调度、论坛话题隔离与语音条回复）</h3>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@goodandready/dsh-messenger-gateway"><img src="https://img.shields.io/npm/v/@goodandready/dsh-messenger-gateway.svg?style=for-the-badge&color=6366f1&labelColor=1e1b4b" alt="npm version"></a>
@@ -23,15 +23,38 @@
 
 ## ⚡ 插件概览
 
-**`dsh-messenger-gateway`** 提供 Telegram 与 DeepSeek Harness 独立会话的双向桥接，支持权限隔离与 TTS 语音消息回复。
+**`dsh-messenger-gateway`** 为 **DeepSeek Harness** 智能体提供企业级 Telegram 接入桥梁。
+
+除常规对话转发外，本插件全面打通了智能体深度交互能力：**问答交互式内联按钮 (Inline Keyboard)**、**Telegram 论坛话题 (Forum Topics) 独立会话隔离**、**单用户工作区目录安全隔离**、**6 位配对码鉴权防护**以及**语音条朗读回复 (TTS)**。
 
 ```mermaid
 graph LR
-    TG[Telegram 对话] --> LongPoll[Long-poll / Webhook 监听层]
-    LongPoll --> SessionRouter[会话与主目录隔离路由]
-    SessionRouter --> Agent[DSH 智能体执行流]
-    Agent --> TTS[TTS 引擎: 语音条合成]
-    TTS --> TG
+    subgraph TelegramClient [Telegram 客户端 / 群组 / 话题]
+        User[👤 用户 / 论坛话题] --> TG[Telegram Bot API 轮询 / Webhook]
+    end
+
+    subgraph GatewayCore [网关调度核心]
+        TG --> Auth{配对码与权限校验}
+        Auth -->|已配对用户| Router{话题与目录路由器}
+        Router --> Home[独立工作目录: /homes/user_id]
+        Home --> Thread[DSH 隔离会话上下文]
+    end
+
+    subgraph AgentLoop [DSH 智能体执行流]
+        Thread --> Agent[智能体逻辑流]
+        Agent -->|ask_question 工具调用| Ask[Telegram 原生内联交互按钮]
+        Agent -->|语音回复合成| TTS[TTS 语音条消息下发]
+    end
+
+    subgraph Feedback [交互下发]
+        Ask --> TG
+        TTS --> TG
+    end
+
+    style TelegramClient fill:#1e1e2e,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4
+    style GatewayCore fill:#181825,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4
+    style AgentLoop fill:#11111b,stroke:#a6e3a1,stroke-width:2px,color:#cdd6f4
+    style Feedback fill:#181825,stroke:#f38ba8,stroke-width:2px,color:#cdd6f4
 ```
 
 ---
