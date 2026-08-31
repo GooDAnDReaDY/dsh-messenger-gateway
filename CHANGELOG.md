@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.3.2 (hotfix)
+
+DSH alpha.2 migration: dropped removed `settingsNamespace` import from `@deepseek-ai/dsh-settings`.
+
+- `lib/index.js`: `SETTINGS_NAMESPACE` is now a plain lowercase-hyphenated string `'dsh-messenger-gateway'`. alpha.2 `ctx.settings.register(ns, schema, opts)` accepts a string ns; `parseSettingsNamespace` validates `^[a-z][a-z0-9-]*$`.
+- No other removed alpha.2 exports are used in this plugin (`installSettingsSection`, `deepEqualJson` — none imported).
+- peerDependencies aligned to alpha.2: `@deepseek-ai/dsh-* ^0.1.2-alpha.2`, `schemastery ^3.18.2`, `cordis ^4.0.2`.
+- No DSH-core changes, no cross-plugin dependency. Migration is local to this plugin.
+
+### Verified on alpha.2 (isolated, nothing foreign touched)
+- Module import on alpha.2 (dsh-settings 0.1.2-alpha.2, `settingsNamespace` removed): clean, no SyntaxError.
+- Real alpha.2 `SettingsProvider` + cordis `Context`: `register('dsh-messenger-gateway', Config, {base})` accepted; `scope.get / watch / update / replace` resolve our `Config`.
+- Tests: 100/100 (incl. `test/alpha2-migration.test.mjs` static smoke).
+- Test server (MiniPC rc.2): install + `DSH_TEST_OK` + cleanup clean.
+- Production profile updated to 0.3.2; plugin is NOT in the `failed to import` list on `dsh-web`.
+
+### Blocked (separate issue)
+Clean alpha.2 profile start is blocked by `goodandready/dsh-messenger-gateway#19`: 9 foreign plugins (better-sidebar, dsh-context, llm-ollama, etc.) still import removed alpha.2 exports. Out of scope here.
+
 ## 0.3.1
 
 - Align `peerDependencies` to DSH `0.1.1-rc.2` (manifest accuracy, no behavior change)
