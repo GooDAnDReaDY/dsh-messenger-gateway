@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.10
+
+Enforce Removal of Reply Keyboards When Quick Actions Is Disabled.
+
+- **Explicit Keyboard Removal (`lib/adapters/telegram.js`):** Messages now default to sending `reply_markup: { remove_keyboard: true }` whenever `quickActions` is false and no inline keyboard is requested, ensuring stale reply keyboards are closed in client UI.
+- **Commands Cleanup (`lib/gateway.js`):** Added explicit `remove_keyboard: true` to `/start` command response.
+- **Webhook Events (`lib/index.js`):** Supported forwarding `replyMarkup` from request body in `POST /dsh-messenger-gateway/events`.
+
 ## 0.3.9
 
 Interactive 2-Step Model Picker, Voice Summary, Forum Topics, System Resources & Keyboard Fix.
