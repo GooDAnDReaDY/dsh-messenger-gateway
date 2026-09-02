@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.0
+
+File Manager in Telegram & Advanced Inbound Document Parsing.
+
+- **/files [dir]:** Workspace file manager in Telegram with safe path resolution, file sizes, and directory tree navigation.
+- **/get <path>:** Download and send files from the agent workspace directly to Telegram as documents.
+- **Path Traversal Protection:** Strict sandboxing preventing directory traversal outside the configured agent workspace.
+- **Advanced Document Parsing:** Inbound documents (PDF, DOCX, CSV/TSV, JSON, code & text files) are parsed and their content is cleanly injected into the agent context with truncation limits (`maxTextInjectBytes`).
+
 ## 0.5.0
 
 Agent Superpowers: Roles & Personas, Tools Inspection, Fork, Markdown Export, Rewind.
