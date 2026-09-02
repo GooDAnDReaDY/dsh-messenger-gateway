@@ -7,9 +7,20 @@ Talk to your Harness agent from Telegram: text, voice, photos, documents, inline
 ## Features
 
 - Long-poll or webhook Telegram bot
+- Multi-transport support: Telegram, Discord (Webhooks & Bot API), and Slack (Webhooks & Bot API)
 - Allowlist + pairing codes
 - Per-user or per-chat sessions (`sessionScope`)
 - Forum topics as separate sessions
+- Quick actions reply keyboard (`/keyboard on|off`)
+- Multi-select interactive ask forms with checkboxes and pagination (`messenger_ask`)
+- Artifact & Mermaid diagram rendering (SVG cards) and monospace table formatting
+- Agent roles & personas (`/role coder`, `/role architect`, `@role` tags in group chats)
+- Agent tools & skills inspection (`/skills`, `/tools`)
+- Session management: dialogue history export to Markdown (`/export`), turn rewind (`/rewind`), session branching (`/fork`)
+- Workspace file manager (`/files [dir]`) and file download (`/get <path>`) with directory traversal protection
+- Admin alert channel for pairing requests, model errors and monitoring (`/setalert`, `/alert`)
+- Persistent scheduled reminders (`/remind <time> <text>`, `/remind list`, `/remind cancel`)
+- Inbound webhook event dispatcher (`POST /dsh-messenger-gateway/events`) for CI/CD and external alerts
 - Steer: follow-up messages while the agent is busy (instead of aborting)
 - `/stop`, `/new`, `/model`, `/status`, `/voice`, `/sethome`, `/home`
 - Agent tool `messenger_ask` (inline keyboard answers return to the agent)
@@ -18,7 +29,7 @@ Talk to your Harness agent from Telegram: text, voice, photos, documents, inline
 - Inbound voice → STT (`dsh-voice`), photos → vision (`dsh-vision-bridge`)
 - Optional TTS replies (`dsh-tts`); mp3 is converted to OGG/Opus via `ffmpeg` for Telegram voice notes
 
-Discord is listed in settings as a placeholder only — the Discord adapter is not implemented yet.
+Discord and Slack adapters are available as outbound transports (Webhooks or Bot REST APIs).
 
 ## Install
 
@@ -55,9 +66,26 @@ Spoken replies use Telegram `sendVoice`. If TTS returns MP3 (or other non-Opus a
 | `/new` | New agent session |
 | `/stop` | Abort the current turn |
 | `/model` `/status` | Model / gateway status |
+| `/role [name]` | Switch agent persona (`coder`, `architect`, `reviewer`, `writer`, `translator`, `concise`) |
+| `/skills` `/tools` | List active agent tools and capabilities |
+| `/fork` | Fork current session into a new independent session |
+| `/export` | Export session dialogue history to Markdown |
+| `/rewind [N]` | Rewind last N conversation turns |
+| `/files [dir]` | Workspace file manager |
+| `/get <path>` | Download file from workspace |
+| `/remind <time> <text>` | Set a reminder (e.g. `/remind 15m Call client`) |
+| `/setalert` `/alert` | Configure admin alert channel and send test alert |
+| `/keyboard on\|off` | Toggle quick actions reply keyboard |
 | `/voice on\|off` | Per-user spoken replies |
+| `/tts on\|off\|status` | Per-chat spoken replies |
 | `/sethome [name]` | Bind current chat/topic as a named home |
 | `/home` | List homes |
+
+## Multi-Transport Support (Discord & Slack)
+
+In addition to Telegram, outbound messages can be dispatched to Discord and Slack via Webhooks or Bot APIs:
+- **Discord:** set `discord.enabled: true`, provide either `webhookUrl` or `botToken`. Target channels via `chatId: "<channel_id>"`.
+- **Slack:** set `slack.enabled: true`, provide either `webhookUrl` or `botToken`. Target channels via `chatId: "<channel_id>"` or threads via `threadId: "<thread_ts>"`.
 
 ## Agent tools & HTTP
 
