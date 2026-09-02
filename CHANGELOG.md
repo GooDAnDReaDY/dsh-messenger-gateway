@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.0
+
+Admin Alert Channel for Errors, Pairing Requests and Gateway Status.
+
+- **Alert Channel (`telegram.alerts`):** Dedicated Telegram channel/chat for immediate administrator alerts.
+- **Pairing Alerts:** Instant alert upon unauthorized access attempts with user details and ready-to-run `/pair CODE` command.
+- **Error Alerts:** Formatted alerts for agent turn errors, crashes, and background failures with session context.
+- **Commands:** `/setalert` to configure the current chat as the alert channel; `/alert` to inspect status and `/alert test` to verify delivery.
+
 ## 0.6.0
 
 File Manager in Telegram & Advanced Inbound Document Parsing.
