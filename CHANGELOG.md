@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0
+
+Telegram UX, Multi-Select Ask Forms and Artifact Previews.
+
+- **Reply Keyboard (Quick Actions):** Persistent/contextual quick actions menu in Telegram (`/new`, `/stop`, `/voice`, `/status`) with `/keyboard on|off` toggle command.
+- **Multi-Select Ask Forms:** Support for interactive checkbox forms in `messenger_ask` with instant toggle callbacks without dropping wait state, pagination (`⬅️`, `1/N`, `➡️`), and `[ ✅ Готово ]` / `[ ❌ Отмена ]` actions.
+- **Artifact & Diagram Previews:** Extraction and SVG card rendering of Mermaid diagrams (`graph`, `flowchart`, `sequenceDiagram`) as image attachments, and aligned monospace formatting for Markdown tables in Telegram HTML.
+- **Web UI Settings:** Quick actions and artifact preview toggles in the plugin settings card.
+
 ## 0.3.2 (hotfix)
 
 DSH alpha.2 migration: dropped removed `settingsNamespace` import from `@deepseek-ai/dsh-settings`.
