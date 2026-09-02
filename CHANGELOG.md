@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.0
+
+Scheduled Messages, Reminders & Inbound Webhook Events Dispatcher.
+
+- **Reminders & Scheduler (`lib/scheduler.js`):** Persistent scheduler for timed messages and reminders (`scheduled.json`) with support for relative durations (`10s`, `15m`, `2h`, `1d`).
+- **Command `/remind`:** Create reminders (`/remind 15m Call client`), list pending reminders (`/remind list`), and cancel by ID (`/remind cancel <id>`).
+- **Inbound Webhook Events (`POST /dsh-messenger-gateway/events`):** HTTP endpoint for pushing messages and files into Telegram from external systems (CI/CD, GitHub/Gitea, cron jobs, alerts) with optional bearer/token authentication.
+
 ## 0.7.0
 
 Admin Alert Channel for Errors, Pairing Requests and Gateway Status.
