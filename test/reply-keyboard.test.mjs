@@ -5,10 +5,10 @@ import {
   REMOVE_REPLY_KEYBOARD,
 } from '../lib/adapters/telegram.js'
 
-test('buildQuickActionsKeyboard generates persistent 2x2 grid', () => {
+test('buildQuickActionsKeyboard generates non-persistent 2x2 grid', () => {
   const kb = buildQuickActionsKeyboard()
   assert.equal(kb.resize_keyboard, true)
-  assert.equal(kb.is_persistent, true)
+  assert.equal(kb.is_persistent, undefined)
   assert.equal(kb.keyboard.length, 2)
   assert.deepEqual(kb.keyboard[0], [{ text: '🔄 /new' }, { text: '🛑 /stop' }])
   assert.deepEqual(kb.keyboard[1], [{ text: '🎙️ /voice' }, { text: '📊 /status' }])

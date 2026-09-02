@@ -65,7 +65,10 @@ Spoken replies use Telegram `sendVoice`. If TTS returns MP3 (or other non-Opus a
 | `/whoami` | Your Telegram user id |
 | `/new` | New agent session |
 | `/stop` | Abort the current turn |
-| `/model` `/status` | Model / gateway status |
+| `/model` | Interactive 2-step model picker (providers → models) or `/model <prov> <mod>` |
+| `/status` | Gateway status and session counters |
+| `/top` | Live server resources: RSS/Heap memory, uptime, active chats, reminders |
+| `/topic <name>` | Create a new Telegram forum topic in supergroups and start an isolated session |
 | `/role [name]` | Switch agent persona (`coder`, `architect`, `reviewer`, `writer`, `translator`, `concise`) |
 | `/skills` `/tools` | List active agent tools and capabilities |
 | `/fork` | Fork current session into a new independent session |

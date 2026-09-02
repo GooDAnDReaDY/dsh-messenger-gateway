@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.3.9
+
+Interactive 2-Step Model Picker, Voice Summary, Forum Topics, System Resources & Keyboard Fix.
+
+- **Interactive 2-Step Model Picker (`/model`):**
+  - Step 1: Inline buttons list connected LLM providers (`ctx.llm.listProviders()`).
+  - Step 2: Available models for chosen provider shown with 10 models per screen, pagination (`⬅️`, `➡️`), and `[ 🔙 Назад к провайдерам ]`.
+  - One-click model switching saved to `agentDefaultModel` and gateway configuration.
+- **Reply Keyboard Fix:**
+  - `quickActions` now defaults to `false` (no unsolicited keyboard popups).
+  - Removed `is_persistent: true` to prevent keyboard from locking open below input.
+  - `/keyboard off` sends `remove_keyboard: true` to clear stale keyboards immediately.
+- **Voice Summary Mode (`/voice summary` and `tts.voiceSummary`):**
+  - When enabled, spoken audio provides a concise 1-2 sentence TL;DR summary, while full text, code, and markdown output are delivered to the chat.
+- **Forum Topics Creation (`/topic <name>`):**
+  - Dedicated command for supergroups to create new Telegram forum topics via Bot API and automatically initialize a clean isolated agent session for the task.
+- **System Resource Dashboard (`/top`):**
+  - Reports live Node.js memory (RSS, Heap), process uptime, active sessions, scheduled reminders, and current model.
+
 ## 0.3.8
 
 Multi-transport Adapters: Discord and Slack.
