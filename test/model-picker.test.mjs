@@ -86,3 +86,9 @@ test('storeModelSelection and getStoredModelSelection store and retrieve selecti
   assert.deepEqual(retrieved.provider, 'provX')
   assert.deepEqual(retrieved.model, 'modelY')
 })
+
+test('storeModelSelection deduplicates repeated provider/model pairs', () => {
+  const key1 = storeModelSelection('pA', 'mB')
+  const key2 = storeModelSelection('pA', 'mB')
+  assert.equal(key1, key2)
+})
