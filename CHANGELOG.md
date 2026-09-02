@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.11
+
+Security, Stability, Memory Leak Fixes & SVG Photo Handling.
+
+- **Security (Callback Query Allowlist):** Enforced `isUserAllowed` on Telegram `callback_query` updates to prevent unauthorized users in group chats from triggering model switches or resolving tool ask prompts.
+- **Security (Path Traversal Protection):** Hardened `resolveSafePath` against absolute and cross-drive path traversals on Windows and POSIX systems.
+- **SVG Diagram Uploads:** Fixed Mermaid SVG diagrams to upload via `sendDocument` (`kind: 'document'`) instead of `sendPhoto`, preventing Telegram Bot API HTTP 400 rejection.
+- **Gateway Polish:** Removed stale duplicate `/keyboard` handler; protected active turns (`chat.turnActive`) from premature idle reap in `reapIdle()`.
+- **Link Formatting:** Fixed double HTML escaping of URL query parameters (`&` to `&amp;` instead of `&amp;amp;`).
+- **Model Picker Robustness:** Supported provider IDs with colons during model pagination; deduplicated stored model tokens in memory.
+- **Scheduler Pruning:** Added 7-day retention prune for completed and cancelled tasks in `scheduled.json`.
+- **Network Timeouts:** Added explicit timeout signals to Telegram Bot API network requests to prevent hanging sockets.
+
 ## 0.3.10
 
 Enforce Removal of Reply Keyboards When Quick Actions Is Disabled.

@@ -32,6 +32,14 @@ test('resolveSafePath enforces workspace confinement and blocks traversal', () =
   assert.throws(() => {
     resolveSafePath(base, '../outside')
   }, { code: 'ERR_PATH_TRAVERSAL' })
+
+  assert.throws(() => {
+    resolveSafePath(base, '/etc/passwd')
+  }, { code: 'ERR_PATH_TRAVERSAL' })
+
+  assert.throws(() => {
+    resolveSafePath(base, 'D:\\secret.txt')
+  }, { code: 'ERR_PATH_TRAVERSAL' })
 })
 
 test('listFiles and getFileForDownload operate on real directory', async () => {

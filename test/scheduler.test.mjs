@@ -74,3 +74,13 @@ test('createScheduler schedules, lists, cancels and executes tasks', async () =>
   const emptyList = await sched.list(100)
   assert.equal(emptyList.length, 0)
 })
+
+test('scheduler prunes expired fired tasks older than retention limit', async () => {
+  const file = join(tmpdir(), `test-sched-prune-${randomUUID()}.json`)
+  const sched = createScheduler(file)
+  const tOld = await sched.schedule({ chatId: 1, text: 'Old', dueAt: Date.now() - 100 })
+  tOld.status = 'fired'
+  tOld.firedAt = Date.now() - (8 * 86400 * 1000)
+  await sched.save()
+  assert.equal(sched.getTasks().length, 0)
+})

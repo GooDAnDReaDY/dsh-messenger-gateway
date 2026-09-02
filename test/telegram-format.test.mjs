@@ -22,6 +22,11 @@ test('markdownToTelegramHtml links and headers', () => {
   assert.match(out, /<a href="https:\/\/example.com">site<\/a>/)
 })
 
+test('markdownToTelegramHtml preserves URL query parameters without double escaping', () => {
+  const out = markdownToTelegramHtml('[link](https://example.com/search?a=1&b=2)')
+  assert.equal(out, '<a href="https://example.com/search?a=1&amp;b=2">link</a>')
+})
+
 test('prepareTelegramText plain mode', () => {
   assert.deepEqual(prepareTelegramText('**x**', 'plain'), { text: '**x**', parseMode: undefined })
 })
