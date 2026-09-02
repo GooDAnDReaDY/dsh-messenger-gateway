@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0
+
+Agent Superpowers: Roles & Personas, Tools Inspection, Fork, Markdown Export, Rewind.
+
+- **/role / /persona:** Dynamic persona switching in chat (`coder`, `architect`, `reviewer`, `writer`, `translator`, `concise`) with persistent per-chat preference and `@role` tag dispatcher in group chats.
+- **/skills / /tools:** Live inspection of active agent tools and descriptions.
+- **/export:** Export full session dialogue history into a downloadable Markdown file (`.md`).
+- **/rewind [N]:** Undo/rewind the last N conversation turns from the agent session context.
+- **/fork:** Branch off the current chat context into a brand new independent DSH session while preserving message history.
+
 ## 0.4.0
 
 Telegram UX, Multi-Select Ask Forms and Artifact Previews.
