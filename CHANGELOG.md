@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.0
+## 0.3.7
 
 Scheduled Messages, Reminders & Inbound Webhook Events Dispatcher.
 
@@ -8,7 +8,7 @@ Scheduled Messages, Reminders & Inbound Webhook Events Dispatcher.
 - **Command `/remind`:** Create reminders (`/remind 15m Call client`), list pending reminders (`/remind list`), and cancel by ID (`/remind cancel <id>`).
 - **Inbound Webhook Events (`POST /dsh-messenger-gateway/events`):** HTTP endpoint for pushing messages and files into Telegram from external systems (CI/CD, GitHub/Gitea, cron jobs, alerts) with optional bearer/token authentication.
 
-## 0.7.0
+## 0.3.6
 
 Admin Alert Channel for Errors, Pairing Requests and Gateway Status.
 
@@ -17,7 +17,7 @@ Admin Alert Channel for Errors, Pairing Requests and Gateway Status.
 - **Error Alerts:** Formatted alerts for agent turn errors, crashes, and background failures with session context.
 - **Commands:** `/setalert` to configure the current chat as the alert channel; `/alert` to inspect status and `/alert test` to verify delivery.
 
-## 0.6.0
+## 0.3.5
 
 File Manager in Telegram & Advanced Inbound Document Parsing.
 
@@ -26,7 +26,7 @@ File Manager in Telegram & Advanced Inbound Document Parsing.
 - **Path Traversal Protection:** Strict sandboxing preventing directory traversal outside the configured agent workspace.
 - **Advanced Document Parsing:** Inbound documents (PDF, DOCX, CSV/TSV, JSON, code & text files) are parsed and their content is cleanly injected into the agent context with truncation limits (`maxTextInjectBytes`).
 
-## 0.5.0
+## 0.3.4
 
 Agent Superpowers: Roles & Personas, Tools Inspection, Fork, Markdown Export, Rewind.
 
@@ -36,7 +36,7 @@ Agent Superpowers: Roles & Personas, Tools Inspection, Fork, Markdown Export, Re
 - **/rewind [N]:** Undo/rewind the last N conversation turns from the agent session context.
 - **/fork:** Branch off the current chat context into a brand new independent DSH session while preserving message history.
 
-## 0.4.0
+## 0.3.3
 
 Telegram UX, Multi-Select Ask Forms and Artifact Previews.
 
