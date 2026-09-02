@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.8
+
+Multi-transport Adapters: Discord and Slack.
+
+- **Discord Adapter (`lib/adapters/discord.js`):** Multi-transport adapter for Discord via Incoming Webhook and Discord REST API v10 (`/channels/{channel_id}/messages`). Supports text chunking (2000-character Discord limit) and file attachment uploads (`multipart/form-data`).
+- **Slack Adapter (`lib/adapters/slack.js`):** Multi-transport adapter for Slack via Incoming Webhook and Slack Web API (`chat.postMessage`). Supports message chunking and thread replies (`thread_ts`).
+- **Configuration Schemas (`lib/config.js`):** Added complete `discord` and `slack` configuration blocks (`enabled`, `botToken`, `webhookUrl`).
+- **Adapter Factory (`lib/adapters/index.js`):** Wired Discord and Slack adapters into the gateway adapter registry.
+
 ## 0.3.7
 
 Scheduled Messages, Reminders & Inbound Webhook Events Dispatcher.
