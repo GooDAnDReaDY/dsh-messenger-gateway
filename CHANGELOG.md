@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.13
+
+DSH Plugin Authoring Alignment: Settings via Reactive `settingsScope` and Dedicated Card Slot.
+
+- **Reactive Settings (`lib/client.js`):** Migrated `MessengerSettingsForm` from HTTP REST bridge (`/dsh-messenger-gateway/config`) to native `ctx.settingsScope.bind({ namespace: NS })` with `useSyncExternalStore` snapshot lifecycle gating (`loading`, `unavailable`, `ready`).
+- **Error Accumulation on Save:** Saves now persist all keys (`enabled`, `telegram`, `agent`, `media`, `tts`) via `scope.set()`, collecting and reporting any field-level failures rather than aborting prematurely.
+- **Dedicated Plugin Settings Slot:** Removed legacy fallback registration into sidebar `settings.section`, mounting strictly in `settings.plugin.item` on the Plugins settings tab.
+- **Design Contract (`docs/design/DESIGN.md`):** Added required project design contract documenting surfaces, states, and locked architectural decisions.
+
+## 0.3.12
+
+DSH 0.1.2-rc.1 Compatibility Fix.
+
+- **Client Inject Cleanup (`package.json`):** Removed removed kernel client modules (`dsh-client-runtime`, `dsh-client-ui-slots`) from `dsh.client.inject` to prevent loader fiber failures on DSH 0.1.2-rc.1.
+
 ## 0.3.11
 
 Security, Stability, Memory Leak Fixes & SVG Photo Handling.
