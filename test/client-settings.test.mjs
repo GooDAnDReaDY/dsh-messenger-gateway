@@ -14,9 +14,9 @@ test('client registers settings.plugin.item with settings namespace key', () => 
   assert.match(client, /locale: NS/)
 })
 
-test('client keeps settings.section only as fallback', () => {
-  assert.match(client, /if \(!tryPluginItem\(\)\)/)
-  assert.match(client, /name: 'settings\.section'/)
+test('client does not register settings.section fallback (Issue #45)', () => {
+  assert.doesNotMatch(client, /name:\s*'settings\.section'/)
+  assert.doesNotMatch(client, /settings\.section/)
 })
 
 test('client registers en/ru locale dictionaries', () => {
