@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.14
+
+Stability, Flood Control, Atomic Persistence and UX Polish (#48).
+
+- **Atomic File Storage (`lib/storage-atomic.js`):** Implemented safe JSON atomic writes via temporary file and rename for `scheduler.js`, `pairing.js`, and `voice-prefs.js`, preventing state file corruption during host restarts or concurrent writes.
+- **Telegram Flood Control & Guaranteed Final Delivery (`lib/stream.js`):** Enhanced `createEditScheduler` to parse and respect Telegram `429 Too Many Requests: retry after X` rate-limiting delays and guaranteed final turn message delivery on `flush()`.
+- **Memory Leak Protection (`lib/gateway.js`):** Enabled a 24-hour default `idleTimeoutMs = 86400000` to periodically reap abandoned agent sessions and chat memory during long daemon uptimes.
+- **Structured Help Command (`lib/gateway.js`):** Reorganized Telegram `/help` command output into clean functional groups (Dialog, Tools & Files, Settings, Access & Channels).
+- **Design Contract Alignment (`docs/design/DESIGN.md`):** Updated design contract with locking decisions for atomic storage and stream resilience.
+
 ## 0.3.13
 
 DSH Plugin Authoring Alignment: Settings via Reactive `settingsScope` and Dedicated Card Slot.
