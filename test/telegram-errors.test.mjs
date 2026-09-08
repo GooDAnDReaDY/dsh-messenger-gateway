@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { isResendSafeNetworkError, isPollingConflict, isTopicGoneError } from '../lib/telegram-errors.js'
+import { isResendSafeNetworkError, isPollingConflict, isTopicGoneError, computePollBackoffMs } from '../lib/telegram-errors.js'
 
 const net = (message, code) => ({ message: 'fetch failed', cause: { message, code } })
 
@@ -42,4 +42,13 @@ test('topic-gone: topic deleted', () => {
 
 test('topic-gone: false on unrelated bad request', () => {
   assert.equal(isTopicGoneError(new Error('telegram sendMessage: 400 Bad Request: PEER_ID_INVALID')), false)
+})
+
+test('computePollBackoffMs calculates exponential backoff with cap', () => {
+  assert.equal(computePollBackoffMs(500, 1), 500)
+  assert.equal(computePollBackoffMs(500, 2), 1000)
+  assert.equal(computePollBackoffMs(500, 3), 2000)
+  assert.equal(computePollBackoffMs(500, 4), 4000)
+  assert.equal(computePollBackoffMs(500, 7), 30000) // capped at 30s
+  assert.equal(computePollBackoffMs(500, 10), 30000)
 })
