@@ -1,6 +1,29 @@
 # Changelog
 
-## 0.3.14
+## 0.3.17
+
+Client Locale Guard & Cordis Context Service Access Robustness (#57).
+
+- **Client Locale Registration Guard (`lib/client.js`):** Wrapped dictionary registration in local `try/catch` with `console.warn` fallback, ensuring that duplicate registration (`already has locale`) on page reload never crashes `apply(ctx)` or unmounts the settings card (`settings.plugin.item`).
+- **Context Service Access (`lib/index.js`, `lib/models.js`, `lib/gateway.js`, `lib/client.js`):** Replaced direct property reads on Cordis context with `ctx.get('...')` with fallback, ensuring reliable access across Cordis proxy boundaries for `llm`, `settings`, `tools`, `sessions`, `agents`, `webServer`, `attachments`, `locale`, and `settingsScope`.
+- **Authoring Tests (`test/client-locale-guard.test.mjs`):** Added unit tests validating dictionary collision survival and `ctx.get()` proxy resolution.
+
+## 0.3.16
+
+Stability, polling backoff, safe rewind, abort cleanup and ask idempotency (#54).
+
+- **Exponential Polling Backoff (`lib/telegram-errors.js`, `lib/adapters/telegram.js`):** Added capped exponential backoff on Telegram polling network errors.
+- **Safe Session Rewind (`lib/session-ops.js`):** Atomic slice for session rewind.
+- **Abort Controller Cleanup (`lib/gateway.js`):** Explicit abort of previous turn before new run.
+- **Export Memory Optimization (`lib/session-ops.js`):** Raw buffer handling for exported history.
+- **Ask Idempotency Guard (`lib/ask.js`):** Single-flight resolution for inline callback tokens.
+
+## 0.3.15
+
+Content Guard Normalization for DSH LLM Pipeline (#51).
+
+- **Content Guard (`lib/content-guard.js`):** Safe array normalization `ensureContentArray` protecting `/fork`, steer, and `runTurn` from string content crash `content.some is not a function`.
+
 
 Stability, Flood Control, Atomic Persistence and UX Polish (#48).
 

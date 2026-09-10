@@ -104,6 +104,12 @@ In addition to Telegram, outbound messages can be dispatched to Discord and Slac
 - `notifyBridge` — forward non-messenger web session events to a home
 - Bot token is a DSH secret field — never commit it
 
+## Client UI & Settings Card
+
+- Mounted into `settings.plugin.item` on the Plugins tab (`key: dsh-messenger-gateway`).
+- Configuration is managed reactively via `settingsScope.bind({ namespace: 'dsh-messenger-gateway' })` with snapshot status checking (`loading`, `unavailable`, `ready`).
+- Protected dictionary registration: duplicate registration attempts on page reload are safely caught with non-fatal warnings, ensuring the settings card never fails to mount.
+
 ## Requirements
 
 - DeepSeek Harness web (or compatible) profile

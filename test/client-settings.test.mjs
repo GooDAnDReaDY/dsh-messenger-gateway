@@ -20,7 +20,7 @@ test('client does not register settings.section fallback (Issue #45)', () => {
 })
 
 test('client registers en/ru locale dictionaries', () => {
-  assert.match(client, /ctx\.locale\.register\(NS, \{ en, ru \}\)/)
+  assert.match(client, /register\(NS,\s*\{\s*en,\s*ru\s*\}\)/)
 })
 
 test('client uses prefixed msgw- card classes (issue #6)', () => {
