@@ -40,3 +40,9 @@
 - 2026-09-08 (#51): Защитная нормализация content сообщений (ensureContentArray): исключает краш content.some is not a function при попадании строкового content в dsh-llm конвейер при /fork, steer и runTurn.
 - 2026-09-08 (#54): Оптимизация стабильности и потребления памяти: экспоненциальный backoff polling при ошибках Telegram, атомарный срез сообщений при /rewind, очистка устаревших AbortController перед новым ходом, исключение избыточного кодирования Base64 при /export, атомарное снятие askToken до асинхронных операций.
 - 2026-09-10 (#57): Защита клиентского жизненного цикла: регистрация словаря локализации обёрнута в try/catch с console.warn на отказ, чтобы повторная регистрация или ошибка словаря никогда не блокировали слот settings.plugin.item. Доступ к службам контекста переведён на безопасный вызов ctx.get('...') с fallback.
+- 2026-09-10 (#59): Приведение оформления к единому стандарту dsh-clinebot и комплексная стабилизация:
+  - Внедрён собственный защитный ErrorBoundary с кнопкой Retry вокруг формы настроек.
+  - Добавлены статусные бейджи в шапке карточки (Telegram bot getMe username/id, Token status, Transport mode, Pairing count).
+  - Реализован диагностический инструмент связи Telegram API (Smoke / Ping test) на клиенте и сервере (POST /dsh-messenger-gateway/smoke, probeHealth).
+  - Секционная блочная структура (.msgw-section-card, .msgw-btn, .msgw-badge, .msgw-alert-*), типографика и токены --dsw-alias-*.
+  - Очищен dsh.client.inject: [] в package.json по современному соглашению ядра DSH.

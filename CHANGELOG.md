@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.18
+
+Unified dsh-clinebot visual style, Telegram diagnostics & comprehensive stabilization (#59).
+
+- **Unified Visual Styling (lib/client.js):** Redesigned settings card following the dsh-clinebot / dsh-ui-design standard using native --dsw-alias-* tokens, section cards (.msgw-section-card), action buttons (.msgw-btn, .msgw-btn-primary), telemetry display, and responsive tables.
+- **Client Error Boundary (lib/client.js):** Wrapped settings page and plugin card in a self-contained ErrorBoundary with a Retry action to prevent client host crashes.
+- **Header Status Badges (lib/client.js):** Added live badges for Telegram bot status (@username and otId), token configuration state, active transport mode, and pending pairing requests.
+- **Telegram Smoke & Latency Diagnostics (lib/adapters/telegram.js, lib/gateway.js, lib/index.js, lib/client.js):** Added server method probeHealth(), route POST /dsh-messenger-gateway/smoke, and interactive Smoke/Ping button in settings card measuring Telegram Bot API latency and connectivity.
+- **Client Bundle Modernization (package.json):** Cleared legacy dsh.client.inject: [] per current DSH loader standard.
+- **Expanded Test Coverage (	est/smoke-endpoint.test.mjs):** Added unit tests for Telegram probe health and smoke endpoint validation.
+
 ## 0.3.17
 
 Client Locale Guard & Cordis Context Service Access Robustness (#57).
