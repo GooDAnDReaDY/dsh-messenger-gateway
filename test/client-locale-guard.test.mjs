@@ -79,7 +79,7 @@ test('client apply survives duplicate locale.register throwing already has local
     })
     assert.equal(slotRegistered, true)
     assert.equal(registerCalls, 2)
-    assert.ok(warnings.some(w => w.includes('словарь уже зарегистрирован')))
+    assert.ok(warnings.some(w => w.includes('dictionary already registered')))
   } finally {
     console.warn = origWarn
   }

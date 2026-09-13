@@ -14,6 +14,6 @@ test('buildStreamPreview includes tool line', () => {
 })
 
 test('formatProgressLine', () => {
-  assert.match(formatProgressLine(''), /Думаю/)
+  assert.match(formatProgressLine(''), /Thinking|Думаю/)
   assert.match(formatProgressLine('web_search'), /web_search/)
 })

@@ -11,13 +11,13 @@ import {
 
 test('parseRelativeTime parses seconds, minutes, hours, days', () => {
   assert.equal(parseRelativeTime('30s'), 30 * 1000)
-  assert.equal(parseRelativeTime('15сек'), 15 * 1000)
+  assert.equal(parseRelativeTime('15s'), 15 * 1000)
   assert.equal(parseRelativeTime('5m'), 5 * 60 * 1000)
-  assert.equal(parseRelativeTime('10мин'), 10 * 60 * 1000)
+  assert.equal(parseRelativeTime('10m'), 10 * 60 * 1000)
   assert.equal(parseRelativeTime('2h'), 2 * 3600 * 1000)
-  assert.equal(parseRelativeTime('3ч'), 3 * 3600 * 1000)
+  assert.equal(parseRelativeTime('3h'), 3 * 3600 * 1000)
   assert.equal(parseRelativeTime('1d'), 24 * 3600 * 1000)
-  assert.equal(parseRelativeTime('2дня'), 2 * 86400 * 1000)
+  assert.equal(parseRelativeTime('2d'), 2 * 86400 * 1000)
 
   assert.equal(parseRelativeTime(''), null)
   assert.equal(parseRelativeTime('abc'), null)
@@ -25,12 +25,12 @@ test('parseRelativeTime parses seconds, minutes, hours, days', () => {
 })
 
 test('formatRemaining formats human-readable durations', () => {
-  assert.equal(formatRemaining(0), 'сейчас')
-  assert.equal(formatRemaining(-1000), 'сейчас')
-  assert.equal(formatRemaining(45 * 1000), '45 сек')
-  assert.equal(formatRemaining(5 * 60 * 1000), '5 мин')
-  assert.equal(formatRemaining(2 * 3600 * 1000), '2 ч')
-  assert.equal(formatRemaining(2 * 3600 * 1000 + 15 * 60 * 1000), '2 ч 15 мин')
+  assert.equal(formatRemaining(0), 'now')
+  assert.equal(formatRemaining(-1000), 'now')
+  assert.equal(formatRemaining(45 * 1000), '45s')
+  assert.equal(formatRemaining(5 * 60 * 1000), '5m')
+  assert.equal(formatRemaining(2 * 3600 * 1000), '2h')
+  assert.equal(formatRemaining(2 * 3600 * 1000 + 15 * 60 * 1000), '2h 15m')
 })
 
 test('createScheduler schedules, lists, cancels and executes tasks', async () => {

@@ -71,10 +71,10 @@ test('listFiles and getFileForDownload operate on real directory', async () => {
   // Block downloading a directory
   const dirDownload = await getFileForDownload(testDir, 'src')
   assert.equal(dirDownload.ok, false)
-  assert.ok(dirDownload.error.includes('является каталогом'))
+  assert.ok(dirDownload.error.includes('is a directory'))
 
   // Missing file
   const missing = await getFileForDownload(testDir, 'nonexistent.txt')
   assert.equal(missing.ok, false)
-  assert.ok(missing.error.includes('Файл не найден'))
+  assert.ok(missing.error.includes('File not found'))
 })

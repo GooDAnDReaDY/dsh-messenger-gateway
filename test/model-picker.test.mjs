@@ -67,7 +67,7 @@ test('buildModelsKeyboard paginates 10 models per page with navigation and back 
 
   // Back row
   const backRow = kb0.inline_keyboard[11]
-  assert.equal(backRow[0].text, '🔙 Назад к провайдерам')
+  assert.equal(backRow[0].text, '🔙 Back to providers')
   assert.equal(backRow[0].callback_data, 'mdl:back')
 
   // Page 1 (models 11-20)

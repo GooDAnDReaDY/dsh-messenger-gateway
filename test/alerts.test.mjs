@@ -11,7 +11,7 @@ test('formatAlertMessage formats pairing alerts with code and user info', () => 
     username: 'testuser',
     code: 'ABCD12',
   })
-  assert.ok(msg.includes('🔐 <b>[Запрос сопряжения]</b>'))
+  assert.ok(msg.includes('🔐 <b>[Pairing Request]</b>'))
   assert.ok(msg.includes('@testuser'))
   assert.ok(msg.includes('987654321'))
   assert.ok(msg.includes('ABCD12'))
@@ -26,7 +26,7 @@ test('formatAlertMessage formats error alerts with code and message', () => {
     chatId: -1001234567,
     threadId: 42,
   })
-  assert.ok(msg.includes('🚨 <b>[Ошибка шлюза]</b>'))
+  assert.ok(msg.includes('🚨 <b>[Gateway Error]</b>'))
   assert.ok(msg.includes('TIMEOUT'))
   assert.ok(msg.includes('Request timed out after 30s'))
   assert.ok(msg.includes('sess-999'))
@@ -39,7 +39,7 @@ test('formatAlertMessage formats status alerts', () => {
     title: 'Gateway Started',
     details: 'Uptime 0s',
   })
-  assert.ok(msg.includes('⚡ <b>[Шлюз: Gateway Started]</b>'))
+  assert.ok(msg.includes('⚡ <b>[Gateway: Gateway Started]</b>'))
   assert.ok(msg.includes('Uptime 0s'))
 })
 

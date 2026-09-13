@@ -37,8 +37,8 @@ test('parseDocument reads markdown and injects into formatInboundDocument', asyn
   assert.ok(parsed.text.includes('# Document Title'))
 
   const formatted = formatInboundDocument({ kind: 'document', name: 'test.md', path: filePath }, parsed)
-  assert.ok(formatted.includes('[Документ test.md]'))
-  assert.ok(formatted.includes('[Распознанный текст из файла]'))
+  assert.ok(formatted.includes('[Document test.md'))
+  assert.ok(formatted.includes('[Extracted text from file'))
   assert.ok(formatted.includes('Content inside document.'))
 })
 
@@ -53,5 +53,5 @@ test('parseDocument truncates when text exceeds maxBytes', async () => {
   assert.equal(parsed.text.length, 100)
 
   const formatted = formatInboundDocument({ kind: 'document', path: filePath }, parsed)
-  assert.ok(formatted.includes('(содержимое усечено)'))
+  assert.ok(formatted.includes('(content truncated)'))
 })

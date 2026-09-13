@@ -31,8 +31,8 @@ test('buildMultiSelectKeyboard renders checkboxes and action buttons', () => {
   assert.equal(rows.length, 3)
   assert.equal(rows[0][0].text, '☑️ Alpha')
   assert.equal(rows[1][0].text, '⬜️ Beta')
-  assert.equal(rows[2][0].text, '✅ Готово')
-  assert.equal(rows[2][1].text, '❌ Отмена')
+  assert.equal(rows[2][0].text, '✅ Done')
+  assert.equal(rows[2][1].text, '❌ Cancel')
 
   assert.ok(callbackKeys.includes(buildCallbackData(token, 't:opt1')))
   assert.ok(callbackKeys.includes(buildCallbackData(token, 't:opt2')))
@@ -52,20 +52,20 @@ test('buildMultiSelectKeyboard handles pagination correctly', () => {
   const navRow0 = page0.replyMarkup.inline_keyboard[6]
   assert.equal(navRow0.length, 2)
   assert.equal(navRow0[0].text, '1/3')
-  assert.equal(navRow0[1].text, 'Вперед ➡️')
+  assert.equal(navRow0[1].text, 'Next ➡️')
 
   const page1 = buildMultiSelectKeyboard(token, options, selected, 1, 6)
   assert.equal(page1.page, 1)
   const navRow1 = page1.replyMarkup.inline_keyboard[6]
   assert.equal(navRow1.length, 3)
-  assert.equal(navRow1[0].text, '⬅️ Назад')
+  assert.equal(navRow1[0].text, '⬅️ Back')
   assert.equal(navRow1[1].text, '2/3')
-  assert.equal(navRow1[2].text, 'Вперед ➡️')
+  assert.equal(navRow1[2].text, 'Next ➡️')
 
   const page2 = buildMultiSelectKeyboard(token, options, selected, 2, 6)
   assert.equal(page2.page, 2)
   const navRow2 = page2.replyMarkup.inline_keyboard[3]
-  assert.equal(navRow2[0].text, '⬅️ Назад')
+  assert.equal(navRow2[0].text, '⬅️ Back')
   assert.equal(navRow2[1].text, '3/3')
 })
 

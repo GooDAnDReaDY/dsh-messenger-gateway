@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { photoOnlyHint } from '../lib/photos.js'
 
 test('photoOnlyHint for single photo without caption', () => {
-  assert.equal(photoOnlyHint([{ kind: 'photo' }], ''), '[Пользователь отправил фото]')
+  assert.equal(photoOnlyHint([{ kind: 'photo' }], ''), '[User attached a photo]')
 })
 
 test('photoOnlyHint skipped when caption present', () => {
@@ -11,5 +11,5 @@ test('photoOnlyHint skipped when caption present', () => {
 })
 
 test('photoOnlyHint for multiple photos', () => {
-  assert.equal(photoOnlyHint([{ kind: 'photo' }, { kind: 'photo' }], ''), '[Пользователь отправил 2 фото]')
+  assert.equal(photoOnlyHint([{ kind: 'photo' }, { kind: 'photo' }], ''), '[User attached 2 photos]')
 })

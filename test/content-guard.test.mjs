@@ -16,17 +16,17 @@ describe('ensureContentArray', () => {
 
   it('wraps an empty string into a fallback text block', () => {
     const result = ensureContentArray('')
-    assert.deepStrictEqual(result, [{ type: 'text', text: '(пустое сообщение)' }])
+    assert.deepStrictEqual(result, [{ type: 'text', text: '(empty message)' }])
   })
 
   it('wraps undefined into a fallback text block', () => {
     const result = ensureContentArray(undefined)
-    assert.deepStrictEqual(result, [{ type: 'text', text: '(пустое сообщение)' }])
+    assert.deepStrictEqual(result, [{ type: 'text', text: '(empty message)' }])
   })
 
   it('wraps null into a fallback text block', () => {
     const result = ensureContentArray(null)
-    assert.deepStrictEqual(result, [{ type: 'text', text: '(пустое сообщение)' }])
+    assert.deepStrictEqual(result, [{ type: 'text', text: '(empty message)' }])
   })
 
   it('wraps a single ContentBlock object into an array', () => {
