@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.22
+
+Plugin Self-Updater, Polling Backoff, Fetch Timeouts, Discord/Slack Settings Parity (#67).
+
+- **Plugin Self-Updater (`lib/updater.js`):** In-app self-updater discovering DSH CLI (`@deepseek-ai/dsh`), comparing semver with 5-minute npmjs registry caching. Protected endpoint `/dsh-messenger-gateway/update` (GET status, POST update with loopback, same-origin, and `x-dsh-plugin-update: 1` validation).
+- **Telegram Update Command (`lib/gateway.js`, `lib/commands.js`):** Interactive `/update` command (`/update check`, `/update now`) with `allowedUserIds` whitelist gating.
+- **WebUI Updater & Messenger Settings Card (`lib/client.js`):** Dedicated Self-Updater section showing version status and one-click update button. Added full settings cards for Discord and Slack with `settingsScope` persistence.
+- **Network Polling Backoff (`lib/adapters/telegram.js`):** Wired `computePollBackoffMs` on network errors and a 15-second backoff delay on HTTP 409 conflict to prevent spinning.
+- **HTTP Fetch Timeouts & Keep-Alive (`lib/adapters/discord.js`, `lib/adapters/slack.js`):** Added `keepalive: true` and `AbortSignal.timeout(15000/30000)` to all Discord and Slack outbound API calls.
+- **Memory Optimization (`lib/index.js`):** Prunes `turnStarts` Map entries older than 2 hours.
+- **Unit Testing (`test/updater.test.mjs`):** Full test suite for semver parsing, comparison, request trust verification, and endpoint registration (199 total passing tests).
+
 ## 0.3.18
 
 Unified dsh-clinebot visual style, Telegram diagnostics & comprehensive stabilization (#59).
