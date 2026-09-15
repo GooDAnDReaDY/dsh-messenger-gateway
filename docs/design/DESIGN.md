@@ -63,4 +63,12 @@
   - Multi-Messenger Parity: интерактивные кнопки `messenger_ask` для Discord (Action Rows/Buttons) и Slack (Block Kit Actions) со стриминговым редактированием сообщений.
   - Cron & Autonomous Heartbeat: периодические расписания в `lib/scheduler.js`, команды `/cron` для автономного запуска задач агентом и регулярных отчетов в чат.
   - Чистота пакета: строгое исключение временных и вспомогательных файлов из npm tarball, контроль размера < 256 KiB.
+- 2026-09-15 (#67): Встроенный автообновлятор (Self-Updater), стабилизация сетевого контура, таймауты и паритет настроек мессенджеров:
+  - Plugin Self-Updater (`lib/updater.js`): обнаружение бинарника CLI DSH (`@deepseek-ai/dsh`), проверка semver и реестра npmjs (кэш 5 минут), эндпоинт `/dsh-messenger-gateway/update` с защитой loopback + same-origin + `x-dsh-plugin-update: 1`.
+  - Telegram команда `/update` (`/update check`, `/update now`) с проверкой прав доступа пользователя (`allowedUserIds`).
+  - Карточка автообновления в WebUI (`lib/client.js`) со статусом версий и кнопкой обновления в один клик.
+  - Сетевая надежность: подключение экспоненциального backoff polling в Telegram при ошибках (`computePollBackoffMs`, задержка 15 с при HTTP 409 conflict).
+  - Стойкость сетевых вызовов: `keepalive: true` и таймаут `AbortSignal.timeout(15000/30000)` на всех вызовах `fetch` в адаптерах Discord и Slack.
+  - Управление памятью: TTL-очистка `turnStarts` Map (удаление записей старше 2 часов) для защиты от утечек памяти при длительной работе шлюза.
+  - Паритет настроек в WebUI: секции настроек для Discord и Slack (токены бота, вебхуки, каналы) со связыванием через `settingsScope` и сохранением существующих секретов. Бейдж количества активных cron-задач в шапке карточки.
 
