@@ -73,6 +73,8 @@
   - Паритет настроек в WebUI: секции настроек для Discord и Slack (токены бота, вебхуки, каналы) со связыванием через `settingsScope` и сохранением существующих секретов. Бейдж количества активных cron-задач в шапке карточки.
 - 2026-09-18 (#70): Синхронизация имени пакета в 4 канонических точках: серверный экспорт name в lib/index.js приведен к @goodandready/dsh-messenger-gateway для строгого паритета с package.json, cordis.patch.yml и загрузчиком lib/client.js. Добавлен тест целостности идентичности test/package-identity.test.mjs.
 - 2026-09-18 (#69): Усиление безопасности вебхука Telegram: при transport === 'webhook' наличие webhookSecret строго обязательно (отказ 403 при отсутствии секрета), заголовок x-telegram-bot-api-secret-token сравнивается в постоянном времени через timingSafeCompare (crypto.timingSafeEqual), адаптер Telegram гарантированно отправляет secret_token при setWebhook, а карточка WebUI отображает бейдж статуса секрета (Secret set / Secret required).
+- 2026-09-18 (#72): Очистка рабочего дерева от устаревших релизных артефактов (*.tgz) и временных файлов (temp_check.js). Проверена независимость скриптов smoke:http и verify-dsh-load от локальных архивов.
+
 
 
 
