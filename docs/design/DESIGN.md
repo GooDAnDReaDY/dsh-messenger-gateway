@@ -84,6 +84,13 @@
   - Все 44 пустых блока catch в gateway.js, telegram.js, stream.js, scheduler.js, models.js, pairing.js, voice-prefs.js, personas.js и client.js снабжены либо логированием ошибок, либо явными комментариями о безопасных best-effort операциях (abort, temporary file cleanup, fallback catalog).
   - Маршрут /dsh-messenger-gateway/status возвращает объект apiHealth (degraded, consecutiveFailures, lastError), а WebUI отображает бейдж Telegram API degraded при 3+ сбоях подряд.
   - Добавлены unit-тесты test/api-failure-tracking.test.mjs.
+- 2026-09-18 (#73): Декомпозиция серверных монолитов и архитектурное обоснование клиентского бандла:
+  - Серверная половина: монолитные модули декомпозированы со строгим соблюдением проектного ориентира (не более 600 строк на файл):
+    - `lib/adapters/telegram.js` сокращен с 732 до 596 строк (выделен `lib/adapters/telegram-inbound.js` для разбора входящих медиа и probeHealth; клавиатуры и команды консолидированы в `lib/commands.js`).
+    - `lib/gateway.js` сокращен с 1238 до 590 строк (выделены специализированные модули `lib/gateway-commands.js`, `lib/gateway-callbacks.js`, `lib/gateway-turn.js`, `lib/forum-mirror.js`, логика интерактивных опросов вынесена в `lib/ask.js`).
+    - Все сопутствующие серверные модули (`lib/gateway-commands.js` — 584 строки, `lib/index.js` — 540 строк, `lib/file-manager.js` — 189 строк, `lib/alerts.js` — 105 строк) строго укладываются в лимит < 600 строк.
+  - Клиентская половина (`lib/client.js`): согласно архитектуре загрузчика модулей ядра DSH (`window.__ModuleLoader__.load`), клиентский UI плагина поставляется как единый автономный JavaScript-бандл (React UI), загружаемый браузером без механизма относительных импортов с диска в браузере. Данное архитектурное решение является осознанным проектным исключением из критерия 600 строк.
+
 
 
 
