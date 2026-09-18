@@ -41,3 +41,12 @@ test('Issue #75: dsh.client.inject declares client dependencies', () => {
   assert.ok(inject.includes('@deepseek-ai/dsh-client-ui-settings'), 'must include dsh-client-ui-settings')
 })
 
+test('Issue #74: no hardcoded rgba or hex colors in lib/client.js styling', () => {
+  const freshClient = readFileSync(join(root, 'lib/client.js'), 'utf8')
+  const rgbaMatches = freshClient.match(/rgba\([^)]+\)/g) || []
+  const hexMatches = freshClient.match(/#[0-9a-fA-F]{3,8}/g) || []
+  assert.equal(rgbaMatches.length, 0, `Found hardcoded rgba in client: ${rgbaMatches.join(', ')}`)
+  assert.equal(hexMatches.length, 0, `Found hardcoded hex in client: ${hexMatches.join(', ')}`)
+})
+
+
