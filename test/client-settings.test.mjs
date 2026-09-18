@@ -31,3 +31,13 @@ test('client uses prefixed msgw- card classes (issue #6)', () => {
   assert.match(client, /msgw-foot/)
   assert.doesNotMatch(client, /msgw_card/)
 })
+
+test('Issue #75: dsh.client.inject declares client dependencies', () => {
+  const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+  const inject = pkg.dsh?.client?.inject || []
+  assert.ok(Array.isArray(inject))
+  assert.ok(inject.includes('@deepseek-ai/dsh-client-locale'), 'must include dsh-client-locale')
+  assert.ok(inject.includes('@deepseek-ai/dsh-client-ui-slots'), 'must include dsh-client-ui-slots')
+  assert.ok(inject.includes('@deepseek-ai/dsh-client-ui-settings'), 'must include dsh-client-ui-settings')
+})
+

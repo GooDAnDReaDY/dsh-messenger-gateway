@@ -76,6 +76,8 @@
 - 2026-09-18 (#72): Очистка рабочего дерева от устаревших релизных артефактов (*.tgz) и временных файлов (temp_check.js). Проверена независимость скриптов smoke:http и verify-dsh-load от локальных архивов.
 - 2026-09-18 (#71): Санитизация публикуемого репозитория: index.md и внутренние регламенты docs/testing/ сняты с отслеживания git без удаления с диска и внесены в .gitignore. Документы docs/deployment/install.md и docs/architecture/overview.md зафиксированы как публичные руководства для пользователей и администраторов. Проведен секрет-скан истории: боевые токены и приватные чаты отсутствуют.
 - 2026-09-18 (#77): Очистка мёртвых экспортов в lib/media.js: удалена неиспользуемая функция mediaKindOf, константа TELEGRAM_MAX_DOC_BYTES импортирована в lib/adapters/telegram.js как единый источник лимита по умолчанию (20 МБ), для parseChatKey и voiceReplyFile зафиксировано явное назначение (экспорт для unit-тестов).
+- 2026-09-18 (#75): Декларация зависимостей клиентской половины в package.json: в dsh.client.inject явно задекларированы @deepseek-ai/dsh-client-locale, @deepseek-ai/dsh-client-ui-slots и @deepseek-ai/dsh-client-ui-settings, строго соответствующие декларации модуля client.js (inject: ['slots', 'locale', 'settingsScope']).
+
 
 
 
