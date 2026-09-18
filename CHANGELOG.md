@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.4.1
+
+### Added
+
+- **Settings open on the plugin's own page.** The client registers the settings
+  surface into the Plugins page row seat, `plugins.row.config`, keyed
+  `@goodandready/dsh-messenger-gateway#dsh-messenger-gateway`: the plugin's row
+  gains a configure control whose page is the settings form (`view: 'page'`,
+  rendered bare — the host page draws the title, icon, crumb and padding), with a
+  one-line description under the title (`view: 'summary'`). The legacy
+  `settings.plugin.item` seat stays as a fallback, newest first: the current core
+  no longer renders that slot at all (#82).
+
+### Changed
+
+- `test/settings-scope-authoring.test.mjs` guards the new seat: row key, seat
+  order, bare page render (no card wrapper) and the absence of a duplicate
+  `settings.section`.
+
 ## 0.4.0
 
 Modular Architecture Decomposition, Webhook Security, Telegram API Health Diagnostics, and DSH Theme Parity (#69, #70, #71, #72, #73, #74, #75, #76, #77).
