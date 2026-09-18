@@ -1,6 +1,22 @@
 # Changelog
 
-## 0.3.22
+## 0.4.0
+
+Modular Architecture Decomposition, Webhook Security, Telegram API Health Diagnostics, and DSH Theme Parity (#69, #70, #71, #72, #73, #74, #75, #76, #77).
+
+- **Modular Core Decomposition (`lib/gateway.js`, `lib/adapters/telegram.js`, #73):** Monolithic server modules decomposed to strictly comply with the project limit of < 600 lines per file:
+  - `lib/adapters/telegram.js` reduced from 732 to 596 lines; inbound media extraction and API health probing extracted to `lib/adapters/telegram-inbound.js` (141 lines); keyboards and command structures centralized in `lib/commands.js`.
+  - `lib/gateway.js` reduced from 1238 to 590 lines; command routing extracted to `lib/gateway-commands.js` (584 lines), callback queries to `lib/gateway-callbacks.js` (187 lines), turn lifecycle execution to `lib/gateway-turn.js` (285 lines), forum topic synchronization to `lib/forum-mirror.js` (105 lines), and interactive ask execution to `lib/ask.js` (203 lines).
+  - Recorded browser module loader justification for `lib/client.js` in `docs/design/DESIGN.md`.
+- **Telegram Webhook Security Hardening (`lib/adapters/telegram.js`, `lib/index.js`, `lib/client.js`, #69):** Mandatory secret token when `transport === 'webhook'`. Header `x-telegram-bot-api-secret-token` verified in constant time via `timingSafeCompare` (`crypto.timingSafeEqual`). Telegram adapter automatically passes `secret_token` to `setWebhook`. Added status indicator badge in WebUI (`Secret set` / `Secret required`).
+- **Telegram API Failure Diagnostics & Health Tracking (`lib/api-health.js`, `lib/gateway.js`, `lib/client.js`, #76):** Introduced `ApiHealthTracker` recording consecutive API errors and last failure details. Replaced all 44 silent `catch` blocks with debug logging or explicit best-effort markers. Exposed `apiHealth` in `/dsh-messenger-gateway/status` and added a degraded API health badge in WebUI.
+- **Full DSH Semantic Theme Styling (`lib/client.js`, #74):** Replaced all standalone `rgba(...)` and hex color literals in the WebUI with native DSH theme CSS variables (`--dsw-alias-state-*-bg`, `--dsw-alias-state-*-border`, `--dsw-alias-state-*-primary`). Added regression tests in `test/client-settings.test.mjs`.
+- **Package Identity Synchronization (`lib/index.js`, `lib/client.js`, `cordis.patch.yml`, `package.json`, #70):** Synchronized package name strictly across all 4 canonical points (`@goodandready/dsh-messenger-gateway`). Added 4-way equality unit test `test/package-identity.test.mjs`.
+- **Manifest Client Dependencies Declaration (`package.json`, #75):** Declared explicit host client injection dependencies (`@deepseek-ai/dsh-client-locale`, `@deepseek-ai/dsh-client-ui-slots`, `@deepseek-ai/dsh-client-ui-settings`) in `dsh.client.inject`.
+- **Dead Code Cleanup & Document Limits (`lib/media.js`, `lib/adapters/telegram.js`, #77):** Removed dead `mediaKindOf` export; established `TELEGRAM_MAX_DOC_BYTES` (20 MB) as single source of truth across adapters and command handlers.
+- **Repository Sanitization & Package Hygiene (#71, #72):** Untracked internal testing docs and index files from git tracking. Removed obsolete tarball artifacts. Verified clean npm package composition (98.3 kB tarball, 52 files, well below 256 KiB limit).
+- **Test Suite Verification:** 209 unit and integration tests passing (`npm test`).
+
 
 Plugin Self-Updater, Polling Backoff, Fetch Timeouts, Discord/Slack Settings Parity (#67).
 
