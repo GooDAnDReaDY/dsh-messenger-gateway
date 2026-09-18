@@ -8,5 +8,5 @@ AGENTS.local.md
 *.key
 credentials.yaml
 index.md
-docs/testing/
+docs/
 
