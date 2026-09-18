@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { chatKey, parseChatKey, normalizeThreadId, telegramThreadParams } from '../lib/topics.js'
+import { chatKey, sessionKey, normalizeThreadId, telegramThreadParams } from '../lib/topics.js'
 
 test('chatKey isolates forum topics', () => {
   assert.equal(chatKey('telegram', 1, 0), 'telegram:1:0')
@@ -8,9 +8,11 @@ test('chatKey isolates forum topics', () => {
   assert.notEqual(chatKey('telegram', 1, 0), chatKey('telegram', 1, 42))
 })
 
-test('parseChatKey roundtrip', () => {
-  const key = chatKey('telegram', '-100123', 77)
-  assert.deepEqual(parseChatKey(key), { platform: 'telegram', chatId: '-100123', threadId: 77 })
+test('sessionKey builds stable keys with user scope in groups', () => {
+  const userScope = sessionKey({ platform: 'telegram', chatId: '-100123', threadId: 77, userId: 42, chatType: 'supergroup', scope: 'user' })
+  assert.equal(userScope, 'telegram:-100123:77:u:42')
+  const chatScope = sessionKey({ platform: 'telegram', chatId: '-100123', threadId: 77, userId: 42, chatType: 'supergroup', scope: 'chat' })
+  assert.equal(chatScope, 'telegram:-100123:77')
 })
 
 test('normalizeThreadId treats invalid as main chat', () => {

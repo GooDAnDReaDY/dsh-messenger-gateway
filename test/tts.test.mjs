@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import {
-  stripMarkdownForSpeech, prepareTtsText, voiceReplyFile, voiceFileNameForMime,
+  stripMarkdownForSpeech, prepareTtsText, voiceFileNameForMime,
   isOggOpusMime, toTelegramVoiceFile, convertToOggOpus,
 } from '../lib/tts.js'
 
@@ -18,9 +18,10 @@ test('prepareTtsText truncates and skips empty', () => {
   assert.equal(prepareTtsText('a'.repeat(100), 10), 'a'.repeat(10))
 })
 
-test('voiceReplyFile picks extension from mime', () => {
+test('voiceFileNameForMime picks extension from mime', () => {
   assert.equal(voiceFileNameForMime('audio/ogg'), 'reply.ogg')
-  assert.equal(voiceReplyFile({ audio: Buffer.from([1]), mime: 'audio/mpeg' }).kind, 'voice')
+  assert.equal(voiceFileNameForMime('audio/mpeg'), 'reply.mp3')
+  assert.equal(voiceFileNameForMime('audio/wav'), 'reply.wav')
 })
 
 test('isOggOpusMime', () => {
