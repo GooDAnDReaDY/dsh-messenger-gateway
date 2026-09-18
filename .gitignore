@@ -7,3 +7,6 @@ AGENTS.local.md
 *.pem
 *.key
 credentials.yaml
+index.md
+docs/testing/
+
