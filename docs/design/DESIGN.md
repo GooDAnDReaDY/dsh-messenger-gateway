@@ -78,6 +78,12 @@
 - 2026-09-18 (#77): Очистка мёртвых экспортов в lib/media.js: удалена неиспользуемая функция mediaKindOf, константа TELEGRAM_MAX_DOC_BYTES импортирована в lib/adapters/telegram.js как единый источник лимита по умолчанию (20 МБ), для parseChatKey и voiceReplyFile зафиксировано явное назначение (экспорт для unit-тестов).
 - 2026-09-18 (#75): Декларация зависимостей клиентской половины в package.json: в dsh.client.inject явно задекларированы @deepseek-ai/dsh-client-locale, @deepseek-ai/dsh-client-ui-slots и @deepseek-ai/dsh-client-ui-settings, строго соответствующие декларации модуля client.js (inject: ['slots', 'locale', 'settingsScope']).
 - 2026-09-18 (#74): Полный перевод CSS-оформления WebUI на переменные темы DSH: устранены все 8 standalone rgba(...) и 3 hex-цвета, стили бейджей, алертов, опасных кнопок и баннеров переведены строго на токены --dsw-alias-state-*-bg, --dsw-alias-state-*-border и --dsw-alias-state-*-primary с fallback на слои темы. Добавлен регрессионный тест test/client-settings.test.mjs.
+- 2026-09-18 (#76): Устранение немых catch и диагностика отказов Telegram API:
+  - Выделен модуль lib/api-health.js (ApiHealthTracker) с подсчётом последовательных ошибок API, сохранением последнего сбоя (lastError), debug-логированием каждой ошибки и эскалацией до logger.warn при повторных сбоях (каждые 5 ошибок подряд).
+  - Сброс счётчика при успешной отправке (recordApiSuccess()).
+  - Все 44 пустых блока catch в gateway.js, telegram.js, stream.js, scheduler.js, models.js, pairing.js, voice-prefs.js, personas.js и client.js снабжены либо логированием ошибок, либо явными комментариями о безопасных best-effort операциях (abort, temporary file cleanup, fallback catalog).
+  - Маршрут /dsh-messenger-gateway/status возвращает объект apiHealth (degraded, consecutiveFailures, lastError), а WebUI отображает бейдж Telegram API degraded при 3+ сбоях подряд.
+  - Добавлены unit-тесты test/api-failure-tracking.test.mjs.
 
 
 
