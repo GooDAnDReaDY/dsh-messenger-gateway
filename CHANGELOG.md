@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.4
+
+### Fixed
+- **Core session/event listener and homes resolution (`lib/gateway.js`, #88):** Added missing imports for `assistantText`, `collectAssistantParts`, `extractTextDelta`, `extractToolName`, and `listHomes`. Cleaned up dead imports leftover after modular decomposition.
+- **Turn lifecycle inbound and outbound helpers (`lib/gateway-turn.js`, #87):** Added missing imports for `attachInboundPhoto`, `photoOnlyHint`, `readFile`, `transcribeVoice`, `stripImageUrls`, and `buildOutboundFiles` preventing runtime `ReferenceError` during photo/voice handling and reply delivery.
+
 ## 0.4.3
 
 ### Fixed
