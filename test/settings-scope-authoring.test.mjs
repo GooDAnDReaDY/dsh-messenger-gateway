@@ -7,8 +7,8 @@ import assert from 'node:assert/strict'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const client = readFileSync(join(root, 'lib/client.js'), 'utf8')
 
-test('settings card binds settingsScope and gates on snapshot status (Issue #44)', () => {
-  assert.match(client, /settingsScope\.bind\(\{\s*namespace:\s*NS\s*\}\)/)
+test('settings card binds configForms and gates on snapshot status (Issue #44)', () => {
+  assert.match(client, /configForms\.get\(\s*NS\s*\)/)
   assert.match(client, /snapStatus === 'loading'/)
   assert.match(client, /snapStatus !== 'ready'/)
   assert.match(client, /getSnapshot/)
@@ -20,7 +20,7 @@ test('settings.plugin.item registers key+locale NS and injects ctx (Issue #45)',
   assert.match(client, /key:\s*NS/)
   assert.match(client, /locale:\s*NS/)
   assert.match(client, /inject:\s*\(\)\s*=>\s*\(\{\s*ctx\s*\}\)/)
-  assert.match(client, /(?:exports\.)?inject\s*[:=]\s*\['slots',\s*'locale',\s*'settingsScope'\]/)
+  assert.match(client, /(?:exports\.)?inject\s*[:=]\s*\['slots',\s*'locale',\s*'configForms'\]/)
   assert.doesNotMatch(client, /settings\.section/)
 })
 
