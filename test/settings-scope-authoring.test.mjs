@@ -49,7 +49,7 @@ test('settings surface registers the Plugins page row seat first, legacy seats s
   assert.match(client, /props\.view === 'page'/)
   assert.match(client, /className: 'msgw-page-seat'/)
   assert.match(client, /const t = props\?\.t \|\| makeT\(props\?\.locale\)/)
-  assert.match(client, /React\.createElement\(SettingsPage, \{ \.\.\.props, ctx: \(props && props\.ctx\) \|\| ctx, t \}\)/)
+  assert.match(client, /React\.createElement\(SettingsPage, \{ \.\.\.props, ctx: cardCtx, t \}\)/)
 
   // The page view must not wrap the form in our own card/border.
   const pageStart = client.indexOf("props.view === 'page'")
@@ -59,4 +59,13 @@ test('settings surface registers the Plugins page row seat first, legacy seats s
   assert.doesNotMatch(pageBranch, /msgw-card/)
   // No second settings root is invented.
   assert.doesNotMatch(client, /settings\.section/)
+})
+
+test('Issue #94: PluginCard safely resolves ctx and queries core IconChevronDownOutline14', () => {
+  // 1. IconChevronDownOutline14 queried
+  assert.match(client, /props\?\.ctx\?\.get\?\.?\('icons'\)\?\.IconChevronDownOutline14/)
+
+  // 2. PluginCard uses safe cardCtx without undeclared global ctx fallback
+  assert.match(client, /const cardCtx = \(props && props\.ctx\) \|\| \(typeof ctx !== 'undefined' \? ctx : undefined\)/)
+  assert.doesNotMatch(client, /ctx: \(props && props\.ctx\) \|\| ctx,/)
 })
