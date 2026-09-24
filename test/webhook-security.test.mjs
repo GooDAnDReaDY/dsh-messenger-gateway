@@ -125,3 +125,59 @@ test('Issue #93: isTrustedSettingsRequest allows same-origin requests with sec-f
   }), false)
 })
 
+test('Issue #97: POST /events rejects when webhook secret is empty or missing (fail-closed)', () => {
+  function verifyEventsAuth(req, payload, webhooksConfig) {
+    if (webhooksConfig?.enabled === false) {
+      return { status: 404, error: 'webhooks disabled' }
+    }
+    const expectedSecret = String(webhooksConfig?.secret || '').trim()
+    if (!expectedSecret) {
+      return { status: 403, error: 'webhook secret not configured' }
+    }
+    const authHeader = req.headers?.authorization || ''
+    const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : ''
+    const tokenHeader = req.headers?.['x-webhook-secret'] || ''
+    const provided = bearer || tokenHeader || payload.secret
+    if (!timingSafeCompare(provided, expectedSecret)) {
+      return { status: 401, error: 'unauthorized' }
+    }
+    return { status: 200, ok: true }
+  }
+
+  // 1. Secret is empty string -> 403
+  assert.deepEqual(
+    verifyEventsAuth({ headers: {} }, {}, { secret: '' }),
+    { status: 403, error: 'webhook secret not configured' }
+  )
+
+  // 2. Secret is undefined/null -> 403
+  assert.deepEqual(
+    verifyEventsAuth({ headers: {} }, {}, {}),
+    { status: 403, error: 'webhook secret not configured' }
+  )
+
+  // 3. Webhooks disabled -> 404
+  assert.deepEqual(
+    verifyEventsAuth({ headers: {} }, {}, { enabled: false, secret: 'configured' }),
+    { status: 404, error: 'webhooks disabled' }
+  )
+
+  // 4. Secret configured, but request has wrong secret -> 401
+  assert.deepEqual(
+    verifyEventsAuth({ headers: { 'x-webhook-secret': 'wrong' } }, {}, { secret: 'my-secret' }),
+    { status: 401, error: 'unauthorized' }
+  )
+
+  // 5. Secret configured and bearer token matches -> 200
+  assert.deepEqual(
+    verifyEventsAuth({ headers: { authorization: 'Bearer my-secret' } }, {}, { secret: 'my-secret' }),
+    { status: 200, ok: true }
+  )
+
+  // 6. Secret configured and payload.secret matches -> 200
+  assert.deepEqual(
+    verifyEventsAuth({ headers: {} }, { secret: 'my-secret' }, { secret: 'my-secret' }),
+    { status: 200, ok: true }
+  )
+})
+
