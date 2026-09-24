@@ -92,3 +92,32 @@ test('storeModelSelection deduplicates repeated provider/model pairs', () => {
   const key2 = storeModelSelection('pA', 'mB')
   assert.equal(key1, key2)
 })
+
+test('Issue #90: handleGatewayCallback processes mdl:s:<key> selection without ReferenceError', async () => {
+  const { handleGatewayCallback } = await import('../lib/gateway-callbacks.js')
+  const key = storeModelSelection('openai', 'gpt-4o')
+  let answered = null
+  let edited = null
+  const cb = {
+    data: `mdl:s:${key}`,
+    answer: async (text) => { answered = text },
+    editMessage: async (text) => { edited = text },
+  }
+  const gw = {
+    isUserAllowed: () => true,
+    callbackIndex: new Map(),
+    pendingAsks: new Map(),
+    config: { agent: {} },
+    ctx: {
+      get: () => ({ saveSelection: async () => {} }),
+      logger: { warn: () => {} },
+    },
+    recordApiFailure: () => {},
+  }
+  await handleGatewayCallback(gw, cb)
+  assert.ok(answered)
+  assert.ok(edited)
+  assert.equal(gw.config.agent.model, 'gpt-4o')
+  assert.equal(gw.config.agent.provider, 'openai')
+})
+
