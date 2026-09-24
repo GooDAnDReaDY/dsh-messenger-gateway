@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { timingSafeCompare } from '../lib/http.js'
+import { timingSafeCompare, isTrustedSettingsRequest } from '../lib/http.js'
 import { TelegramAdapter } from '../lib/adapters/telegram.js'
 
 test('timingSafeCompare strictly checks equality in constant time', () => {
@@ -87,3 +87,41 @@ test('Issue #69: Webhook authentication logic rejects empty secrets and mismatch
     { status: 200, ok: true }
   )
 })
+
+test('Issue #93: isTrustedSettingsRequest allows same-origin requests with sec-fetch-site or referer', () => {
+  // 1. Same-origin with Origin header
+  assert.equal(isTrustedSettingsRequest({
+    headers: { host: 'localhost:3080', origin: 'http://localhost:3080' }
+  }), true)
+
+  // 2. Cross-origin with Origin header rejected
+  assert.equal(isTrustedSettingsRequest({
+    headers: { host: 'localhost:3080', origin: 'http://evil.com' }
+  }), false)
+
+  // 3. Browser GET without Origin, but with sec-fetch-site: same-origin
+  assert.equal(isTrustedSettingsRequest({
+    headers: { host: 'localhost:3080', 'sec-fetch-site': 'same-origin' }
+  }), true)
+
+  // 4. Browser GET without Origin, but with matching referer
+  assert.equal(isTrustedSettingsRequest({
+    headers: { host: 'localhost:3080', referer: 'http://localhost:3080/settings' }
+  }), true)
+
+  // 5. Cross-origin referer rejected
+  assert.equal(isTrustedSettingsRequest({
+    headers: { host: 'localhost:3080', referer: 'http://evil.com/page' }
+  }), false)
+
+  // 6. No origin, no sec-fetch-site, no referer rejected
+  assert.equal(isTrustedSettingsRequest({
+    headers: { host: 'localhost:3080' }
+  }), false)
+
+  // 7. No host rejected
+  assert.equal(isTrustedSettingsRequest({
+    headers: { origin: 'http://localhost:3080' }
+  }), false)
+})
+
