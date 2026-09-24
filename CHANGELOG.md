@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4.5
+
+### Fixed
+- **Telegram reply markup resolution (`lib/adapters/telegram.js`, #89):** Resolved `ReferenceError` when sending formatted messages with `quickActions` enabled by importing `buildQuickActionsKeyboard` and `REMOVE_REPLY_KEYBOARD`.
+- **Model picker selection callback (`lib/gateway-callbacks.js`, #90):** Resolved `ReferenceError: getStoredModelSelection is not defined` when applying model picker callbacks.
+- **Forum mirror context references (`lib/forum-mirror.js`, #91):** Fixed undeclared `ctx` and `gw` references in dynamic skill sync and forum topic mirroring.
+- **Gateway commands dependencies (`lib/gateway-commands.js`, #92):** Imported path helpers and `ensureContentArray` preventing `ReferenceError` in `/update` and `/fork` command handlers.
+- **Settings API same-origin validation (`lib/http.js`, #93):** Supported `sec-fetch-site: same-origin` and matching `referer` in `isTrustedSettingsRequest` so legitimate browser settings GET requests succeed.
+- **Web UI Icon and context fallback (`lib/client.js`, #94):** Safely resolved `PluginCard` context to avoid undeclared global references and dynamically queried host `IconChevronDownOutline14`.
+- **Webhook event authentication (`lib/index.js`, #97):** Enforced fail-closed authentication on `POST /dsh-messenger-gateway/events` using `timingSafeCompare`, rejecting unauthenticated requests when webhook secret is unconfigured.
+
+### Performance
+- **Gateway thread mapping cleanup (`lib/gateway.js`, #95):** Pruned `sessionToThread` and `threadToSession` mapping entries in `reapIdle` alongside inactive chats to prevent gradual memory leak.
+- **Model catalog caching (`lib/models.js`, #96):** Added in-memory TTL caching for provider and model listings to prevent Telegram inline keyboard pagination latency.
+
 ## 0.4.4
 
 ### Fixed
