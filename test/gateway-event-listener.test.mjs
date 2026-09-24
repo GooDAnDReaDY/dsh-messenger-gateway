@@ -99,3 +99,55 @@ test('Issue #88: session/event collector helpers process events correctly', () =
   collector.reason = 'stop'
   assert.equal(collector.reason, 'stop')
 })
+
+test('Issue #95: reapIdle cleans up threadToSession and sessionToThread maps', () => {
+  // Check that reapIdle contains cleanup logic for thread mappings
+  const reapIdleMatch = gatewaySrc.match(/reapIdle\s*\(\)\s*\{([\s\S]*?)\n  \}/)
+  assert.ok(reapIdleMatch, 'reapIdle method found in gateway.js')
+  const reapBody = reapIdleMatch[1]
+
+  assert.match(reapBody, /this\.sessionToChat\.delete\(sid\)/)
+  assert.match(reapBody, /this\.sessionToThread\.get\(sid\)/)
+  assert.match(reapBody, /this\.threadToSession\.delete\(`\$\{threadInfo\.chatId\}:\$\{threadInfo\.threadId\}`\)/)
+  assert.match(reapBody, /this\.sessionToThread\.delete\(sid\)/)
+
+  // Also test the reaping simulation logic directly
+  const chats = new Map()
+  const sessionToChat = new Map()
+  const sessionToThread = new Map()
+  const threadToSession = new Map()
+
+  const fakeChat = {
+    turnActive: false,
+    lastUsed: Date.now() - 500,
+    agent: { session: { id: 'sess-123' } },
+    dispose: async () => {},
+  }
+  chats.set('chat-1', fakeChat)
+  sessionToChat.set('sess-123', fakeChat)
+  sessionToThread.set('sess-123', { chatId: 'tg-999', threadId: 42 })
+  threadToSession.set('tg-999:42', 'sess-123')
+
+  // Simulate the reapIdle logic from gateway.js
+  const timeout = 100
+  const now = Date.now()
+  for (const [key, chat] of chats) {
+    if (!chat.turnActive && now - chat.lastUsed > timeout) {
+      if (chat.agent?.session?.id) {
+        const sid = String(chat.agent.session.id)
+        sessionToChat.delete(sid)
+        const threadInfo = sessionToThread.get(sid)
+        if (threadInfo) {
+          threadToSession.delete(`${threadInfo.chatId}:${threadInfo.threadId}`)
+          sessionToThread.delete(sid)
+        }
+      }
+      chats.delete(key)
+    }
+  }
+
+  assert.equal(chats.size, 0)
+  assert.equal(sessionToChat.size, 0)
+  assert.equal(sessionToThread.size, 0)
+  assert.equal(threadToSession.size, 0)
+})

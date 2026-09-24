@@ -6,6 +6,7 @@ import {
   buildModelsKeyboard,
   storeModelSelection,
   getStoredModelSelection,
+  clearModelCatalogCache,
 } from '../lib/models.js'
 
 test('listModelCatalog extracts providers and models from ctx.llm', async () => {
@@ -92,3 +93,76 @@ test('storeModelSelection deduplicates repeated provider/model pairs', () => {
   const key2 = storeModelSelection('pA', 'mB')
   assert.equal(key1, key2)
 })
+
+test('Issue #90: handleGatewayCallback processes mdl:s:<key> selection without ReferenceError', async () => {
+  const { handleGatewayCallback } = await import('../lib/gateway-callbacks.js')
+  const key = storeModelSelection('openai', 'gpt-4o')
+  let answered = null
+  let edited = null
+  const cb = {
+    data: `mdl:s:${key}`,
+    answer: async (text) => { answered = text },
+    editMessage: async (text) => { edited = text },
+  }
+  const gw = {
+    isUserAllowed: () => true,
+    callbackIndex: new Map(),
+    pendingAsks: new Map(),
+    config: { agent: {} },
+    ctx: {
+      get: () => ({ saveSelection: async () => {} }),
+      logger: { warn: () => {} },
+    },
+    recordApiFailure: () => {},
+  }
+  await handleGatewayCallback(gw, cb)
+  assert.ok(answered)
+  assert.ok(edited)
+  assert.equal(gw.config.agent.model, 'gpt-4o')
+  assert.equal(gw.config.agent.provider, 'openai')
+})
+
+test('Issue #96: listModelCatalog caches results with TTL to avoid UI latency', async () => {
+  clearModelCatalogCache()
+  let listProvidersCallCount = 0
+  let listModelsCallCount = 0
+
+  const fakeCtx = {
+    llm: {
+      listProviders: async () => {
+        listProvidersCallCount++
+        return [{ id: 'anthropic', name: 'Anthropic' }]
+      },
+      listModels: async (pId) => {
+        listModelsCallCount++
+        return [{ id: 'claude-3-5-sonnet' }]
+      },
+    },
+  }
+
+  // First call fetches from llm
+  const res1 = await listModelCatalog(fakeCtx)
+  assert.equal(listProvidersCallCount, 1)
+  assert.equal(listModelsCallCount, 1)
+  assert.equal(res1.providers.length, 1)
+  assert.equal(res1.providers[0].id, 'anthropic')
+
+  // Second call within TTL hits cache (no new calls to llm)
+  const res2 = await listModelCatalog(fakeCtx)
+  assert.equal(listProvidersCallCount, 1)
+  assert.equal(listModelsCallCount, 1)
+  assert.equal(res2.providers.length, 1)
+  assert.equal(res2.providers[0].id, 'anthropic')
+
+  // Call with bypassCache fetches fresh data
+  const res3 = await listModelCatalog(fakeCtx, {}, { bypassCache: true })
+  assert.equal(listProvidersCallCount, 2)
+  assert.equal(listModelsCallCount, 2)
+  assert.equal(res3.providers[0].id, 'anthropic')
+
+  // Call with expired TTL fetches fresh data
+  const res4 = await listModelCatalog(fakeCtx, {}, { ttlMs: -1 })
+  assert.equal(listProvidersCallCount, 3)
+  assert.equal(listModelsCallCount, 3)
+})
+

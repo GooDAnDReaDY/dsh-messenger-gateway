@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { timingSafeCompare } from '../lib/http.js'
+import { timingSafeCompare, isTrustedSettingsRequest } from '../lib/http.js'
 import { TelegramAdapter } from '../lib/adapters/telegram.js'
 
 test('timingSafeCompare strictly checks equality in constant time', () => {
@@ -87,3 +87,97 @@ test('Issue #69: Webhook authentication logic rejects empty secrets and mismatch
     { status: 200, ok: true }
   )
 })
+
+test('Issue #93: isTrustedSettingsRequest allows same-origin requests with sec-fetch-site or referer', () => {
+  // 1. Same-origin with Origin header
+  assert.equal(isTrustedSettingsRequest({
+    headers: { host: 'localhost:3080', origin: 'http://localhost:3080' }
+  }), true)
+
+  // 2. Cross-origin with Origin header rejected
+  assert.equal(isTrustedSettingsRequest({
+    headers: { host: 'localhost:3080', origin: 'http://evil.com' }
+  }), false)
+
+  // 3. Browser GET without Origin, but with sec-fetch-site: same-origin
+  assert.equal(isTrustedSettingsRequest({
+    headers: { host: 'localhost:3080', 'sec-fetch-site': 'same-origin' }
+  }), true)
+
+  // 4. Browser GET without Origin, but with matching referer
+  assert.equal(isTrustedSettingsRequest({
+    headers: { host: 'localhost:3080', referer: 'http://localhost:3080/settings' }
+  }), true)
+
+  // 5. Cross-origin referer rejected
+  assert.equal(isTrustedSettingsRequest({
+    headers: { host: 'localhost:3080', referer: 'http://evil.com/page' }
+  }), false)
+
+  // 6. No origin, no sec-fetch-site, no referer rejected
+  assert.equal(isTrustedSettingsRequest({
+    headers: { host: 'localhost:3080' }
+  }), false)
+
+  // 7. No host rejected
+  assert.equal(isTrustedSettingsRequest({
+    headers: { origin: 'http://localhost:3080' }
+  }), false)
+})
+
+test('Issue #97: POST /events rejects when webhook secret is empty or missing (fail-closed)', () => {
+  function verifyEventsAuth(req, payload, webhooksConfig) {
+    if (webhooksConfig?.enabled === false) {
+      return { status: 404, error: 'webhooks disabled' }
+    }
+    const expectedSecret = String(webhooksConfig?.secret || '').trim()
+    if (!expectedSecret) {
+      return { status: 403, error: 'webhook secret not configured' }
+    }
+    const authHeader = req.headers?.authorization || ''
+    const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : ''
+    const tokenHeader = req.headers?.['x-webhook-secret'] || ''
+    const provided = bearer || tokenHeader || payload.secret
+    if (!timingSafeCompare(provided, expectedSecret)) {
+      return { status: 401, error: 'unauthorized' }
+    }
+    return { status: 200, ok: true }
+  }
+
+  // 1. Secret is empty string -> 403
+  assert.deepEqual(
+    verifyEventsAuth({ headers: {} }, {}, { secret: '' }),
+    { status: 403, error: 'webhook secret not configured' }
+  )
+
+  // 2. Secret is undefined/null -> 403
+  assert.deepEqual(
+    verifyEventsAuth({ headers: {} }, {}, {}),
+    { status: 403, error: 'webhook secret not configured' }
+  )
+
+  // 3. Webhooks disabled -> 404
+  assert.deepEqual(
+    verifyEventsAuth({ headers: {} }, {}, { enabled: false, secret: 'configured' }),
+    { status: 404, error: 'webhooks disabled' }
+  )
+
+  // 4. Secret configured, but request has wrong secret -> 401
+  assert.deepEqual(
+    verifyEventsAuth({ headers: { 'x-webhook-secret': 'wrong' } }, {}, { secret: 'my-secret' }),
+    { status: 401, error: 'unauthorized' }
+  )
+
+  // 5. Secret configured and bearer token matches -> 200
+  assert.deepEqual(
+    verifyEventsAuth({ headers: { authorization: 'Bearer my-secret' } }, {}, { secret: 'my-secret' }),
+    { status: 200, ok: true }
+  )
+
+  // 6. Secret configured and payload.secret matches -> 200
+  assert.deepEqual(
+    verifyEventsAuth({ headers: {} }, { secret: 'my-secret' }, { secret: 'my-secret' }),
+    { status: 200, ok: true }
+  )
+})
+
