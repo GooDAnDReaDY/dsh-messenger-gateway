@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { timingSafeCompare, isTrustedSettingsRequest, readBody } from '../lib/http.js'
+import { timingSafeCompare, isTrustedSettingsRequest, readBody, isLoopback, isAuthorizedMessengerRequest } from '../lib/http.js'
 import { TelegramAdapter } from '../lib/adapters/telegram.js'
 
 test('timingSafeCompare strictly checks equality in constant time', () => {
@@ -254,5 +254,126 @@ test('Issue #103: POST /events rejects unauthenticated requests before body buff
   assert.equal(res.status, 401)
   assert.equal(bodyReadCalled, false, 'body must NOT be read when header auth fails')
 })
+
+test('Issue #102: isLoopback correctly detects loopback addresses and rejects remote IPs', () => {
+  assert.equal(isLoopback('127.0.0.1'), true)
+  assert.equal(isLoopback('127.0.1.1'), true)
+  assert.equal(isLoopback('::1'), true)
+  assert.equal(isLoopback('::ffff:127.0.0.1'), true)
+  assert.equal(isLoopback('localhost'), true)
+  assert.equal(isLoopback('[::1]'), true)
+
+  assert.equal(isLoopback('192.168.1.50'), false)
+  assert.equal(isLoopback('10.0.0.1'), false)
+  assert.equal(isLoopback('8.8.8.8'), false)
+  assert.equal(isLoopback(''), false)
+  assert.equal(isLoopback(undefined), false)
+})
+
+test('Issue #102: isTrustedSettingsRequest enforces remote address and rejects remote forgeable headers', () => {
+  // 1. Cross-site request rejected even if remoteAddress is loopback
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: 'localhost:3080', 'sec-fetch-site': 'cross-site', origin: 'http://evil.com' },
+      socket: { remoteAddress: '127.0.0.1' }
+    }),
+    false
+  )
+
+  // 2. Remote address attempting to forge sec-fetch-site: same-origin rejected
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: 'localhost:3080', 'sec-fetch-site': 'same-origin' },
+      socket: { remoteAddress: '192.168.1.50' }
+    }),
+    false
+  )
+
+  // 3. Remote address with no origin/referer rejected
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: 'localhost:3080' },
+      socket: { remoteAddress: '192.168.1.50' }
+    }),
+    false
+  )
+
+  // 4. Loopback request without browser headers (CLI/curl) accepted
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: 'localhost:3080' },
+      socket: { remoteAddress: '127.0.0.1' }
+    }),
+    true
+  )
+})
+
+test('Issue #102: isAuthorizedMessengerRequest forms fail-closed boundary for internal write routes', () => {
+  const cfg = { secret: 'secret-token-42' }
+
+  // 1. Cross-site request rejected
+  assert.equal(
+    isAuthorizedMessengerRequest(
+      { headers: { host: 'localhost:3080', 'sec-fetch-site': 'cross-site' }, socket: { remoteAddress: '127.0.0.1' } },
+      cfg
+    ),
+    false
+  )
+
+  // 2. Unauthenticated remote request rejected
+  assert.equal(
+    isAuthorizedMessengerRequest(
+      { headers: { host: 'localhost:3080' }, socket: { remoteAddress: '192.168.1.50' } },
+      cfg
+    ),
+    false
+  )
+
+  // 3. Loopback request (internal plugins / local CLI) accepted
+  assert.equal(
+    isAuthorizedMessengerRequest(
+      { headers: { host: 'localhost:3080' }, socket: { remoteAddress: '127.0.0.1' } },
+      cfg
+    ),
+    true
+  )
+
+  // 4. Same-origin browser request accepted
+  assert.equal(
+    isAuthorizedMessengerRequest(
+      { headers: { host: 'localhost:3080', origin: 'http://localhost:3080' } },
+      cfg
+    ),
+    true
+  )
+
+  // 5. Remote request with valid webhook secret Bearer token accepted
+  assert.equal(
+    isAuthorizedMessengerRequest(
+      { headers: { authorization: 'Bearer secret-token-42' }, socket: { remoteAddress: '192.168.1.50' } },
+      cfg
+    ),
+    true
+  )
+
+  // 6. Remote request with valid x-webhook-secret header accepted
+  assert.equal(
+    isAuthorizedMessengerRequest(
+      { headers: { 'x-webhook-secret': 'secret-token-42' }, socket: { remoteAddress: '192.168.1.50' } },
+      cfg
+    ),
+    true
+  )
+
+  // 7. Remote request with invalid webhook secret rejected
+  assert.equal(
+    isAuthorizedMessengerRequest(
+      { headers: { 'x-webhook-secret': 'wrong-token' }, socket: { remoteAddress: '192.168.1.50' } },
+      cfg
+    ),
+    false
+  )
+})
+
 
 
