@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { timingSafeCompare, isTrustedSettingsRequest } from '../lib/http.js'
+import { timingSafeCompare, isTrustedSettingsRequest, readBody } from '../lib/http.js'
 import { TelegramAdapter } from '../lib/adapters/telegram.js'
 
 test('timingSafeCompare strictly checks equality in constant time', () => {
@@ -180,4 +180,79 @@ test('Issue #97: POST /events rejects when webhook secret is empty or missing (f
     { status: 200, ok: true }
   )
 })
+
+test('Issue #103: readBody enforces maxBytes limits and rejects oversized payloads with 413', async () => {
+  // 1. Content-Length header exceeding limit rejects immediately
+  const reqWithBigCl = {
+    headers: { 'content-length': '2000000' },
+    [Symbol.asyncIterator]: async function* () {
+      yield Buffer.from('chunk')
+    },
+  }
+  await assert.rejects(
+    async () => readBody(reqWithBigCl, 1000),
+    (err) => err.statusCode === 413 && err.message.includes('exceeds')
+  )
+
+  // 2. Stream chunk bytes exceeding limit rejects with 413
+  const reqStreamingTooMuch = {
+    headers: {},
+    [Symbol.asyncIterator]: async function* () {
+      yield Buffer.alloc(600)
+      yield Buffer.alloc(600)
+    },
+  }
+  await assert.rejects(
+    async () => readBody(reqStreamingTooMuch, 1000),
+    (err) => err.statusCode === 413 && err.message.includes('exceeded 1000 bytes')
+  )
+
+  // 3. Normal stream within limit succeeds
+  const reqNormal = {
+    headers: { 'content-length': '11' },
+    [Symbol.asyncIterator]: async function* () {
+      yield Buffer.from('hello ')
+      yield Buffer.from('world')
+    },
+  }
+  const buf = await readBody(reqNormal, 1000)
+  assert.equal(buf.toString('utf8'), 'hello world')
+})
+
+test('Issue #103: POST /events rejects unauthenticated requests before body buffering', async () => {
+  let bodyReadCalled = false
+  const unauthenticatedReq = {
+    method: 'POST',
+    headers: { 'x-webhook-secret': 'wrong-secret' },
+    [Symbol.asyncIterator]: async function* () {
+      bodyReadCalled = true
+      yield Buffer.from('some large payload')
+    },
+  }
+
+  async function simulateEventsHandler(req, webhooksConfig) {
+    if (webhooksConfig?.enabled === false) return { status: 404 }
+    const expectedSecret = String(webhooksConfig?.secret || '').trim()
+    if (!expectedSecret) return { status: 403 }
+
+    const authHeader = req.headers?.authorization || ''
+    const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : ''
+    const tokenHeader = req.headers?.['x-webhook-secret'] || ''
+    const headerProvided = bearer || tokenHeader
+
+    if (headerProvided) {
+      if (!timingSafeCompare(headerProvided, expectedSecret)) {
+        return { status: 401 }
+      }
+    }
+
+    await readBody(req, 1_048_576)
+    return { status: 200 }
+  }
+
+  const res = await simulateEventsHandler(unauthenticatedReq, { secret: 'correct-secret' })
+  assert.equal(res.status, 401)
+  assert.equal(bodyReadCalled, false, 'body must NOT be read when header auth fails')
+})
+
 
