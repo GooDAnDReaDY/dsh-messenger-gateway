@@ -44,13 +44,31 @@ test('startTypingHeartbeat triggers immediately and repeats until stopped', asyn
   assert.equal(count, countAfterStop, 'typing should not fire after stop')
 })
 
-test('startTypingHeartbeat handles non-function or throwing function gracefully', () => {
+test('startTypingHeartbeat handles non-function or throwing function gracefully and logs error', () => {
+  const logged = []
+  const mockLogger = { debug: (...args) => logged.push(args.join(' ')) }
+
   assert.doesNotThrow(() => {
-    const stop = startTypingHeartbeat(null)
+    const stop = startTypingHeartbeat(null, 20, mockLogger)
     stop()
   })
   assert.doesNotThrow(() => {
-    const stop = startTypingHeartbeat(() => { throw new Error('fail') }, 20)
+    const stop = startTypingHeartbeat(() => { throw new Error('typing bomb') }, 20, mockLogger)
     stop()
   })
+  assert.ok(logged.some((m) => m.includes('typing bomb')), 'should log typing errors to debug')
 })
+
+test('createEditScheduler logs edit errors to debug logger', async () => {
+  const logged = []
+  const mockLogger = { debug: (...args) => logged.push(args.join(' ')) }
+  const scheduler = createEditScheduler(async () => {
+    throw new Error('edit network fail')
+  }, 20, 10, mockLogger)
+
+  scheduler.push('test message')
+  await scheduler.flush()
+
+  assert.ok(logged.some((m) => m.includes('edit network fail')), 'should log chunk/flush edit failures to debug')
+})
+
