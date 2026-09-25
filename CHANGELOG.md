@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.6
+
+### Security
+- **Bounded Request Body Buffering (`lib/http.js`, `lib/index.js`, #103):** Enforced strict payload size limits on `readBody` (default 256 KB, max 10 MB) rejecting oversized requests with HTTP 413, and validated authentication headers before body buffering on webhook routes.
+- **Fail-Closed Authorization on Internal Write Routes (`lib/http.js`, `lib/index.js`, #102):** Replaced spoofable IP header heuristics with true loopback socket checking, hardened same-origin validation against host spoofing, and added `isAuthorizedMessengerRequest` requiring local caller or bearer authentication on `/messenger/send`, `/messenger/progress`, and `/messenger/ask`.
+
+### Fixed
+- **DSH 0.1.7 Settings Service Contract Migration (`lib/settings-bridge.js`, `lib/index.js`, #101):** Migrated settings lifecycle to the current DSH 0.1.7 contract (`configure`, `describe`, `replace`, `update`, `mutate`) via a dedicated settings bridge, preserving fallback compatibility for legacy `settings.register`.
+- **Telegram API Error Logging and Health Tracking (`lib/gateway.js`, `lib/gateway-turn.js`, `lib/stream.js`, `lib/scheduler.js`, #76):** Replaced empty catch handlers across gateway turns, stream schedulers, background alerts, and cron tasks with debug logging and `recordApiFailure` health metric tracking.
+- **Package Files Allowlist Includes Localized README Trio (`package.json`, #104):** Added `README.ru.md` and `README.zh.md` to package files allowlist so published npm bundles contain all localized documentation.
+
 ## 0.4.5
 
 ### Fixed
