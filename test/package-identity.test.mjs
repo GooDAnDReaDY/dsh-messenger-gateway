@@ -36,3 +36,11 @@ test('Issue #70: package identity is strictly identical across 4 canonical locat
   assert.equal(patchName, manifestName, 'cordis.patch.yml name must match package.json')
   assert.equal(clientName, manifestName, 'lib/client.js loader id must match package.json')
 })
+
+test('Issue #104: package files allowlist explicitly includes README trio', () => {
+  const pkg = JSON.parse(readFileSync(join(rootDir, 'package.json'), 'utf8'))
+  const files = pkg.files || []
+  assert.ok(files.includes('README.md'), 'package.json files must include README.md')
+  assert.ok(files.includes('README.ru.md'), 'package.json files must include README.ru.md')
+  assert.ok(files.includes('README.zh.md'), 'package.json files must include README.zh.md')
+})
