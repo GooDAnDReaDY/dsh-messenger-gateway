@@ -29,8 +29,20 @@ test('no runtime references to installSettingsSection / deepEqualJson in lib', (
   }
 })
 
-test('peerDependencies pin dsh-settings to alpha.2', () => {
+test('peerDependencies accept both the dsh 0.1.7 and 0.2.0 package lines', () => {
   const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
   assert.ok(pkg.version, 'version must be present')
-  assert.equal(pkg.peerDependencies['@deepseek-ai/dsh-settings'], '^0.1.2-alpha.2')
+  const range = pkg.peerDependencies['@deepseek-ai/dsh-settings']
+  // DSH 0.2.0-rc.1 denies a profile bundle whose peers exclude the running
+  // version. A prerelease of the next minor is not admitted by a range that does
+  // not name it, so ^0.1.2-alpha.2 excluded 0.2.0-rc.1 and the plugin was skipped
+  // at startup rather than warned about.
+  assert.ok(
+    range.includes('0.2.0-rc.1'),
+    `dsh-settings peer ${range} must name the 0.2.0-rc.1 line explicitly`,
+  )
+  assert.ok(
+    range.includes('0.1.7-rc.2'),
+    `dsh-settings peer ${range} must keep the 0.1.7 line`,
+  )
 })
