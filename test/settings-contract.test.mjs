@@ -8,7 +8,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const read = (p) => readFileSync(join(root, p), 'utf8')
 const client = read('lib/client.js')
 const host = read('lib/index.js')
-const { Config, plainConfig } = await import('../lib/index.js')
+const { Config, plainConfig, apply } = await import('../lib/index.js')
 
 const ENTRY_ID = 'dsh-messenger-gateway'
 const PKG = '@goodandready/dsh-messenger-gateway'
@@ -125,3 +125,33 @@ test('peer ranges accept the 0.1.7 and 0.2.0 DSH package lines', async () => {
     assert.ok(semver.satisfies('0.1.7-rc.2', range), name + ' ' + range + ' must accept 0.1.7-rc.2')
   }
 })
+
+test('Issue #106: apply boots with Cordis Volatile live config without DataCloneError', () => {
+  const volatileConfig = Config({ enabled: true })
+  assert.equal(typeof volatileConfig.enabled.get, 'function', 'Config must produce volatile boxes')
+
+  // structuredClone directly on raw volatile config must fail with DataCloneError
+  assert.throws(() => structuredClone(volatileConfig), (err) => {
+    return err?.name === 'DataCloneError'
+  })
+
+  // Calling apply with volatile config must boot cleanly without DataCloneError
+  const fakeCtx = {
+    on: () => () => {},
+    effect: (fn) => {
+      const res = fn()
+      return typeof res === 'function' ? res : () => {}
+    },
+    provide: () => {},
+    agents: { get: () => null },
+    sessions: {},
+    tools: { register: () => {} },
+    webServer: { register: () => () => {} },
+    logger: { warn: () => {}, debug: () => {} },
+  }
+
+  assert.doesNotThrow(() => {
+    apply(fakeCtx, volatileConfig)
+  })
+})
+
