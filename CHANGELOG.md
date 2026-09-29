@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.9
+
+### Fixed
+- **Normalize Volatile Fields and Prevent DataCloneError (`lib/index.js`, #106):** Unwrapped Cordis `Volatile` boxes using `plainConfig()` before calling `structuredClone(config)` during plugin activation in `apply()`. Normalized raw configuration in `resolveConfig()` before passing to schemastery to avoid `ValidationError` on live volatile box objects.
+- **Settings and Volatile Update Subscriptions (`lib/settings-bridge.js`, #106):** Subscribed to Cordis `loader/volatile-update`, `internal/update`, `app-boot/config-reload`, and `settings/document-updated` in `setupSettings()`, ensuring that live settings updates applied via the UI or Loader take effect immediately without requiring a full harness restart.
+
+## 0.4.7
+
+### Fixed
+- **Peer gate on DSH 0.2.0-rc.1** (#58): DSH skips a profile bundle whose `peerDependencies` exclude the running version, so this plugin was absent from the profile with no error in the UI. Every `@deepseek-ai/dsh-*` peer now names both the 0.1.7-rc.2 and 0.2.0-rc.1 lines, because semver does not admit a prerelease of the next minor into a range that does not name it.
+
 ## 0.4.6
 
 ### Security
