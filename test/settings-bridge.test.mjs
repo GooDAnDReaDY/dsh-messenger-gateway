@@ -104,3 +104,48 @@ test('Issue #101: setupSettings supports DSH 0.1.7 configure, describe, replace 
   assert.equal(api.get()?.telegram?.botToken, 'core-updated-token')
   assert.equal(syncCount, 2)
 })
+
+test('Issue #106: setupSettings subscribes to volatile and internal config update events', () => {
+  const events = new Map()
+  let syncCount = 0
+  let watchedValue = null
+
+  const liveConfig = { enabled: true, internalBaseURL: 'http://127.0.0.1:3080' }
+  const fakeCtx = {
+    fiber: { config: liveConfig },
+    on: (evt, handler) => {
+      events.set(evt, handler)
+      return () => events.delete(evt)
+    },
+    effect: (fn) => fn(),
+  }
+
+  const bridge = setupSettings(fakeCtx, {
+    namespace: 'dsh-messenger-gateway',
+    Config: mockConfig,
+    resolveConfig: (c) => ({ ...c }),
+    baseConfig: liveConfig,
+    sync: () => { syncCount++ },
+  })
+
+  const api = bridge.getSettingsApi()
+  // Subscribe watcher
+  bridge.getSettingsApi?.()?.watch?.((c) => { watchedValue = c })
+
+  assert.ok(events.has('loader/volatile-update'), 'must listen for loader/volatile-update')
+  assert.ok(events.has('internal/update'), 'must listen for internal/update')
+  assert.ok(events.has('app-boot/config-reload'), 'must listen for app-boot/config-reload')
+
+  // Trigger loader/volatile-update
+  liveConfig.enabled = false
+  events.get('loader/volatile-update')()
+  assert.equal(bridge.getSource().enabled, false)
+  assert.equal(syncCount, 1)
+
+  // Trigger internal/update with next config
+  events.get('internal/update')({ enabled: true, internalBaseURL: 'http://127.0.0.1:9999' })
+  assert.equal(bridge.getSource().enabled, true)
+  assert.equal(bridge.getSource().internalBaseURL, 'http://127.0.0.1:9999')
+  assert.equal(syncCount, 2)
+})
+
