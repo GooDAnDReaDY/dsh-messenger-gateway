@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.9
+
+### Fixed
+- **Normalize Volatile Fields and Prevent DataCloneError (`lib/index.js`, #106):** Unwrapped Cordis `Volatile` boxes using `plainConfig()` before calling `structuredClone(config)` during plugin activation in `apply()`. Normalized raw configuration in `resolveConfig()` before passing to schemastery to avoid `ValidationError` on live volatile box objects.
+- **Settings and Volatile Update Subscriptions (`lib/settings-bridge.js`, #106):** Subscribed to Cordis `loader/volatile-update`, `internal/update`, `app-boot/config-reload`, and `settings/document-updated` in `setupSettings()`, ensuring that live settings updates applied via the UI or Loader take effect immediately without requiring a full harness restart.
+
 ## 0.4.7
 
 ### Fixed
