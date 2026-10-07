@@ -5,6 +5,7 @@ import {
   isNewerVersion,
   isTrustedUpdateRequest,
   registerPluginUpdater,
+  buildUpdateArgs,
 } from '../lib/updater.js'
 
 test('parseSemver parses semantic version strings correctly', () => {
@@ -137,4 +138,21 @@ test('registerPluginUpdater mounts routes and enforces HTTP methods', async () =
   )
   assert.equal(postStatus, 403)
   assert.match(responseBody, /untrusted|cross-origin/i)
+})
+
+test('Issue #112: buildUpdateArgs respects minimumReleaseAge quarantine', () => {
+  const args = buildUpdateArgs(
+    { cliEntry: '/bin/dsh', profileName: 'web' },
+    '@goodandready/dsh-messenger-gateway@0.4.11'
+  )
+  assert.equal(args.includes('--config.minimumReleaseAge=0'), false)
+  assert.deepEqual(args, [
+    '/bin/dsh',
+    'plugin',
+    '--profile',
+    'web',
+    'add',
+    '@goodandready/dsh-messenger-gateway@0.4.11',
+    '--registry=https://registry.npmjs.org/',
+  ])
 })
