@@ -375,5 +375,61 @@ test('Issue #102: isAuthorizedMessengerRequest forms fail-closed boundary for in
   )
 })
 
+test('Issue #128: isTrustedSettingsRequest rejects remote LAN requests with forged Origin==Host without secret', () => {
+  // 1. LAN client with forged Origin matching Host and no secret -> rejected
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000' },
+      socket: { remoteAddress: '192.168.1.50' }
+    }),
+    false
+  )
+
+  // 2. LAN client with forged Referer matching Host and no secret -> rejected
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: '192.168.1.111:3000', referer: 'http://192.168.1.111:3000/plugins' },
+      socket: { remoteAddress: '192.168.1.50' }
+    }),
+    false
+  )
+
+  // 3. LAN client with valid Bearer secret -> accepted
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000', authorization: 'Bearer lan-secret-token' },
+      socket: { remoteAddress: '192.168.1.50' }
+    }, 'lan-secret-token'),
+    true
+  )
+
+  // 4. LAN client with valid x-webhook-secret -> accepted
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000', 'x-webhook-secret': 'lan-secret-token' },
+      socket: { remoteAddress: '192.168.1.50' }
+    }, 'lan-secret-token'),
+    true
+  )
+
+  // 5. Loopback client with Origin matching Host -> accepted
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: 'localhost:3080', origin: 'http://localhost:3080' },
+      socket: { remoteAddress: '127.0.0.1' }
+    }),
+    true
+  )
+
+  // 6. LAN client attacking messenger API with forged Origin -> rejected in isAuthorizedMessengerRequest
+  assert.equal(
+    isAuthorizedMessengerRequest({
+      headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000' },
+      socket: { remoteAddress: '192.168.1.50' }
+    }, { secret: 'secret-token-42' }),
+    false
+  )
+})
+
 
 
