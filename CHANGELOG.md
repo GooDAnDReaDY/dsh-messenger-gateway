@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.10
+
+### Security
+- **Enforce Loopback Address on Trusted Settings Requests (`lib/http.js`, `lib/index.js`, #128):** Prevented LAN clients with forged `Origin`/`Referer` matching `Host` from accessing administrative routes (`/config`, `/smoke`, `/pairing/*`, and messenger API). Remote connections now strictly require valid webhook bearer secret authentication or loopback interface.
+- **HTML Injection Mitigation in Telegram Messages (`lib/locales/index.js`, #119):** Added automatic HTML entity escaping (`escapeHtml`) in `t()` parameter substitution so user/model-supplied dynamic strings (prompts, commands, paths, errors) cannot inject malicious tags or trigger Telegram API 400 Bad Request errors.
+- **URL Scheme Allowlist for Markdown Links (`lib/telegram-format.js`, #120):** Restricted anchor `href` attributes to safe protocols (`https:`, `http:`, `tg:`). Disallowed URI schemes such as `javascript:`, `file:`, and `data:` are rendered as escaped text.
+- **Symlink Traversal Prevention in Workspace File Manager (`lib/file-manager.js`, #115):** Enforced physical canonical path resolution (`realpathSync`) and ancestor verification in `resolveSafePath`, preventing symlinks created inside the workspace from escaping and accessing host files via `/files` and `/get`.
+
 ## 0.4.9
 
 ### Fixed
