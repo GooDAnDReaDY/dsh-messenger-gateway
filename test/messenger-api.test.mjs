@@ -51,3 +51,22 @@ test('resolveAskTimeoutMs clamps invalid', () => {
   assert.equal(resolveAskTimeoutMs(undefined), 300_000)
   assert.equal(resolveAskTimeoutMs(999999999), 3_600_000)
 })
+
+test('Issue #118: normalizeFiles normalizes file.bytes and rejects plain invalid objects', () => {
+  // Array of bytes
+  const resArray = normalizeSendBody({ files: [{ bytes: [1, 2, 3] }] })
+  assert.ok(Buffer.isBuffer(resArray.files[0].bytes))
+  assert.deepEqual(resArray.files[0].bytes, Buffer.from([1, 2, 3]))
+
+  // Buffer instance
+  const resBuf = normalizeSendBody({ files: [{ bytes: Buffer.from([4, 5, 6]) }] })
+  assert.ok(Buffer.isBuffer(resBuf.files[0].bytes))
+  assert.deepEqual(resBuf.files[0].bytes, Buffer.from([4, 5, 6]))
+
+  // Plain object without buffer structure should be rejected with 400
+  assert.throws(
+    () => normalizeSendBody({ files: [{ bytes: { invalid: 'object' } }] }),
+    (err) => err.status === 400 && /bytes must be a Buffer/.test(err.message)
+  )
+})
+

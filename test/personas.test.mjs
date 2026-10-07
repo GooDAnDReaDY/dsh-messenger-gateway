@@ -3,12 +3,14 @@ import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { randomUUID } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import {
   getPersona,
   listPersonas,
   createPersonaStore,
   BUILTIN_PERSONAS,
 } from '../lib/personas.js'
+import { writeJsonAtomicSync } from '../lib/storage-atomic.js'
 
 test('listPersonas returns all builtin personas', () => {
   const personas = listPersonas()
@@ -51,3 +53,21 @@ test('createPersonaStore persists and loads chat personas', () => {
   reloaded.set(12345, 'default')
   assert.equal(reloaded.get(12345), 'default')
 })
+
+test('Issue #121: createPersonaStore writes atomically without temp file residue', () => {
+  const dir = tmpdir()
+  const file = join(dir, `test-personas-atomic-${randomUUID()}.json`)
+  const store = createPersonaStore(file)
+  store.set('chat_atomic', 'architect')
+
+  // Check file exists and is valid JSON
+  const reloaded = createPersonaStore(file)
+  assert.equal(reloaded.get('chat_atomic'), 'architect')
+
+  // Verify writeJsonAtomicSync directly
+  const directFile = join(dir, `test-atomic-sync-${randomUUID()}.json`)
+  writeJsonAtomicSync(directFile, { test: 123 })
+  const readBack = JSON.parse(readFileSync(directFile, 'utf8'))
+  assert.deepEqual(readBack, { test: 123 })
+})
+

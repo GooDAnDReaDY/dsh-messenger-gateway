@@ -149,3 +149,46 @@ test('Issue #106: setupSettings subscribes to volatile and internal config updat
   assert.equal(syncCount, 2)
 })
 
+test('Issue #111: persist unwraps Volatile boxes before passing payload to settings service', async () => {
+  let replacedPayload = null
+  const fakeService = {
+    describe: () => [{ ns: 'dsh-messenger-gateway', revision: '1', value: { enabled: true } }],
+    replace: async (ns, payload, rev) => {
+      replacedPayload = payload
+    },
+  }
+  const fakeCtx = {
+    settings: fakeService,
+  }
+
+  // Simulate a resolveConfig that unwraps volatile boxes (object with get() function)
+  const resolveConfigWithUnwrap = (raw) => {
+    const unwrap = (val) => {
+      if (val && typeof val.get === 'function') return val.get()
+      return val
+    }
+    return {
+      enabled: unwrap(raw.enabled),
+      internalBaseURL: unwrap(raw.internalBaseURL),
+    }
+  }
+
+  const bridge = setupSettings(fakeCtx, {
+    namespace: 'dsh-messenger-gateway',
+    Config: (c) => c,
+    resolveConfig: resolveConfigWithUnwrap,
+    baseConfig: { enabled: true, internalBaseURL: 'http://127.0.0.1:3080' },
+    sync: () => {},
+  })
+
+  // Next config contains volatile boxes
+  const volatileBox = { get: () => false }
+  await bridge.getSettingsApi().replace({
+    enabled: volatileBox,
+    internalBaseURL: 'http://127.0.0.1:3080',
+  })
+
+  assert.equal(typeof replacedPayload.enabled, 'boolean', 'persisted enabled must be unwrapped boolean, not box object')
+  assert.equal(replacedPayload.enabled, false)
+})
+
