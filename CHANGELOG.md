@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.11
+
+### Fixed & Robustness
+- **Unwrap Volatile Boxes Before Persisting to Settings Service (`lib/settings-bridge.js`, #111):** Applied `resolveConfig(next)` in `persist` to unwrap Cordis `Volatile` boxes into plain JSON values before handing them to the host settings service, preventing `DataCloneError` or malformed config persistence.
+- **Respect Ecosystem Quarantine in Updater (`lib/updater.js`, #112, #126):** Removed `--config.minimumReleaseAge=0` argument from `installExact` in the plugin auto-updater to adhere to ecosystem release quarantine standards.
+- **Bounded Document Text Ingestion (`lib/documents.js`, #116):** Replaced unbounded full-file reads with bounded file descriptor reads (`Math.min(st.size, maxBytes)`) and safety caps on binary documents, preventing out-of-memory crashes on oversized files.
+- **Validate Tasks Array Structure on Load (`lib/scheduler.js`, #117):** Added strict `Array.isArray` validation on loaded scheduler JSON with loud warnings and fallback to an empty task list, preventing tick loops from throwing or stalling silently.
+- **Normalize and Validate File Bytes from JSON Payloads (`lib/messenger-api.js`, #118):** Ensured incoming `file.bytes` is properly validated and converted to a native `Buffer` (supporting byte arrays, Uint8Arrays, and base64), rejecting plain invalid objects with 400 Bad Request to prevent `Blob([file.bytes])` stringification to `"[object Object]"`.
+- **Atomic Persona Cache Writes (`lib/storage-atomic.js`, `lib/personas.js`, #121):** Replaced direct `writeFileSync` with `writeJsonAtomicSync` (temporary file and atomic rename) to prevent file corruption during concurrent persona modifications.
+- **Safe Options Array Flattening (`lib/ask.js`, #122):** Replaced unbounded argument spread `[].concat(...options)` with `options.flat()` and fallback `reduce`, preventing `RangeError: Maximum call stack size exceeded` on large caller arrays.
+- **Fetch Timeout and Body Size Cap for Outbound Images (`lib/outbound.js`, #123):** Added `AbortSignal.timeout(15000)` and 20 MB size limits (via `content-length` check and streaming chunk reader) on internal image fetches in `fetchInternalImage`.
+
 ## 0.4.10
 
 ### Security
