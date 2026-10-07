@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.13
+
+### Documentation & Standards
+- **Mandatory Project Design Contract (`docs/design/DESIGN.md`, #130):** Created comprehensive design contract adhering to `project-design-contract` and `dsh-documentation-standard`, documenting user surfaces (Web UI, DSH slot `settings.plugin.item`, REST API), visual direction, design tokens, component states, user flows, route security policy (Loopback vs Webhook Secret), publishing boundaries, and locked architectural decisions.
+- **DEV Project Structure & Deployment Runner (`index.md`, `deploy.sh`, `AGENTS.md`, `docs/index.md`, #131):** Created root project index `index.md`, internal documentation index `docs/index.md`, project-level developer contract `AGENTS.md`, and automated production deployment runner `deploy.sh` (`dsh plugin --profile web add`, restart `dsh-web.service`, verify `/status`). Adjusted `.gitignore` to track DEV documentation in Git/Gitea while isolating npm/GitHub packages.
+
 ## 0.4.12
 
 ### Configuration, Routing & Client Hardening
