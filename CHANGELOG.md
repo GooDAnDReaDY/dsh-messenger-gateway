@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.12
+
+### Configuration, Routing & Client Hardening
+- **Add `defaultLocale` to Config Schema (`lib/config.js`, #124):** Added `defaultLocale: z.union([z.const('en'), z.const('zh')]).default('en')` to `PluginConfig`, ensuring the field is recognized, validated, and defaulted properly in schema declarations.
+- **Support Direct & Wrapped Host Lifecycle/Skill Events (`lib/gateway.js`, `lib/index.js`, `lib/stream.js`, #125):** Added comprehensive listeners for `session/event`, `turn/end`, `turn/start`, `assistant/message`, `assistant/chunk`, and `skills/*` (`skills/change`, `skills/updated`, `skills/update`), with centralized lifecycle disposal and safe filtering of non-text chunk types (such as `reasoning-delta`).
+- **Dynamic Webhook Route Re-registration (`lib/index.js`, #129):** Replaced static startup route registration with dynamic lifecycle-managed route synchronization (`syncWebhookRoute`), unregistering stale endpoints and registering new ones whenever `telegram.webhookPath` changes in runtime settings without requiring DSH restart.
+- **Client Fetch Network Timeouts (`lib/client.js`, #132):** Added `AbortSignal` with explicit timeout (10s default) to all browser client HTTP `fetch` calls (`status`, `smoke`, `pairing`, `update`), preventing pending requests from hanging indefinitely on network degradation.
+
 ## 0.4.11
 
 ### Fixed & Robustness
