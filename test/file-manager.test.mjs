@@ -78,3 +78,40 @@ test('listFiles and getFileForDownload operate on real directory', async () => {
   assert.equal(missing.ok, false)
   assert.ok(missing.error.includes('File not found'))
 })
+
+test('resolveSafePath blocks symlinks pointing outside workspace (Issue #115)', async () => {
+  const { symlink } = await import('node:fs/promises')
+  const root = join(tmpdir(), `fm-symlink-${randomUUID()}`)
+  const workspace = join(root, 'workspace')
+  const outside = join(root, 'outside')
+  await mkdir(workspace, { recursive: true })
+  await mkdir(outside, { recursive: true })
+
+  const outsideFile = join(outside, 'secret.txt')
+  await writeFile(outsideFile, 'TOP_SECRET', 'utf8')
+
+  const insideFile = join(workspace, 'safe.txt')
+  await writeFile(insideFile, 'SAFE_DATA', 'utf8')
+
+  try {
+    // Create symlink pointing outside
+    await symlink(outsideFile, join(workspace, 'leak.txt'))
+    // Create symlink pointing inside workspace
+    await symlink(insideFile, join(workspace, 'safe-link.txt'))
+
+    // 1. Symlink pointing outside must throw ERR_PATH_TRAVERSAL
+    assert.throws(() => {
+      resolveSafePath(workspace, 'leak.txt')
+    }, { code: 'ERR_PATH_TRAVERSAL' })
+
+    // 2. Symlink pointing inside workspace is allowed
+    const safeRes = resolveSafePath(workspace, 'safe-link.txt')
+    assert.equal(safeRes.relativePath, 'safe-link.txt')
+  } catch (err) {
+    if (err?.code === 'EPERM') {
+      // Windows without developer mode / admin privileges cannot create symlinks
+      return
+    }
+    throw err
+  }
+})

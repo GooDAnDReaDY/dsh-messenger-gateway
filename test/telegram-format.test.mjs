@@ -72,3 +72,22 @@ test('markdownToTelegramHtml ignores lone pipe line', () => {
   const out = markdownToTelegramHtml('a | b without table')
   assert.match(out, /a \| b without table/)
 })
+
+test('markdownToTelegramHtml restricts link URLs to safe schemes (Issue #120)', () => {
+  // 1. Safe schemes allowed
+  assert.equal(markdownToTelegramHtml('[web](https://example.com)'), '<a href="https://example.com">web</a>')
+  assert.equal(markdownToTelegramHtml('[insecure](http://example.com)'), '<a href="http://example.com">insecure</a>')
+  assert.equal(markdownToTelegramHtml('[bot](tg://resolve?domain=mybot)'), '<a href="tg://resolve?domain=mybot">bot</a>')
+
+  // 2. Dangerous schemes blocked
+  const jsOut = markdownToTelegramHtml('[click me](javascript:alert(1))')
+  assert.doesNotMatch(jsOut, /<a href/)
+  assert.match(jsOut, /click me \(javascript:alert\(1\)\)/)
+
+  const fileOut = markdownToTelegramHtml('[secret](file:///etc/passwd)')
+  assert.doesNotMatch(fileOut, /<a href/)
+  assert.match(fileOut, /secret \(file:\/\/\/etc\/passwd\)/)
+
+  const dataOut = markdownToTelegramHtml('[exploit](data:text/html,<script>alert(1)</script>)')
+  assert.doesNotMatch(dataOut, /<a href/)
+})

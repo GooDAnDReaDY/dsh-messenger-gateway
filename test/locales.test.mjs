@@ -40,3 +40,13 @@ test('dictionary key parity between en and zh', () => {
     assert.ok(zhKeys.has(k), `Missing key in zh: ${k}`)
   }
 })
+
+test('t() escapes HTML special characters in interpolated parameters (Issue #119)', () => {
+  const rendered = t('cron.scheduled', { id: '1', schedule: '1h', prompt: '<script>alert(1)</script> & "test"' }, 'en')
+  assert.ok(rendered.includes('&lt;script&gt;alert(1)&lt;/script&gt; &amp; "test"'))
+  assert.ok(!rendered.includes('<script>'))
+
+  const reminder = t('remind.scheduled', { time: '12:00', duration: '10m', text: '<b>urgent</b> & clean' }, 'en')
+  assert.ok(reminder.includes('&lt;b&gt;urgent&lt;/b&gt; &amp; clean'))
+  assert.ok(!reminder.includes('<b>urgent</b>'))
+})
