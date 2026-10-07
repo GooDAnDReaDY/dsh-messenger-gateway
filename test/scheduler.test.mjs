@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { randomUUID } from 'node:crypto'
+import { writeFile, rm } from 'node:fs/promises'
 import {
   parseRelativeTime,
   formatRemaining,
@@ -84,3 +85,28 @@ test('scheduler prunes expired fired tasks older than retention limit', async ()
   await sched.save()
   assert.equal(sched.getTasks().length, 0)
 })
+
+test('Issue #117: scheduler handles non-array JSON payload safely with warning', async () => {
+  const file = join(tmpdir(), `test-sched-invalid-${randomUUID()}.json`)
+  const warnings = []
+  const customLogger = {
+    warn: (msg) => warnings.push(msg),
+    debug: () => {},
+  }
+
+  await writeFile(file, JSON.stringify({ notAnArray: true }))
+  try {
+    const sched = createScheduler(file, null, { logger: customLogger })
+    await sched.load()
+    assert.deepEqual(sched.getTasks(), [])
+    assert.equal(warnings.length, 1)
+    assert.match(warnings[0], /invalid tasks payload/)
+
+    // checkDue should execute smoothly without crashing
+    await sched.checkDue()
+    assert.deepEqual(sched.getTasks(), [])
+  } finally {
+    await rm(file, { force: true })
+  }
+})
+
