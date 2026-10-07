@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   extractImageUrls, stripImageUrls, collectImagesDeep, dedupeAttachmentRefs,
-  buildOutboundFiles, fileNameForRef,
+  buildOutboundFiles, fileNameForRef, fetchInternalImage,
 } from '../lib/outbound.js'
 
 test('extractImageUrls finds plugin image paths', () => {
@@ -58,3 +58,38 @@ test('buildOutboundFiles reads attachments and fetches URLs', async () => {
     globalThis.fetch = originalFetch
   }
 })
+
+test('Issue #123: fetchInternalImage enforces response size cap on content-length and body', async () => {
+  const originalFetch = globalThis.fetch
+  try {
+    globalThis.fetch = async () => ({
+      ok: true,
+      headers: new Headers({
+        'content-type': 'image/png',
+        'content-length': '50000000',
+      }),
+      arrayBuffer: async () => new ArrayBuffer(0),
+    })
+
+    await assert.rejects(
+      () => fetchInternalImage('http://127.0.0.1:3000', '/test.png', undefined, { maxBytes: 1000 }),
+      /exceeds limit/
+    )
+
+    globalThis.fetch = async () => ({
+      ok: true,
+      headers: new Headers({
+        'content-type': 'image/png',
+      }),
+      arrayBuffer: async () => new Uint8Array(2000).buffer,
+    })
+
+    await assert.rejects(
+      () => fetchInternalImage('http://127.0.0.1:3000', '/test.png', undefined, { maxBytes: 1000 }),
+      /exceeds limit/
+    )
+  } finally {
+    globalThis.fetch = originalFetch
+  }
+})
+
