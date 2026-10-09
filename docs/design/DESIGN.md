@@ -143,6 +143,7 @@
 ---
 
 ## 10. Locked Design Decisions
+- **2026-10-09**: Реализовано динамическое определение `internalBaseURL` из `ctx.webServer.port` хоста (поддержка динамических OS-assigned портов DSH Desktop) с fallback на `http://127.0.0.1:3080` (#137).
 - **2026-10-07**: Закрыта уязвимость LAN-обхода настроек: строгая проверка `isTrustedSettingsRequest` по `remoteAddress` loopback (`127.0.0.1` / `::1`) без доверия заголовкам хоста (#128).
 - **2026-10-07**: Реализована динамическая перерегистрация маршрута `/dsh-messenger-gateway/telegram/webhook` на лету при изменении `telegram.webhookPath` без перезапуска ядра DSH (#129).
 - **2026-10-07**: Внедрена распаковка Cordis `Volatile` боксов перед сохранением конфигурации в `settings-bridge`, исключающая ошибки `DataCloneError` (#111).
