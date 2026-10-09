@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.14
+
+### Fixed
+- **Dynamic internalBaseURL for DSH Desktop (`lib/config.js`, `lib/gateway.js`, `lib/index.js`, #137):** Replaced hardcoded `'http://127.0.0.1:3080'` volatile default with dynamic discovery function `resolveInternalBaseUrl(config, ctx)` which inspects `ctx.webServer.port`, `ctx.webServer.address()?.port`, and `ctx.get('webServer')?.port` with fallback to `http://127.0.0.1:3080`. Enables automated loopback connectivity in DSH Desktop environments running on OS-assigned ports without manual configuration overrides.
+
 ## 0.4.13
 
 ### Documentation & Standards
