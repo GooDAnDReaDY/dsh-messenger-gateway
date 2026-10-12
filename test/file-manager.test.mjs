@@ -7,6 +7,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import {
   formatFileSize,
   resolveSafePath,
+  resolveInside,
   listFiles,
   getFileForDownload,
 } from '../lib/file-manager.js'
@@ -39,6 +40,24 @@ test('resolveSafePath enforces workspace confinement and blocks traversal', () =
 
   assert.throws(() => {
     resolveSafePath(base, 'D:\\secret.txt')
+  }, { code: 'ERR_PATH_TRAVERSAL' })
+})
+
+test('Issue #127: resolveInside resolves paths strictly inside workspace and prevents escape', () => {
+  const base = join(tmpdir(), 'resolve-inside-test')
+  const target = resolveInside(base, 'generated/images/output.png')
+  assert.equal(target, join(base, 'generated', 'images', 'output.png'))
+
+  assert.throws(() => {
+    resolveInside(base, '../../etc/shadow')
+  }, { code: 'ERR_PATH_TRAVERSAL' })
+
+  assert.throws(() => {
+    resolveInside(base, '/tmp/escape.txt')
+  }, { code: 'ERR_PATH_TRAVERSAL' })
+
+  assert.throws(() => {
+    resolveInside(base, 'C:\\Windows\\System32')
   }, { code: 'ERR_PATH_TRAVERSAL' })
 })
 
