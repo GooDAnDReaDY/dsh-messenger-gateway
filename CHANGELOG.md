@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.15
+
+### Security & Events
+- **Strict Workspace Containment Helper (`lib/file-manager.js`, #127):** Exported `resolveInside(base, candidate = '.')` helper providing strict lexical and symlink containment checks within workspace root with explicit `ERR_PATH_TRAVERSAL` error code on escape attempts. Added comprehensive test coverage in `test/file-manager.test.mjs`.
+- **DSH Core Event Catalog Alignment & Delivery Verification (`lib/gateway.js`, `lib/index.js`, `lib/stream.js`, #140):** Aligned subscriptions with host core event catalog: dynamic skills sync now subscribes to core `tools/change`, `tools/update`, `tools/updated` in addition to `skills/*`; Gateway start listeners now directly subscribe to `tool/call` and `tool/result` with flexible tool name extraction (`extractToolName`) and tolerate direct/wrapped reason objects in `turn/end` and notify bridge. Added end-to-end event sequence delivery tests in `test/host-events.test.mjs`.
+- **Audit Clarifications (#113, #114):** Verified that `attachment-helper.js` and `frontend.js` issues belong to `dsh-image-gen` (where they were resolved in #409/PR #421 and #413/PR #424) and that `dsh-messenger-gateway` file operations are safe against path traversal.
+
 ## 0.4.14
 
 ### Fixed
