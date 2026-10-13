@@ -106,7 +106,7 @@ graph LR
 * `/help` — список возможностей.
 
 ### 7. 🌐 Поддержка прокси и кастомного Bot API (`proxy.js`)
-* Маршрутизация запросов к Telegram через прокси: HTTP, HTTPS, SOCKS5 и SOCKS5h (`telegram.proxyUrl`);
+* Маршрутизация запросов к Telegram через прокси: HTTP, HTTPS, SOCKS5 и SOCKS5h (`telegram.proxyUrl`, поддерживаются логин/пароль, `socks://` и `socks5h://` — синонимы). Пустое поле → берётся из окружения (`TELEGRAM_PROXY`, `DSH_MESSENGER_TELEGRAM_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`); `off`/`none`/`direct` отключают прокси, правила `NO_PROXY` соблюдаются. Туннель реализован на `node:net`/`node:tls` без внешних зависимостей, TLS-сертификат `api.telegram.org` проверяется как обычно;
 * Поддержка пользовательского базового адреса API (`telegram.apiRoot`) для локальных серверов Telegram Bot API или обратных прокси (reverse proxy).
 
 ---
