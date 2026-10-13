@@ -45,6 +45,8 @@ Talk to your Harness agent from Telegram: text, voice, photos, documents, inline
 ## Features
 
 - Long-poll or webhook Telegram bot
+- Configurable proxy support: HTTP, HTTPS, SOCKS5, and SOCKS5h (`telegram.proxyUrl`)
+- Custom Bot API root URL (`telegram.apiRoot`) for reverse proxies and local Bot API servers
 - Multi-transport support: Telegram, Discord (Webhooks & Bot API), and Slack (Webhooks & Bot API)
 - Allowlist + pairing codes
 - Per-user or per-chat sessions (`sessionScope`)
@@ -140,6 +142,8 @@ In addition to Telegram, outbound messages can be dispatched to Discord and Slac
 - `voiceMode`: `mirror` / `always` / `off` — when to speak replies (also `/voice`)
 - `tts.enabled` / `tts.maxChars` — TTS gate and length cap
 - `notifyBridge` — forward non-messenger web session events to a home
+- `telegram.proxyUrl`: optional HTTP, HTTPS, or SOCKS5 proxy URL (`socks5://127.0.0.1:1080`, `http://127.0.0.1:8080`)
+- `telegram.apiRoot`: optional custom Telegram Bot API base URL (default: `https://api.telegram.org`), for local Bot API servers or reverse proxies
 - Bot token is a DSH secret field — never commit it
 
 ## Client UI & Settings Card

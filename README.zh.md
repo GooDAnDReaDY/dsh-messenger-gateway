@@ -39,7 +39,7 @@
 
 **`dsh-messenger-gateway`** 为 **DeepSeek Harness** 智能体提供企业级 Telegram 接入桥梁。
 
-除常规对话转发外，本插件全面打通了智能体深度交互能力：**问答交互式内联按钮 (Inline Keyboard)**、**Telegram 论坛话题 (Forum Topics) 独立会话隔离**、**单用户工作区目录安全隔离**、**6 位配对码鉴权防护**以及**语音条朗读回复 (TTS)**。
+除常规对话转发外，本插件全面打通了智能体深度交互能力：**问答交互式内联按钮 (Inline Keyboard)**、**Telegram 论坛话题 (Forum Topics) 独立会话隔离**、**代理连接支持 (HTTP/HTTPS/SOCKS5 与自定义 apiRoot)**、**单用户工作区目录安全隔离**、**6 位配对码鉴权防护**以及**语音条朗读回复 (TTS)**。
 
 ```mermaid
 graph LR

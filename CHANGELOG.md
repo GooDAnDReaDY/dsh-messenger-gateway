@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.16
+
+### Features
+- **Configurable Proxy Support & Custom apiRoot for Telegram (`lib/proxy.js`, `lib/config.js`, `lib/adapters/telegram.js`, `lib/adapters/telegram-inbound.js`, `lib/client.js`, #142, Refs #4):**
+  - Added HTTP, HTTPS, SOCKS5, and SOCKS5h proxy support via dynamic `undici.ProxyAgent` dispatcher factory (`createTelegramDispatcher`, `normalizeProxyUrl`) without mutating global fetch or affecting other system network calls.
+  - Added configurable `apiRoot` base URL (`normalizeApiRoot`, defaulting to `'https://api.telegram.org'`) supporting local Telegram Bot API server instances and Cloudflare Worker reverse proxies.
+  - Attached custom dispatcher and dynamic `apiRoot` to all Telegram adapter network requests (`call`, `callMultipart`, `downloadFile`, and `probeTelegramHealth`).
+  - Added `proxyUrl` and `apiRoot` settings fields to Card 7 (Advanced Connection) in DSH Web UI with English and Chinese locale strings.
+  - Added comprehensive test coverage in `test/proxy.test.mjs` (13 tests, all 280 suite tests passing).
+
 ## 0.4.15
 
 ### Security & Events
