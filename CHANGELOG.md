@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.4.17
+
+### Fixed & Hardening
+- **Dependency-Free HTTP/SOCKS5 Proxy Tunnel (`lib/proxy.js`, #145, #146, Refs GH #5):**
+  - Replaced `undici.ProxyAgent` dispatcher factory with a lightweight, dependency-free raw TCP/TLS tunneling engine built strictly with native `node:net` and `node:tls`, ensuring reliable proxy connectivity in standard DSH profiles where `undici` is not bundled or resolvable.
+  - Added support for environment variable fallbacks (`TELEGRAM_PROXY`, `DSH_MESSENGER_TELEGRAM_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`, `HTTP_PROXY`) and disable keywords (`off`, `none`, `direct`).
+  - Added strict `NO_PROXY` / `no_proxy` compliance with proper fallback when `no_proxy` is an empty string.
+  - Added public diagnostic proxy status (`proxyActive`, `proxyLabel`, `proxySource`, `proxyError`) exposed in public configuration.
+- **DSH 0.2.0-rc.2 Settings Persistence & Secret Protection (`lib/config.js`, `lib/secret-guard.js`, #145, #146, Refs GH #5):**
+  - Declared configurable sections (`telegram`, `agent`, `media`, `tts`, `discord`, `slack`) and `defaultLocale` as `volatile` in `PluginConfig`, resolving DSH settings engine rejection (`Config field "<path>" is not volatile`).
+  - Added `lib/secret-guard.js` to snapshot and protect secret credentials (such as `botToken`, `webhookSecret`) from being wiped when saving settings forms from the Web UI card.
+- **Telegram Polling Lifecycle & Duplicate Delivery Prevention (`lib/gateway.js`, `lib/adapters/telegram.js`, #145, #146, Refs GH #5):**
+  - Fixed race condition where adapters were previously registered only after `await adapter.start()`. Now registered before awaiting startup, with explicit `stopped` flag checks preventing orphaned background polling loops and eliminating `409 Conflict: terminated by other getUpdates request`.
+  - Added module-level FIFO update cache (1000 entries) preventing duplicate processing of redelivered Telegram updates.
+- **Preserve Command HTML Formatting (`lib/telegram-format.js`, #145, #146, Refs GH #5):**
+  - Decoded standard HTML entities prior to escaping and extracted balanced native Telegram HTML tags (`<b>`, `<code>`, `<pre>`, `<i>`, `<a>`, `<blockquote>`, `tg-spoiler`) into slots, ensuring command outputs display formatted rich text instead of literal escaped entities.
+- **Comprehensive Test Suite & Isolation:**
+  - Added 34 new tests covering mock CONNECT/SOCKS5 proxies, authentication, volatile schema validation, secret guard restoration, and lifecycle stops (301 suite tests passing).
+
 ## 0.4.16
 
 ### Features
