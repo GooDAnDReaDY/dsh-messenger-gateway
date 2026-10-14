@@ -23,6 +23,19 @@ if (typeof tls.setDefaultCACertificates === 'function') {
 
 const logger = { info() {}, warn() {}, error() {}, debug() {} }
 
+const PROXY_ENV_VARS = [
+  'HTTP_PROXY', 'http_proxy', 'HTTPS_PROXY', 'https_proxy',
+  'ALL_PROXY', 'all_proxy', 'NO_PROXY', 'no_proxy',
+  'TELEGRAM_PROXY', 'DSH_MESSENGER_TELEGRAM_PROXY',
+]
+const savedEnv = {}
+for (const k of PROXY_ENV_VARS) {
+  if (k in process.env) {
+    savedEnv[k] = process.env[k]
+    delete process.env[k]
+  }
+}
+
 let tg
 let connectProxy
 let authProxy
@@ -46,6 +59,10 @@ after(async () => {
   ])
   for (const server of [tg, connectProxy, authProxy, slowProxy, socks, socksAuth]) {
     await closeQuietly(server)
+  }
+  for (const k of PROXY_ENV_VARS) {
+    if (k in savedEnv) process.env[k] = savedEnv[k]
+    else delete process.env[k]
   }
 })
 

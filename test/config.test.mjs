@@ -4,10 +4,10 @@ import { PluginConfig, plainConfig, resolveInternalBaseUrl } from '../lib/config
 import { Gateway } from '../lib/gateway.js'
 
 test('Issue #124: PluginConfig schema defines defaultLocale with fallback to en', () => {
-  const defaults = PluginConfig({})
+  const defaults = plainConfig(PluginConfig({}))
   assert.equal(defaults.defaultLocale, 'en')
 
-  const customZh = PluginConfig({ defaultLocale: 'zh' })
+  const customZh = plainConfig(PluginConfig({ defaultLocale: 'zh' }))
   assert.equal(customZh.defaultLocale, 'zh')
 
   const unwrapped = plainConfig(customZh)
