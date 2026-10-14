@@ -142,7 +142,7 @@ In addition to Telegram, outbound messages can be dispatched to Discord and Slac
 - `voiceMode`: `mirror` / `always` / `off` — when to speak replies (also `/voice`)
 - `tts.enabled` / `tts.maxChars` — TTS gate and length cap
 - `notifyBridge` — forward non-messenger web session events to a home
-- `telegram.proxyUrl`: optional HTTP, HTTPS, or SOCKS5 proxy URL (`socks5://127.0.0.1:1080`, `http://127.0.0.1:8080`)
+- `telegram.proxyUrl`: optional HTTP, HTTPS or SOCKS5 proxy URL (`socks5://user:pass@127.0.0.1:1080`, `http://127.0.0.1:8080`); `socks://` and `socks5h://` are aliases. Leave it empty to use `TELEGRAM_PROXY` / `DSH_MESSENGER_TELEGRAM_PROXY` / `HTTPS_PROXY` / `ALL_PROXY` from the environment, use `off`/`none`/`direct` to disable proxying entirely, and `NO_PROXY`/`no_proxy` rules are honoured. The tunnel is implemented with `node:net`/`node:tls` (no extra dependencies) and keeps normal TLS certificate verification for `api.telegram.org`
 - `telegram.apiRoot`: optional custom Telegram Bot API base URL (default: `https://api.telegram.org`), for local Bot API servers or reverse proxies
 - Bot token is a DSH secret field — never commit it
 
