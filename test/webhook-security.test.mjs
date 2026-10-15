@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { timingSafeCompare, isTrustedSettingsRequest, readBody, isLoopback, isAuthorizedMessengerRequest } from '../lib/http.js'
+import { timingSafeCompare, isTrustedSettingsRequest, readBody, isLoopback, isAuthorizedMessengerRequest, isPrivateAddress, isLoopbackOrLan } from '../lib/http.js'
 import { TelegramAdapter } from '../lib/adapters/telegram.js'
 
 test('timingSafeCompare strictly checks equality in constant time', () => {
@@ -375,44 +375,141 @@ test('Issue #102: isAuthorizedMessengerRequest forms fail-closed boundary for in
   )
 })
 
-test('Issue #128: isTrustedSettingsRequest rejects remote LAN requests with forged Origin==Host without secret', () => {
-  // 1. LAN client with forged Origin matching Host and no secret -> rejected
+test('Issue #143: isPrivateAddress and isLoopbackOrLan recognize RFC 1918, link-local, IPv6 ULA, and reject public WAN IPs', () => {
+  // Loopback IPv4 and IPv6
+  assert.equal(isPrivateAddress('127.0.0.1'), true)
+  assert.equal(isPrivateAddress('127.10.20.30'), true)
+  assert.equal(isPrivateAddress('::1'), true)
+  assert.equal(isPrivateAddress('localhost'), true)
+  assert.equal(isPrivateAddress('::ffff:127.0.0.1'), true)
+
+  // RFC 1918 Class A (10.0.0.0/8)
+  assert.equal(isPrivateAddress('10.0.0.1'), true)
+  assert.equal(isPrivateAddress('10.255.255.254'), true)
+  assert.equal(isPrivateAddress('::ffff:10.1.2.3'), true)
+
+  // RFC 1918 Class B (172.16.0.0/12)
+  assert.equal(isPrivateAddress('172.16.0.1'), true)
+  assert.equal(isPrivateAddress('172.24.1.1'), true)
+  assert.equal(isPrivateAddress('172.31.255.255'), true)
+  assert.equal(isPrivateAddress('172.15.255.255'), false)
+  assert.equal(isPrivateAddress('172.32.0.1'), false)
+
+  // RFC 1918 Class C (192.168.0.0/16)
+  assert.equal(isPrivateAddress('192.168.0.1'), true)
+  assert.equal(isPrivateAddress('192.168.1.50'), true)
+  assert.equal(isPrivateAddress('192.168.254.254'), true)
+  assert.equal(isPrivateAddress('::ffff:192.168.1.50'), true)
+
+  // Link-Local IPv4 (169.254.0.0/16)
+  assert.equal(isPrivateAddress('169.254.1.1'), true)
+  assert.equal(isPrivateAddress('169.254.254.254'), true)
+
+  // IPv6 ULA (fc00::/7) and Link-Local (fe80::/10)
+  assert.equal(isPrivateAddress('fc00::1'), true)
+  assert.equal(isPrivateAddress('fd00::1'), true)
+  assert.equal(isPrivateAddress('fd12:3456:789a::1'), true)
+  assert.equal(isPrivateAddress('fe80::1'), true)
+  assert.equal(isPrivateAddress('fe80::1234:5678:9abc:def0'), true)
+
+  // Public WAN addresses
+  assert.equal(isPrivateAddress('8.8.8.8'), false)
+  assert.equal(isPrivateAddress('1.1.1.1'), false)
+  assert.equal(isPrivateAddress('93.184.216.34'), false)
+  assert.equal(isPrivateAddress('203.0.113.50'), false)
+  assert.equal(isPrivateAddress('2001:db8::1'), false)
+  assert.equal(isPrivateAddress('2606:4700::1'), false)
+  assert.equal(isPrivateAddress(''), false)
+  assert.equal(isPrivateAddress(null), false)
+  assert.equal(isPrivateAddress(undefined), false)
+
+  // Alias verification
+  assert.equal(isLoopbackOrLan, isPrivateAddress)
+})
+
+test('Issue #143: isTrustedSettingsRequest allows LAN RFC 1918 browsers with same-origin and blocks WAN', () => {
+  // 1. LAN browser with matching Origin and Host -> accepted (Fixes #143 Item 1)
   assert.equal(
     isTrustedSettingsRequest({
       headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000' },
       socket: { remoteAddress: '192.168.1.50' }
     }),
+    true
+  )
+
+  // 2. LAN browser with matching Referer and Host -> accepted
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: '192.168.1.111:3000', referer: 'http://192.168.1.111:3000/settings' },
+      socket: { remoteAddress: '192.168.1.50' }
+    }),
+    true
+  )
+
+  // 3. LAN browser with sec-fetch-site: same-origin and referer -> accepted
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: '192.168.1.111:3000', referer: 'http://192.168.1.111:3000/settings', 'sec-fetch-site': 'same-origin' },
+      socket: { remoteAddress: '192.168.1.50' }
+    }),
+    true
+  )
+
+  // 4. External WAN client with forged Origin matching Host without secret -> rejected
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000' },
+      socket: { remoteAddress: '203.0.113.50' }
+    }),
     false
   )
 
-  // 2. LAN client with forged Referer matching Host and no secret -> rejected
+  // 5. External WAN client with valid Bearer secret -> accepted
   assert.equal(
     isTrustedSettingsRequest({
-      headers: { host: '192.168.1.111:3000', referer: 'http://192.168.1.111:3000/plugins' },
+      headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000', authorization: 'Bearer wan-secret' },
+      socket: { remoteAddress: '203.0.113.50' }
+    }, 'wan-secret'),
+    true
+  )
+
+  // 6. External WAN client with valid x-webhook-secret -> accepted
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000', 'x-webhook-secret': 'wan-secret' },
+      socket: { remoteAddress: '203.0.113.50' }
+    }, 'wan-secret'),
+    true
+  )
+
+  // 7. LAN client with cross-site Origin (CSRF attempt) -> rejected
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: '192.168.1.111:3000', origin: 'http://evil.com' },
       socket: { remoteAddress: '192.168.1.50' }
     }),
     false
   )
 
-  // 3. LAN client with valid Bearer secret -> accepted
+  // 8. LAN client with sec-fetch-site: cross-site -> rejected
   assert.equal(
     isTrustedSettingsRequest({
-      headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000', authorization: 'Bearer lan-secret-token' },
+      headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000', 'sec-fetch-site': 'cross-site' },
       socket: { remoteAddress: '192.168.1.50' }
-    }, 'lan-secret-token'),
-    true
+    }),
+    false
   )
 
-  // 4. LAN client with valid x-webhook-secret -> accepted
+  // 9. LAN headless client without Origin/Referer/Secret -> rejected
   assert.equal(
     isTrustedSettingsRequest({
-      headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000', 'x-webhook-secret': 'lan-secret-token' },
+      headers: { host: '192.168.1.111:3000' },
       socket: { remoteAddress: '192.168.1.50' }
-    }, 'lan-secret-token'),
-    true
+    }),
+    false
   )
 
-  // 5. Loopback client with Origin matching Host -> accepted
+  // 10. Loopback client with Origin matching Host -> accepted
   assert.equal(
     isTrustedSettingsRequest({
       headers: { host: 'localhost:3080', origin: 'http://localhost:3080' },
@@ -421,13 +518,31 @@ test('Issue #128: isTrustedSettingsRequest rejects remote LAN requests with forg
     true
   )
 
-  // 6. LAN client attacking messenger API with forged Origin -> rejected in isAuthorizedMessengerRequest
+  // 11. Loopback headless client without headers -> accepted
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: '127.0.0.1:3080' },
+      socket: { remoteAddress: '127.0.0.1' }
+    }),
+    true
+  )
+
+  // 12. LAN client attacking messenger API with forged Origin -> rejected in isAuthorizedMessengerRequest
   assert.equal(
     isAuthorizedMessengerRequest({
       headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000' },
       socket: { remoteAddress: '192.168.1.50' }
     }, { secret: 'secret-token-42' }),
     false
+  )
+
+  // 13. Messenger API with valid secret -> accepted
+  assert.equal(
+    isAuthorizedMessengerRequest({
+      headers: { host: '192.168.1.111:3000', authorization: 'Bearer secret-token-42' },
+      socket: { remoteAddress: '192.168.1.50' }
+    }, { secret: 'secret-token-42' }),
+    true
   )
 })
 
