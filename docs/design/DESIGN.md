@@ -91,21 +91,19 @@
 
 | Путь | Метод | Проверка источника / Аутентификация | Назначение |
 |---|---|---|---|
-| `/dsh-messenger-gateway/status` | `GET` | Loopback (`127.0.0.1` / `::1`) | Диагностический снимок состояния, адаптеров и здоровья API |
-| `/dsh-messenger-gateway/config` | `GET` | Loopback (`127.0.0.1` / `::1`) | Получение текущей конфигурации плагина |
-| `/dsh-messenger-gateway/config` | `POST` | Loopback (`127.0.0.1` / `::1`) | Сохранение и реактивное применение настроек |
-| `/dsh-messenger-gateway/smoke` | `POST` | Loopback (`127.0.0.1` / `::1`) | Тестовый запуск проверки доступности сетевых адаптеров |
-| `/dsh-messenger-gateway/pairing/pending` | `GET` | Loopback (`127.0.0.1` / `::1`) | Список нерассмотренных запросов на сопряжение |
-| `/dsh-messenger-gateway/pairing/approve` | `POST` | Loopback (`127.0.0.1` / `::1`) | Одобрение запроса сопряжения по User ID |
-| `/dsh-messenger-gateway/pairing/reject` | `POST` | Loopback (`127.0.0.1` / `::1`) | Отклонение запроса сопряжения по User ID |
+| `/dsh-messenger-gateway/status` | `GET` | Loopback или LAN (RFC 1918) с same-origin, либо Webhook/Bearer Secret | Диагностический снимок состояния, адаптеров и здоровья API |
+| `/dsh-messenger-gateway/config` | `GET` | Loopback или LAN (RFC 1918) с same-origin, либо Webhook/Bearer Secret | Получение текущей конфигурации плагина |
+| `/dsh-messenger-gateway/config` | `PUT` | Loopback или LAN (RFC 1918) с same-origin, либо Webhook/Bearer Secret | Сохранение и реактивное применение настроек |
+| `/dsh-messenger-gateway/smoke` | `POST` | Loopback или LAN (RFC 1918) с same-origin, либо Webhook/Bearer Secret | Тестовый запуск проверки доступности сетевых адаптеров |
+| `/dsh-messenger-gateway/pairing/pending` | `GET` | Loopback или LAN (RFC 1918) с same-origin, либо Webhook/Bearer Secret | Список нерассмотренных запросов на сопряжение |
+| `/dsh-messenger-gateway/pairing/approve` | `POST` | Loopback или LAN (RFC 1918) с same-origin, либо Webhook/Bearer Secret | Одобрение запроса сопряжения по User ID |
+| `/dsh-messenger-gateway/pairing/reject` | `POST` | Loopback или LAN (RFC 1918) с same-origin, либо Webhook/Bearer Secret | Отклонение запроса сопряжения по User ID |
 | `/dsh-messenger-gateway/telegram/webhook` | `POST` | Проверка `X-Telegram-Bot-Api-Secret-Token` | Приём внешних вебхуков от Telegram Cloud API |
-| `/dsh-messenger-gateway/messenger/api/message` | `POST` | Loopback (`127.0.0.1` / `::1`) | Внутренний API отправки текстовых сообщений |
-| `/dsh-messenger-gateway/messenger/api/action` | `POST` | Loopback (`127.0.0.1` / `::1`) | Внутренний API отправки чат-действий (`typing`, `upload`) |
-| `/dsh-messenger-gateway/messenger/api/document` | `POST` | Loopback (`127.0.0.1` / `::1`) | Внутренний API отправки бинарных файлов и документов |
-| `/dsh-messenger-gateway/files` | `GET` | Loopback (`127.0.0.1` / `::1`) | Листинг файлов текущего воркспейса (с защитой от symlink-escape) |
-| `/dsh-messenger-gateway/get` | `GET` | Loopback (`127.0.0.1` / `::1`) | Чтение файлов воркспейса (с верификацией канонического пути) |
+| `/dsh-messenger-gateway/messenger/send` | `POST` | Loopback (`127.0.0.1` / `::1`) или Webhook/Bearer Secret | Внутренний API отправки текстовых сообщений |
+| `/dsh-messenger-gateway/messenger/progress` | `POST` | Loopback (`127.0.0.1` / `::1`) или Webhook/Bearer Secret | Внутренний API отправки промежуточного прогресса |
+| `/dsh-messenger-gateway/messenger/ask` | `POST` | Loopback (`127.0.0.1` / `::1`) или Webhook/Bearer Secret | Внутренний API интерактивных вопросов с кнопками |
 
-> **Правило изоляции**: Доступ к административным и API маршрутам разрешён исключительно с доверенного локального интерфейса (Loopback). Запросы из локальной сети (LAN) с поддельными заголовками `Origin`/`Referer` отвергаются с кодом `403 Forbidden`.
+> **Правило изоляции**: Доступ к административным маршрутам (настройки, статус, сопряжение, smoke-тесты) разрешён с локального хоста (Loopback) и от браузеров в доверенных локальных сетях (RFC 1918 IPv4 `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, link-local `169.254.0.0/16`, IPv6 ULA `fc00::/7` / link-local `fe80::/10`) при обязательном совпадении `Origin`/`Referer` с `Host` (`same-origin`). Неавторизованные запросы из публичного интернета (WAN), межсайтовые запросы (`cross-site` CSRF) и бестелесные headless-запросы из LAN без секретного токена отвергаются с кодом `403 Forbidden`. Маршруты отправки сообщений (`/messenger/*`) требуют loopback или действительный Bearer/Webhook секрет.
 
 ---
 
@@ -143,6 +141,7 @@
 ---
 
 ## 10. Locked Design Decisions
+- **2026-10-15**: Добавлена поддержка браузеров из локальной сети (RFC 1918 / ULA) для карточки настроек, сопряжения и smoke-тестов с защитой от CSRF и спуфинга. Закрыта утечка метаданных на GET /status и GET /config для неавторизованных WAN-клиентов (#143).
 - **2026-10-13**: Внедрена поддержка прокси (HTTP, HTTPS, SOCKS5) через dynamic `undici.ProxyAgent` dispatcher и кастомного `apiRoot` базового URL для Telegram адаптера (#142).
 - **2026-10-09**: Реализовано динамическое определение `internalBaseURL` из `ctx.webServer.port` хоста (поддержка динамических OS-assigned портов DSH Desktop) с fallback на `http://127.0.0.1:3080` (#137).
 - **2026-10-07**: Закрыта уязвимость LAN-обхода настроек: строгая проверка `isTrustedSettingsRequest` по `remoteAddress` loopback (`127.0.0.1` / `::1`) без доверия заголовкам хоста (#128).
