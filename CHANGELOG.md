@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.4.18
+
+### Security & Access Control
+- **LAN RFC 1918 / ULA Browser Settings Support (`lib/http.js`, #143, #147):**
+  - Added dependency-free private address validation (`isPrivateAddress`, `isLoopbackOrLan`) detecting IPv4 RFC 1918 (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), link-local (`169.254.0.0/16`), IPv6 ULA (`fc00::/7`), IPv6 link-local (`fe80::/10`), and IPv4-mapped IPv6 (`::ffff:...`).
+  - Allowed browsers originating from private local subnets to manage settings, pairing, and run smoke tests via `isTrustedSettingsRequest` when same-origin checks pass (`Origin`/`Referer` matches `Host`), while strictly maintaining isolation against cross-site CSRF attacks and public WAN clients.
+  - Guarded internal messenger dispatch routes (`isAuthorizedMessengerRequest`) to strictly require loopback or a valid Bearer/Webhook secret.
+- **Protected Metadata Exposure on Status & Config Endpoints (`lib/index.js`, `lib/client.js`, #143, #147):**
+  - Secured `GET /dsh-messenger-gateway/status` and `GET /dsh-messenger-gateway/config` behind `isTrustedSettingsRequest`, eliminating unauthenticated metadata disclosure to external WAN scanners.
+  - Added `credentials: 'same-origin'` to status polling in Web UI client (`lib/client.js`).
+- **Design Contract Alignment (`docs/design/DESIGN.md`, #143, #147):**
+  - Updated Section 7 (Route Security Policy) and Section 10 (Locked Design Decisions) to document LAN RFC 1918 browser trust rules and protected GET routes.
+
 ## 0.4.17
 
 ### Fixed & Hardening
