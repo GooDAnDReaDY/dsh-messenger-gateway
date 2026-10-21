@@ -81,7 +81,7 @@ test('Issue #129: webhookPath updates dynamically without restarting DSH', () =>
   assert.ok(registeredRoutes.has('/custom/path'), 'new route must be registered')
 })
 
-test('Issue #143: GET /status and GET /config require isTrustedSettingsRequest (WAN rejected with 403, LAN/loopback accepted)', async () => {
+test('Issue #143 & #157: GET /status and GET /config require isTrustedSettingsRequest (unauthenticated LAN/WAN rejected with 403, DSH sessions, secrets and loopback accepted)', async () => {
   const registeredRoutes = new Map()
   const fakeWebServer = {
     register: (route) => {
@@ -90,9 +90,15 @@ test('Issue #143: GET /status and GET /config require isTrustedSettingsRequest (
     },
   }
 
+  let dshConnectionService = null
+
   const fakeCtx = {
     webServer: fakeWebServer,
-    get: (name) => (name === 'webServer' ? fakeWebServer : null),
+    get: (name) => {
+      if (name === 'webServer') return fakeWebServer
+      if (name === 'connection') return dshConnectionService
+      return null
+    },
     on: () => () => {},
     effect: (fn) => {
       const res = fn()
@@ -105,7 +111,7 @@ test('Issue #143: GET /status and GET /config require isTrustedSettingsRequest (
     logger: { info: () => {}, warn: () => {}, debug: () => {} },
   }
 
-  apply(fakeCtx, { enabled: true, telegram: { enabled: false } })
+  apply(fakeCtx, { enabled: true, telegram: { enabled: false }, webhooks: { secret: 'configured-secret' } })
 
   function createMockRes() {
     let status = 200
@@ -121,8 +127,12 @@ test('Issue #143: GET /status and GET /config require isTrustedSettingsRequest (
 
   const statusRoute = registeredRoutes.get('/dsh-messenger-gateway/status')
   const configRoute = registeredRoutes.get('/dsh-messenger-gateway/config')
+  const pairingRoute = registeredRoutes.get('/dsh-messenger-gateway/pairing')
+  const approveRoute = registeredRoutes.get('/dsh-messenger-gateway/pairing/approve')
   assert.ok(statusRoute, 'status route must be registered')
   assert.ok(configRoute, 'config route must be registered')
+  assert.ok(pairingRoute, 'pairing route must be registered')
+  assert.ok(approveRoute, 'pairing approve route must be registered')
 
   // 1. External WAN client without secret -> 403 forbidden on GET /status
   {
@@ -148,7 +158,7 @@ test('Issue #143: GET /status and GET /config require isTrustedSettingsRequest (
     assert.equal(res.json().error, 'forbidden')
   }
 
-  // 3. LAN browser with matching Origin -> 200 ok on GET /status
+  // 3. LAN client without secret and without DSH session -> 403 forbidden on GET /status (Fixes #157)
   {
     const res = createMockRes()
     await statusRoute.handler({
@@ -156,11 +166,11 @@ test('Issue #143: GET /status and GET /config require isTrustedSettingsRequest (
       headers: { host: '192.168.1.111:3080', origin: 'http://192.168.1.111:3080' },
       socket: { remoteAddress: '192.168.1.50' },
     }, res)
-    assert.equal(res.statusCode, 200)
-    assert.equal(res.json().ok, true)
+    assert.equal(res.statusCode, 403)
+    assert.equal(res.json().error, 'forbidden')
   }
 
-  // 4. LAN browser with matching Origin -> 200 ok on GET /config
+  // 4. LAN client without secret and without DSH session -> 403 forbidden on GET /config (Fixes #157)
   {
     const res = createMockRes()
     await configRoute.handler({
@@ -168,12 +178,70 @@ test('Issue #143: GET /status and GET /config require isTrustedSettingsRequest (
       headers: { host: '192.168.1.111:3080', origin: 'http://192.168.1.111:3080' },
       socket: { remoteAddress: '192.168.1.50' },
     }, res)
-    assert.equal(res.statusCode, 200)
-    assert.equal(res.json().ok, true)
-    assert.ok(res.json().config)
+    assert.equal(res.statusCode, 403)
+    assert.equal(res.json().error, 'forbidden')
   }
 
-  // 5. Loopback request -> 200 ok on GET /status and GET /config
+  // 5. LAN client without secret and without DSH session -> 403 forbidden on POST /pairing/approve (Fixes #157)
+  {
+    const res = createMockRes()
+    await approveRoute.handler({
+      method: 'POST',
+      headers: { host: '192.168.1.111:3080', origin: 'http://192.168.1.111:3080' },
+      socket: { remoteAddress: '192.168.1.50' },
+    }, res)
+    assert.equal(res.statusCode, 403)
+    assert.equal(res.json().error, 'forbidden')
+  }
+
+  // 6. LAN browser with DSH connection session -> 200 ok on GET /status and GET /config (#157)
+  {
+    dshConnectionService = { requestRejection: () => undefined }
+
+    const resStatus = createMockRes()
+    await statusRoute.handler({
+      method: 'GET',
+      headers: { host: '192.168.1.111:3080', origin: 'http://192.168.1.111:3080' },
+      socket: { remoteAddress: '192.168.1.50' },
+    }, resStatus)
+    assert.equal(resStatus.statusCode, 200)
+    assert.equal(resStatus.json().ok, true)
+
+    const resConfig = createMockRes()
+    await configRoute.handler({
+      method: 'GET',
+      headers: { host: '192.168.1.111:3080', origin: 'http://192.168.1.111:3080' },
+      socket: { remoteAddress: '192.168.1.50' },
+    }, resConfig)
+    assert.equal(resConfig.statusCode, 200)
+    assert.equal(resConfig.json().ok, true)
+    assert.ok(resConfig.json().config)
+
+    dshConnectionService = null
+  }
+
+  // 7. LAN client with valid Bearer secret -> 200 ok on GET /status and GET /config (#157)
+  {
+    const resStatus = createMockRes()
+    await statusRoute.handler({
+      method: 'GET',
+      headers: { host: '192.168.1.111:3080', authorization: 'Bearer configured-secret' },
+      socket: { remoteAddress: '192.168.1.50' },
+    }, resStatus)
+    assert.equal(resStatus.statusCode, 200)
+    assert.equal(resStatus.json().ok, true)
+
+    const resConfig = createMockRes()
+    await configRoute.handler({
+      method: 'GET',
+      headers: { host: '192.168.1.111:3080', authorization: 'Bearer configured-secret' },
+      socket: { remoteAddress: '192.168.1.50' },
+    }, resConfig)
+    assert.equal(resConfig.statusCode, 200)
+    assert.equal(resConfig.json().ok, true)
+  }
+
+  // 8. Loopback request -> 200 ok on GET /status and GET /config
   {
     const resStatus = createMockRes()
     await statusRoute.handler({

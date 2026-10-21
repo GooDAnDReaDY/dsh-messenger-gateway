@@ -91,19 +91,25 @@
 
 | Путь | Метод | Проверка источника / Аутентификация | Назначение |
 |---|---|---|---|
-| `/dsh-messenger-gateway/status` | `GET` | Loopback или LAN (RFC 1918) с same-origin, либо Webhook/Bearer Secret | Диагностический снимок состояния, адаптеров и здоровья API |
-| `/dsh-messenger-gateway/config` | `GET` | Loopback или LAN (RFC 1918) с same-origin, либо Webhook/Bearer Secret | Получение текущей конфигурации плагина |
-| `/dsh-messenger-gateway/config` | `PUT` | Loopback или LAN (RFC 1918) с same-origin, либо Webhook/Bearer Secret | Сохранение и реактивное применение настроек |
-| `/dsh-messenger-gateway/smoke` | `POST` | Loopback или LAN (RFC 1918) с same-origin, либо Webhook/Bearer Secret | Тестовый запуск проверки доступности сетевых адаптеров |
-| `/dsh-messenger-gateway/pairing/pending` | `GET` | Loopback или LAN (RFC 1918) с same-origin, либо Webhook/Bearer Secret | Список нерассмотренных запросов на сопряжение |
-| `/dsh-messenger-gateway/pairing/approve` | `POST` | Loopback или LAN (RFC 1918) с same-origin, либо Webhook/Bearer Secret | Одобрение запроса сопряжения по User ID |
-| `/dsh-messenger-gateway/pairing/reject` | `POST` | Loopback или LAN (RFC 1918) с same-origin, либо Webhook/Bearer Secret | Отклонение запроса сопряжения по User ID |
+| `/dsh-messenger-gateway/status` | `GET` | Loopback, либо Webhook/Bearer Secret, либо DSH `connection.requestRejection` | Диагностический снимок состояния, адаптеров и здоровья API |
+| `/dsh-messenger-gateway/config` | `GET` | Loopback, либо Webhook/Bearer Secret, либо DSH `connection.requestRejection` | Получение текущей конфигурации плагина |
+| `/dsh-messenger-gateway/config` | `PUT` | Loopback, либо Webhook/Bearer Secret, либо DSH `connection.requestRejection` | Сохранение и реактивное применение настроек |
+| `/dsh-messenger-gateway/smoke` | `POST` | Loopback, либо Webhook/Bearer Secret, либо DSH `connection.requestRejection` | Тестовый запуск проверки доступности сетевых адаптеров |
+| `/dsh-messenger-gateway/pairing/pending` | `GET` | Loopback, либо Webhook/Bearer Secret, либо DSH `connection.requestRejection` | Список нерассмотренных запросов на сопряжение |
+| `/dsh-messenger-gateway/pairing/approve` | `POST` | Loopback, либо Webhook/Bearer Secret, либо DSH `connection.requestRejection` | Одобрение запроса сопряжения по User ID |
+| `/dsh-messenger-gateway/pairing/reject` | `POST` | Loopback, либо Webhook/Bearer Secret, либо DSH `connection.requestRejection` | Отклонение запроса сопряжения по User ID |
+| `/dsh-messenger-gateway/events` | `POST` | Обязательный `webhooks.secret` (Bearer/Header/Body) | Приём событий от внешних систем/CI/CD |
 | `/dsh-messenger-gateway/telegram/webhook` | `POST` | Проверка `X-Telegram-Bot-Api-Secret-Token` | Приём внешних вебхуков от Telegram Cloud API |
-| `/dsh-messenger-gateway/messenger/send` | `POST` | Loopback (`127.0.0.1` / `::1`) или Webhook/Bearer Secret | Внутренний API отправки текстовых сообщений |
-| `/dsh-messenger-gateway/messenger/progress` | `POST` | Loopback (`127.0.0.1` / `::1`) или Webhook/Bearer Secret | Внутренний API отправки промежуточного прогресса |
-| `/dsh-messenger-gateway/messenger/ask` | `POST` | Loopback (`127.0.0.1` / `::1`) или Webhook/Bearer Secret | Внутренний API интерактивных вопросов с кнопками |
+| `/dsh-messenger-gateway/messenger/send` | `POST` | Loopback (`127.0.0.1` / `::1`), либо Webhook/Bearer Secret, либо DSH `connection` | Внутренний API отправки текстовых сообщений |
+| `/dsh-messenger-gateway/messenger/progress` | `POST` | Loopback (`127.0.0.1` / `::1`), либо Webhook/Bearer Secret, либо DSH `connection` | Внутренний API отправки промежуточного прогресса |
+| `/dsh-messenger-gateway/messenger/ask` | `POST` | Loopback (`127.0.0.1` / `::1`), либо Webhook/Bearer Secret, либо DSH `connection` | Внутренний API интерактивных вопросов с кнопками |
 
-> **Правило изоляции**: Доступ к административным маршрутам (настройки, статус, сопряжение, smoke-тесты) разрешён с локального хоста (Loopback) и от браузеров в доверенных локальных сетях (RFC 1918 IPv4 `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, link-local `169.254.0.0/16`, IPv6 ULA `fc00::/7` / link-local `fe80::/10`) при обязательном совпадении `Origin`/`Referer` с `Host` (`same-origin`). Неавторизованные запросы из публичного интернета (WAN), межсайтовые запросы (`cross-site` CSRF) и бестелесные headless-запросы из LAN без секретного токена отвергаются с кодом `403 Forbidden`. Маршруты отправки сообщений (`/messenger/*`) требуют loopback или действительный Bearer/Webhook секрет.
+> **Правило изоляции (Fail-Closed, #157)**: Доступ к административным маршрутам (настройки, статус, сопряжение, smoke-тесты) разрешён исключительно:
+> 1. С локального хоста (Loopback `127.0.0.1` / `::1`);
+> 2. При наличии валидного секретного токена `webhooks.secret` (`Authorization: Bearer <secret>` или `x-webhook-secret: <secret>`);
+> 3. От авторизованной браузерной сессии DSH Web UI (валидация через сервис ядра `connection.requestRejection(req) === undefined` с проверкой `same-origin`).
+>
+> Нахождение клиента в локальной подсети (RFC 1918) само по себе **НЕ** является аутентификацией. Любые неаутентифицированные сетевые запросы (как из WAN, так и из LAN) без секрета или сессии DSH блокируются с кодом `403 Forbidden` (`401 Unauthorized`). Маршруты отправки сообщений (`/messenger/*`) и приёма внешних событий (`/events`) строго защищены и недоступны анонимным клиентам.
 
 ---
 
@@ -141,6 +147,7 @@
 ---
 
 ## 10. Locked Design Decisions
+- **2026-10-21**: Устранена уязвимость неавторизованного доступа из локальной сети (#157): LAN RFC 1918 remote адрес больше не является достаточным условием доверия. Все административные и управляющие маршруты требуют валидный webhook/bearer secret, локальный loopback либо подтверждённую сессию DSH ядра `connection.requestRejection`. Неаутентифицированные LAN/WAN запросы блокируются (fail-closed 403).
 - **2026-10-15**: Добавлена поддержка браузеров из локальной сети (RFC 1918 / ULA) для карточки настроек, сопряжения и smoke-тестов с защитой от CSRF и спуфинга. Закрыта утечка метаданных на GET /status и GET /config для неавторизованных WAN-клиентов (#143).
 - **2026-10-13**: Внедрена поддержка прокси (HTTP, HTTPS, SOCKS5) через dynamic `undici.ProxyAgent` dispatcher и кастомного `apiRoot` базового URL для Telegram адаптера (#142).
 - **2026-10-09**: Реализовано динамическое определение `internalBaseURL` из `ctx.webServer.port` хоста (поддержка динамических OS-assigned портов DSH Desktop) с fallback на `http://127.0.0.1:3080` (#137).
