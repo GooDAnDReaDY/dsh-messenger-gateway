@@ -427,35 +427,76 @@ test('Issue #143: isPrivateAddress and isLoopbackOrLan recognize RFC 1918, link-
   assert.equal(isLoopbackOrLan, isPrivateAddress)
 })
 
-test('Issue #143: isTrustedSettingsRequest allows LAN RFC 1918 browsers with same-origin and blocks WAN', () => {
-  // 1. LAN browser with matching Origin and Host -> accepted (Fixes #143 Item 1)
+test('Issue #143 & #157: isTrustedSettingsRequest rejects unauthenticated LAN requests and allows DSH sessions or secrets', () => {
+  // 1. LAN browser without secret and without DSH connection session -> rejected (Fixes #157: LAN is not authentication)
   assert.equal(
     isTrustedSettingsRequest({
       headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000' },
       socket: { remoteAddress: '192.168.1.50' }
     }),
-    true
+    false
   )
 
-  // 2. LAN browser with matching Referer and Host -> accepted
+  // 2. LAN browser with Referer without secret/session -> rejected (#157)
   assert.equal(
     isTrustedSettingsRequest({
       headers: { host: '192.168.1.111:3000', referer: 'http://192.168.1.111:3000/settings' },
       socket: { remoteAddress: '192.168.1.50' }
     }),
-    true
+    false
   )
 
-  // 3. LAN browser with sec-fetch-site: same-origin and referer -> accepted
+  // 3. LAN browser with sec-fetch-site: same-origin without secret/session -> rejected (#157)
   assert.equal(
     isTrustedSettingsRequest({
       headers: { host: '192.168.1.111:3000', referer: 'http://192.168.1.111:3000/settings', 'sec-fetch-site': 'same-origin' },
       socket: { remoteAddress: '192.168.1.50' }
     }),
+    false
+  )
+
+  // 4. LAN browser with DSH Connection Service session admission -> accepted (#157)
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000' },
+      socket: { remoteAddress: '192.168.1.50' },
+      connectionService: { requestRejection: () => undefined },
+    }),
     true
   )
 
-  // 4. External WAN client with forged Origin matching Host without secret -> rejected
+  // 5. LAN browser with DSH Connection Service rejecting session -> rejected (#157)
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000' },
+      socket: { remoteAddress: '192.168.1.50' },
+      connectionService: { requestRejection: () => 401 },
+    }),
+    false
+  )
+
+  // 6. LAN browser with DSH Connection via Cordis ctx -> accepted (#157)
+  const mockCtx = {
+    connection: { requestRejection: () => undefined }
+  }
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000' },
+      socket: { remoteAddress: '192.168.1.50' },
+    }, undefined, mockCtx),
+    true
+  )
+
+  // 7. LAN browser with valid Bearer secret -> accepted
+  assert.equal(
+    isTrustedSettingsRequest({
+      headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000', authorization: 'Bearer lan-secret' },
+      socket: { remoteAddress: '192.168.1.50' }
+    }, 'lan-secret'),
+    true
+  )
+
+  // 8. External WAN client with forged Origin matching Host without secret -> rejected
   assert.equal(
     isTrustedSettingsRequest({
       headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000' },
@@ -464,7 +505,7 @@ test('Issue #143: isTrustedSettingsRequest allows LAN RFC 1918 browsers with sam
     false
   )
 
-  // 5. External WAN client with valid Bearer secret -> accepted
+  // 9. External WAN client with valid Bearer secret -> accepted
   assert.equal(
     isTrustedSettingsRequest({
       headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000', authorization: 'Bearer wan-secret' },
@@ -473,7 +514,7 @@ test('Issue #143: isTrustedSettingsRequest allows LAN RFC 1918 browsers with sam
     true
   )
 
-  // 6. External WAN client with valid x-webhook-secret -> accepted
+  // 10. External WAN client with valid x-webhook-secret -> accepted
   assert.equal(
     isTrustedSettingsRequest({
       headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000', 'x-webhook-secret': 'wan-secret' },
@@ -482,25 +523,27 @@ test('Issue #143: isTrustedSettingsRequest allows LAN RFC 1918 browsers with sam
     true
   )
 
-  // 7. LAN client with cross-site Origin (CSRF attempt) -> rejected
+  // 11. LAN client with cross-site Origin (CSRF attempt) -> rejected
   assert.equal(
     isTrustedSettingsRequest({
       headers: { host: '192.168.1.111:3000', origin: 'http://evil.com' },
-      socket: { remoteAddress: '192.168.1.50' }
+      socket: { remoteAddress: '192.168.1.50' },
+      connectionService: { requestRejection: () => undefined },
     }),
     false
   )
 
-  // 8. LAN client with sec-fetch-site: cross-site -> rejected
+  // 12. LAN client with sec-fetch-site: cross-site -> rejected
   assert.equal(
     isTrustedSettingsRequest({
       headers: { host: '192.168.1.111:3000', origin: 'http://192.168.1.111:3000', 'sec-fetch-site': 'cross-site' },
-      socket: { remoteAddress: '192.168.1.50' }
+      socket: { remoteAddress: '192.168.1.50' },
+      connectionService: { requestRejection: () => undefined },
     }),
     false
   )
 
-  // 9. LAN headless client without Origin/Referer/Secret -> rejected
+  // 13. LAN headless client without Origin/Referer/Secret -> rejected
   assert.equal(
     isTrustedSettingsRequest({
       headers: { host: '192.168.1.111:3000' },
@@ -509,7 +552,7 @@ test('Issue #143: isTrustedSettingsRequest allows LAN RFC 1918 browsers with sam
     false
   )
 
-  // 10. Loopback client with Origin matching Host -> accepted
+  // 14. Loopback client with Origin matching Host -> accepted
   assert.equal(
     isTrustedSettingsRequest({
       headers: { host: 'localhost:3080', origin: 'http://localhost:3080' },
@@ -518,7 +561,7 @@ test('Issue #143: isTrustedSettingsRequest allows LAN RFC 1918 browsers with sam
     true
   )
 
-  // 11. Loopback headless client without headers -> accepted
+  // 15. Loopback headless client without headers -> accepted
   assert.equal(
     isTrustedSettingsRequest({
       headers: { host: '127.0.0.1:3080' },
