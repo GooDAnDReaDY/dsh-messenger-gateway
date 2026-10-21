@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.19
+
+### Security & Hardening
+- **Require Webhook Secret or DSH Peer Session for Settings & Management Routes (`lib/http.js`, `lib/index.js`, #157, #158):**
+  - Eliminated unauthorized LAN access vulnerability: RFC 1918 private remote IP alone is no longer treated as authentication.
+  - Implemented `getConnection(ctx)` helper detecting Cordis `connection` service from DSH Core.
+  - Enforced strict fail-closed authorization across `isTrustedSettingsRequest` and `isAuthorizedMessengerRequest`:
+    - Valid Webhook / Bearer secret (`Authorization: Bearer <secret>` or `x-webhook-secret: <secret>`) is required, OR
+    - Local host loopback (`127.0.0.1` / `::1`) for host-level tools and CLI, OR
+    - Active DSH Web UI browser session verified via `connection.requestRejection(req) === undefined` with same-origin validation.
+    - All unauthenticated network requests from LAN and WAN without secret or session are rejected with `403 Forbidden`.
+  - Updated all route handlers in `lib/index.js` (`/status`, `/smoke`, `/config`, `/pairing`, `/pairing/approve`, `/pairing/reject`, `/messenger/*`) with context passing.
+  - Removed unused import from `lib/updater.js`.
+- **Design Contract Alignment (`docs/design/DESIGN.md`, #157, #158):**
+  - Updated Section 7 (Route Security Policy) and Section 10 (Locked Design Decisions) to document fail-closed LAN security policies.
+
 ## 0.4.18
 
 ### Security & Access Control
