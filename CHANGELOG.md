@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.20
+
+### Features & Usability
+- **Working Directory (`agent.cwd`) in Web UI Settings Card (`lib/client.js`, `lib/index.js`, #159, #160, Refs GH #6):**
+  - Exposed the previously invisible `agent.cwd` configuration parameter in the Web UI Settings card under *Agent & reasoning behaviour*.
+  - Added dynamic hint showing effective directory fallback (`process.cwd()`) when left blank.
+  - Implemented directory path validation and warning badge (`⚠️ Directory does not exist or is not accessible`) for invalid or non-existent directories.
+  - Added localization support for English, Chinese, and Russian.
+- **Automatic DSH Workspace Registration (`lib/workspace.js`, `lib/gateway.js`, #159, #160, Refs GH #6):**
+  - Implemented `registerSessionInWorkspace` using Cordis `ctx.workspaceRegistry` with automatic fallback to atomic write of `~/.dsh/storages/workspace.json`.
+  - Automatically files new messenger gateway sessions (`msgw-*`) into the matching DSH workspace by canonical path.
+  - Resolves the issue where all gateway sessions landed in DSH's "Ungrouped" (未分组) bucket in the sidebar.
+- **Chat Command `/cwd` (`lib/commands.js`, `lib/gateway-commands.js`, #159, #160, Refs GH #6):**
+  - Added `/cwd` command to view current chat session working directory and configuration source.
+  - Unified `/files` and `/get` commands to resolve paths via `resolveEffectiveCwd`.
+- **Design Contract Alignment (`docs/design/DESIGN.md`, #159, #160):**
+  - Updated Section 2 (User Surfaces) and Section 10 (Locked Design Decisions).
+
 ## 0.4.19
 
 ### Security & Hardening
