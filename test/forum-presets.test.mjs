@@ -58,7 +58,7 @@ test('Issue #91: forum-mirror functions handle logging and skills without Refere
     skills: { list: () => [{ name: 'testSkill', title: 'Test Skill' }] },
     logger: { debug: () => {} },
   }
-  const skills = collectDynamicSkills(fakeCtx)
+  const skills = await collectDynamicSkills(fakeCtx)
   assert.equal(skills.length, 1)
   assert.equal(skills[0].name, 'testSkill')
 
