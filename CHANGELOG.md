@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4.21
+
+### Bug Fixes & Usability
+- **Dynamic Skills Registration & Telegram Autocomplete (`lib/forum-mirror.js`, #161, Refs GH #7):**
+  - Made `collectDynamicSkills(ctx)` asynchronous with `await skillsService.list()`, resolving silent promise iteration errors and ensuring dynamic skills populate Telegram command autocomplete.
+  - Aligned user-invocability checks with the `@deepseek-ai/dsh-skill` contract (`s.invocation?.userInvocable !== false`).
+  - Implemented `truncateSafe()` utility enforcing a strict 80-character budget per dynamic skill to avoid Telegram Bot API aggregate command limits (`BOT_COMMANDS_TOO_MUCH`).
+  - Guaranteed UTF-16 surrogate safety, preventing lone high surrogates (`!str.isWellFormed()`) that previously caused Telegram `400 Bad Request`.
+- **Slash Command Agent Pass-Through (`lib/gateway-commands.js`, `lib/gateway.js`, #162, Refs GH #8):**
+  - Allowed unrecognized slash commands to pass through to the underlying DSH agent (`forwardToAgent: true`) instead of immediately rejecting them with `Unknown command /xxx`.
+  - Enables messenger invocation of DSH runtime commands (`/compact`, `/goal`), dynamic skills, and plugin commands.
+  - Automatically strips Telegram group/forum bot username tags (e.g. `/compact@MyBot` -> `/compact`) before feeding the turn to the agent.
+- **Design Contract Alignment (`docs/design/DESIGN.md`, #161, #162):**
+  - Updated Section 10 (Locked Design Decisions) with architecture guarantees for dynamic skill collection and command pass-through.
+
 ## 0.4.20
 
 ### Features & Usability
