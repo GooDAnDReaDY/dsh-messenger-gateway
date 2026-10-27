@@ -147,6 +147,10 @@
 ---
 
 ## 10. Locked Design Decisions
+- **2026-10-27**: Гарантированная передача AbortSignal в Cordis-сервис `commands.execute` при неактивном ходе (#167, GitHub #11):
+  - При исполнении DSH runtime-команд (`/compact`, `/goal`, плагинные команды) в состоянии покоя диалога `chat.abort` равен `undefined` (согласно жизненному циклу `runTurn`). Сервис `@deepseek-ai/dsh-commands` безусловно разыменовывает `signal.aborted` (`if (signal.aborted) throw abortError(signal)`), что приводило к `TypeError: Cannot read properties of undefined (reading aborted)`.
+  - Шлюз инициализирует временный `AbortController`, связывает его с `chat.abort` на время выполнения команды (что позволяет прерывать долгие команды через `/stop`) и передаёт валидный `cmdAbort.signal` в `commandsService.execute(agent, line, attachments, cmdAbort.signal)`.
+  - По завершении исполнения (в блоке `finally`) временный контроллер аккуратно очищается (`chat.abort = undefined`), сохраняя инвариант неактивного хода.
 - **2026-10-27**: Восстановление оригинальных имен навыков с дефисами и прямое исполнение runtime-команд DSH (#164, #165, GitHub #9, #10):
   - При санитизации динамических навыков для Telegram (`[a-z0-9_]{1,32}`) шлюз сохраняет соответствие `sanitized -> originalName` в `gw.skillNameMap`. При получении команды (`/code_review`) функция `restoreSkillGesture` восстанавливает оригинальный дефисный жест (`/code-review`), который распознается DSH-сканером `SKILL_GESTURE` в `dsh-tool-skill`. Если зарегистрирован навык с буквальным именем через подчеркивание, перезапись не выполняется.
   - Перед запуском хода модели `runTurn` шлюз проверяет наличие Cordis-сервиса `commands` (`ctx.commands` / `ctx.get('commands')`) и вызывает `commands.execute(chat.agent, cleanBody, attachments, signal)`. Системные runtime-команды DSH (`/compact`, `/goal`, плагинные команды) исполняются напрямую в рантайме с возвратом результата пользователю, не расходуя токены модели и не загрязняя контекст диалога.
