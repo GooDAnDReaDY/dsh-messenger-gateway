@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.23
+
+### Bug Fixes & Usability
+- **Runtime Commands AbortSignal on Idle Chat (`lib/gateway.js`, #167, Refs GH #11):**
+  - Resolved `TypeError: Cannot read properties of undefined (reading aborted)` when running DSH runtime commands (`/compact`, `/goal`, plugin commands) between agent turns.
+  - Initialized a scoped `AbortController` and passed `cmdAbort.signal` to `commandsService.execute(agent, cleanBody, attachments, cmdAbort.signal)` when `chat.abort` is undefined on idle chats.
+  - Linked `chat.abort = cmdAbort` during execution so that `/stop` or turn cancellation can abort active commands.
+  - Cleaned up `chat.abort` back to `undefined` in `finally` block to maintain idle chat invariants.
+- **Design Contract Alignment (`docs/design/DESIGN.md`, #167):**
+  - Updated Section 10 (Locked Design Decisions) with architecture guarantees for runtime command `AbortSignal` propagation.
+
 ## 0.4.22
 
 ### Bug Fixes & Usability
