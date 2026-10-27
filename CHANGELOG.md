@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.22
+
+### Bug Fixes & Usability
+- **Skill Gesture Hyphen Restoration (`lib/forum-mirror.js`, `lib/gateway.js`, #164, Refs GH #9):**
+  - Maintained dynamic mapping from Telegram-sanitized underscore command names back to original hyphenated skill names (`gw.skillNameMap`).
+  - Added `restoreSkillGesture(gw, body)` to restore hyphenated skill gesture tokens (e.g. `/code_review` -> `/code-review`), enabling DSH's `@deepseek-ai/dsh-tool-skill` `SKILL_GESTURE` scanner to recognize and load skills tapped from Telegram's command menu.
+  - Preserved literal underscore skill names if explicitly registered in the raw skill registry.
+  - Stripped optional `@BotName` group mentions before matching.
+- **DSH Runtime Command Direct Execution (`lib/gateway.js`, #165, Refs GH #10):**
+  - Integrated direct execution of DSH runtime commands (`/compact`, `/goal`, and custom plugin commands) via Cordis `commands.execute(chat.agent, cleanBody, attachments, signal)`.
+  - Returned execution outcome directly to the messenger user (`outcome.result?.text` or localized `msg.command_done`) without initiating unnecessary LLM turns or consuming model tokens.
+  - Seamlessly fell through to standard turn loop (`runTurn`) when command is unhandled or corresponds to a skill gesture.
+  - Added localized strings for `msg.command_done` in English and Chinese.
+- **Design Contract Alignment (`docs/design/DESIGN.md`, #164, #165):**
+  - Updated Section 10 (Locked Design Decisions) with architecture guarantees for skill hyphen restoration and runtime command execution.
+
 ## 0.4.21
 
 ### Bug Fixes & Usability
