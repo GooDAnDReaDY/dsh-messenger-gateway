@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.4.26
+
+### Features & Usability
+- **Topic-Based Autonomous Workspaces & Isolated Git Worktrees (`lib/workspace.js`, `lib/gateway-commands.js`, `lib/gateway.js`, #151):**
+  - Persistent workspace binding store `createTopicWorkspaceStore` (`~/.dsh/storages/topic-workspaces.json`) binding forum topics to isolated directory paths and persona roles.
+  - Interactive `/project` command: `/project bind <path> [role]`, `/project unbind`, `/project list`, `/project` (status).
+  - Git repository and worktree inspection (`inspectGitWorkspace`), detecting branches, clean/dirty worktrees, and detached states.
+  - Per-topic working directory resolution (`resolveEffectiveCwdFor(chatId, threadId)`) dynamically applied to `/cwd`, `/files`, `/get` and turn execution.
+  - Automatic session registration in `ctx.workspaceRegistry` and fallback to `~/.dsh/storages/workspace.json`.
+  - Unit tests in `test/topic-workspaces.test.mjs` (3 tests).
+- **Persistent User Profiles & Memory via `dsh-memory-brain` (`lib/memory-brain.js`, `lib/gateway-turn.js`, `lib/gateway-commands.js`, `lib/config.js`, #152):**
+  - Dependency-free client for companion memory service `dsh-memory-brain` using JSON-RPC `/mcp` and REST API.
+  - Strict user-level scope isolation (`scope: "user:<userId>"`), preventing cross-user context leakage in shared chats and forum topics.
+  - Automatic memory injection (`autoInject`): retrieves relevant user preferences and injects `[User Memory Profile (userId: ...)]` into agent turn context.
+  - Chat commands `/memory` (list active memories, `/memory add <fact>`) and `/forget <id|all>` (supports prefix IDs or full cleanup).
+  - Background conversational preference recording (`recordTurnMemory`): captures explicit statements of preferences, names, and guidelines upon turn completion.
+  - Fail-open resilience: graceful degradation when `dsh-memory-brain` is unavailable or restarted.
+  - Unit tests in `test/memory-brain.test.mjs` (6 tests).
+- **Design Contract Alignment (`docs/design/DESIGN.md`, #151, #152):**
+  - Updated Section 10 with topic workspace storage specifications and memory scoping invariants.
+
 ## 0.4.25
 
 ### Features & Usability
