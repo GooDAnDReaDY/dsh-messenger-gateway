@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4.28
+
+### Features & Usability
+- **Telegram Mini App (TMA) Dashboard for Artifacts, Kanban & Gateway Status (lib/webapp.js, lib/adapters/telegram.js, lib/artifacts.js, lib/gateway-commands.js, lib/config.js, #150):**
+  - Lightweight mobile web UI mounted under /dsh-messenger-gateway/webapp styled with native Telegram CSS theme variables (--tg-theme-*).
+  - Cryptographic HMAC-SHA256 validation of window.Telegram.WebApp.initData with secret key derived from bot token (WebAppData), freshness checking of uth_date, and user access verification (alidateTelegramWebAppData).
+  - In-memory ring buffer store createArtifactStore capturing generated Mermaid diagrams, charts, and tables with deep-linking #artifact=<id> support.
+  - Fullscreen artifact viewer with zoomable/pannable SVG rendering, syntax-highlighted code inspection, and one-tap copy button.
+  - Live host health and adapter status dashboard: uptime, message counters, active chats, and Outbox DLQ monitoring with quick retry action.
+  - Integration into Telegram Bot UX: persistent menu button [📊 Dashboard] via Bot API setChatMenuButton, quick actions keyboard expansion, and /app chat command.
+  - Unit tests in 	est/webapp.test.mjs (8 tests).
+- **Design Contract Alignment (docs/design/DESIGN.md, #150):**
+  - Locked design contract for Mini App authentication and artifact routing.
+
+
 ## 0.4.27
 
 ### Reliability & Cost Tracking
