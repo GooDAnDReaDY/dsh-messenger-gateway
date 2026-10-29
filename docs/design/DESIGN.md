@@ -147,6 +147,12 @@
 ---
 
 ## 10. Locked Design Decisions
+- **2026-10-29**: Потоковая передача рассуждений моделей (Reasoning / `<thought>`) и сворачиваемые блоки в Telegram (#149):
+  - Потоковый парсер `parseReasoningStream` в `lib/stream.js` распознаёт теги мыслей (`<think>`, `<thought>`, `[THOUGHT]`, `|begin_of_thought|`) как в закрытом виде, так и на лету в незакрытом состоянии в процессе генерации, а также извлекает reasoning-дельты (`reasoning_content`, `reasoning-delta`).
+  - Во время активного мышления формируется блок цитаты `<blockquote>` с таймером (`🧠 Thinking... (Xs)`).
+  - По завершении рассуждений блок форматируется в нативную сворачиваемую цитату Telegram `<blockquote expandable>`, предотвращая загромождение чата длинными цепочками размышлений.
+  - В `lib/telegram-format.js` добавлена поддержка `<blockquote expandable>` в белом списке разрешённых безопасных HTML-тегов.
+  - Добавлены настройки `showReasoning` и `thoughtCollapse` в Telegram-конфигурацию и форму настроек.
 - **2026-10-27**: Гарантированная передача AbortSignal в Cordis-сервис `commands.execute` при неактивном ходе (#167, GitHub #11):
   - При исполнении DSH runtime-команд (`/compact`, `/goal`, плагинные команды) в состоянии покоя диалога `chat.abort` равен `undefined` (согласно жизненному циклу `runTurn`). Сервис `@deepseek-ai/dsh-commands` безусловно разыменовывает `signal.aborted` (`if (signal.aborted) throw abortError(signal)`), что приводило к `TypeError: Cannot read properties of undefined (reading aborted)`.
   - Шлюз инициализирует временный `AbortController`, связывает его с `chat.abort` на время выполнения команды (что позволяет прерывать долгие команды через `/stop`) и передаёт валидный `cmdAbort.signal` в `commandsService.execute(agent, line, attachments, cmdAbort.signal)`.
