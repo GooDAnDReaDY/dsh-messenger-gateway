@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.4.25
+
+### Features & Usability
+- **Batch Media Ingestion & Media Group Debouncing (`lib/adapters/telegram.js`, `lib/config.js`, #154):**
+  - Grouped inbound Telegram messages sharing identical `media_group_id` into a sliding debounce window (`mediaGroupDebounceMs`, default: `650ms`).
+  - Aggregated all photos, videos, and documents from a single album into a single unified agent turn with multiple image attachments.
+  - Combined captions and text from album items, preventing fragmented turns and duplicate "photo received" prompts.
+  - Safe best-effort timer cleanup on adapter `stop()`.
+- **Zero-Dependency Safe Zip Archive Ingestion (`lib/documents.js`, `lib/adapters/telegram-inbound.js`, #154):**
+  - Integrated zero-dependency Central Directory and local file header parser using standard library `node:zlib`.
+  - Strict path traversal protection (`isSafeZipPath`) against Zip Slip vulnerabilities (blocking `..`, leading slashes, and Windows drive roots).
+  - Enforced security limits: max 100 entries, 10MB total uncompressed extraction limit (zip bomb guard), and 512KB single file limit.
+  - Automatically filtered out non-code binaries, lockfiles (`package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`), and build directories (`node_modules`, `.git`, `dist`, `.turbo`, `build`, `vendor`).
+  - Generated structured ASCII file tree summaries and injected extracted source code directly into conversation context.
+  - Unit tests added in `test/batch-media-zip.test.mjs` (6 tests).
+- **Mermaid & Charts Visualizer with Companion Photo Previews (`lib/artifacts.js`, `lib/gateway-turn.js`, #153):**
+  - Diagram type detection (`detectDiagramType`) for Mermaid diagrams (`pie`, `xychart`, `sequence`, `flowchart`, `code`).
+  - Dedicated vector SVG card generators using modern dark palette: `renderPieChartSvg` (donut slices with percentages & legend), `renderXyChartSvg` (axes, gridlines, bars, line charts).
+  - In-memory SHA-256 hash caching (`getCachedDiagram` / `setCachedDiagram`) avoiding redundant re-renders.
+  - Asynchronous SVG-to-PNG conversion via local `ffmpeg` (`convertSvgToPng`).
+  - Companion visual preview cards dispatched as Telegram photos (`kind: photo`, `mime: image/png`), ensuring crisp mobile readability with inline references to the original code.
+  - Graceful fallback: defaults to `.svg` document attachment or styled code card on conversion error.
+  - Unit tests added in `test/artifacts.test.mjs` (10 tests).
+- **Design Contract Alignment (`docs/design/DESIGN.md`, #154, #153):**
+  - Updated Section 10 (Locked Design Decisions) with batch media debouncing, safe zip ingestion, and visualizer invariants.
+
 ## 0.4.24
 
 ### Features & Usability
