@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.4.27
+
+### Reliability & Cost Tracking
+- **Outbound Transactional Queue (Outbox DLQ) with Offline Recovery & Backoff (lib/outbox.js, lib/gateway.js, lib/gateway-commands.js, lib/commands.js, #155):**
+  - Zero-dependency transactional queue (outbox-queue.json) persisting outbound messenger operations to disk before delivery.
+  - Automatic offline buffering, retry scheduling with exponential backoff and jitter (computeOutboxBackoffMs), and Telegram 
+etry_after header adherence.
+  - Fail-closed terminal error detection (isTerminalSendError) diverting non-retryable failures directly to Dead Letter Queue (DLQ).
+  - Admin notifications to pairing chat on DLQ overflows.
+  - Operational /outbox command (/outbox, /outbox retry, /outbox clear) for inspection and manual recovery.
+  - Comprehensive unit test coverage in 	est/outbox.test.mjs (8 tests).
+- **Token Usage & Cost Tracker in Messenger Sessions (lib/cost-tracker.js, lib/gateway-turn.js, lib/gateway-commands.js, lib/config.js, lib/commands.js, #156):**
+  - Extracted usage metrics (prompt, completion, reasoning, cached tokens) and turn duration from assistant stream events.
+  - Multi-tier session projection reading (session.projection('costByModel')) with fallback to local turn accumulation and latest turn metrics.
+  - Accurate pricing calculations (DEFAULT_MODEL_RATES, DeepSeek official token rates).
+  - Configurable compact cost footer (	elegram.costFooter: true) appending ⏱ 2.4s · 🧠 1.2k · 💬 450 · .0024 to turn replies.
+  - Configurable budget alert threshold (	elegram.budgetAlertThresholdUsd), emitting warning alerts when spending thresholds are reached.
+  - Interactive /cost command with detailed breakdown of prompt, completion, cached tokens, and estimated cost in USD.
+  - Comprehensive unit test coverage in 	est/cost-tracker.test.mjs (8 tests).
+- **Design Contract Alignment (docs/design/DESIGN.md, #155, #156):**
+  - Locked design contracts for outbox recovery mechanisms, DLQ storage schemas, and token metering footers.
+
+
 ## 0.4.26
 
 ### Features & Usability
