@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.4.24
+
+### Features & Usability
+- **Live Reasoning Streaming & Collapsible Thought Blocks (`lib/stream.js`, `lib/telegram-format.js`, `lib/gateway.js`, `lib/gateway-turn.js`, #149):**
+  - Integrated live streaming extraction for reasoning and `<thought>` blocks during LLM responses.
+  - Streaming previews display intermediate reasoning progress (`💭 Thinking... (Xs)
+> latest snippet`) and auto-switch to output when final response tokens start arriving.
+  - Completed reasoning blocks are wrapped into native Telegram expandable blockquotes (`<blockquote expandable>💭 Thought (Xs)
+...</blockquote>`), keeping chats clean and readable on mobile and desktop clients while preserving the full thought process.
+  - Added user settings `showReasoning` (`boolean`, default: `true`) and `thoughtCollapse` (`boolean`, default: `true`).
+  - Unit tests added in `test/stream-reasoning.test.mjs` (11 tests).
+- **Interactive Action Approval Cards with Inline Diff & Buttons (`lib/gateway-turn.js`, `lib/config.js`, `lib/client.js`, `lib/locales/`, #148):**
+  - Structured formatting for action approval cards (`formatApprovalCard`) when the model requests execution of sensitive tools.
+  - Syntax-highlighted code blocks for command execution (`<pre><code class="language-bash">...</code></pre>`).
+  - Unified diff view (`<pre><code class="language-diff">...</code></pre>`) with green/red additions/deletions highlighting for file modifications (`edit_file`, `write_file`).
+  - 4 interactive action buttons: `[✅ Approve]`, `[❌ Reject]`, `[✏️ Steer / Amend]`, `[⚡ Trust Session]`.
+  - Added configurable sensitivity `approvalsSensitivity`: `all` (prompts for every tool), `mutations` (default; prompts only for commands, file edits, git, deploy, and mutations while letting read-only tools run smoothly), and `disabled`.
+  - Added fail-closed timeout protection `approvalsTimeoutMs` (default 5 minutes), auto-rejecting pending actions if unanswered.
+  - Unit tests added in `test/action-approvals.test.mjs` (8 tests).
+- **Design Contract Alignment (`docs/design/DESIGN.md`, #148):**
+  - Updated Section 10 (Locked Design Decisions) with HITL action approval UX, sensitivity tiers, and fail-closed timeout invariants.
+
 ## 0.4.23
 
 ### Bug Fixes & Usability
