@@ -148,6 +148,10 @@
 
 ## 10. Locked Design Decisions
 
+- **2026-11-03**: Исправление вызова `gw.resolveWebAppUrl()` в сессионных ходах и обработчиках команд (#178, GitHub #13):
+  - Метод `resolveWebAppUrl()` класса `Gateway` проверяет активность WebApp (`tg.webAppEnabled !== false`), возвращает настроенный `tg.webAppUrl` либо выводит публичный путь `/dsh-messenger-gateway/webapp` из origin `tg.webhookUrl`.
+  - В `lib/gateway-turn.js` и `lib/gateway-commands.js` вызовы защищены безопасным обращением `gw.resolveWebAppUrl?.()`.
+
 - **2026-10-29**: Telegram Mini App (TMA) Dashboard для просмотра артефактов, канбана и статуса шлюза (#150):
   - Встроенное мобильное веб-приложение (`/dsh-messenger-gateway/webapp`) с адаптацией под цветовую палитру Telegram WebApp CSS variables (`--tg-theme-*`).
   - Криптографическая верификация `window.Telegram.WebApp.initData` через HMAC-SHA256 по спецификации Telegram с секретным ключом, порождаемым от токена бота (`WebAppData`), проверкой актуальности `auth_date` и авторизацией по списку `allowedUserIds` (`validateTelegramWebAppData`).

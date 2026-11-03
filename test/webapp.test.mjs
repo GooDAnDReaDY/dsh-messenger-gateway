@@ -5,6 +5,7 @@ import { Readable } from 'node:stream'
 import { validateTelegramWebAppData, createArtifactStore, createWebAppHtml, createWebAppHandler } from '../lib/webapp.js'
 import { buildQuickActionsKeyboard } from '../lib/commands.js'
 import { handleGatewayCommand } from '../lib/gateway-commands.js'
+import { Gateway } from '../lib/gateway.js'
 
 function generateValidInitData(botToken, userObj = { id: 12345678, first_name: 'TestUser' }, authDate = Math.floor(Date.now() / 1000)) {
   const params = new URLSearchParams()
@@ -214,4 +215,26 @@ test('createWebAppHandler serves HTML and protects API endpoints with Telegram i
   assert.equal(mockResAction.statusCode, 200)
   assert.equal(JSON.parse(mockResAction.body).retried, 1)
   assert.equal(outboxRetried, true)
+})
+
+test('Gateway.prototype.resolveWebAppUrl resolves configured URL and derives fallback', () => {
+  const gwDisabled = new Gateway({ on: () => {}, effect: () => {} }, {
+    telegram: { webAppEnabled: false, webAppUrl: 'https://custom.com' }
+  })
+  assert.equal(gwDisabled.resolveWebAppUrl(), '')
+
+  const gwCustom = new Gateway({ on: () => {}, effect: () => {} }, {
+    telegram: { webAppEnabled: true, webAppUrl: 'https://my-app.example.com' }
+  })
+  assert.equal(gwCustom.resolveWebAppUrl(), 'https://my-app.example.com')
+
+  const gwDerived = new Gateway({ on: () => {}, effect: () => {} }, {
+    telegram: { webAppEnabled: true, webhookUrl: 'https://bot.example.com:8443/webhook' }
+  })
+  assert.equal(gwDerived.resolveWebAppUrl(), 'https://bot.example.com:8443/dsh-messenger-gateway/webapp')
+
+  const gwEmpty = new Gateway({ on: () => {}, effect: () => {} }, {
+    telegram: { webAppEnabled: true }
+  })
+  assert.equal(gwEmpty.resolveWebAppUrl(), '')
 })
