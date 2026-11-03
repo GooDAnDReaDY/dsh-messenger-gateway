@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.29
+
+### Bug Fixes
+- **Resolve WebApp URL in Gateway Sessions & Commands (lib/gateway.js, lib/gateway-turn.js, lib/gateway-commands.js, #178, GitHub #13):**
+  - Implemented missing Gateway.prototype.resolveWebAppUrl() method in lib/gateway.js, preventing TypeError: gw.resolveWebAppUrl is not a function during turn reply processing.
+  - Added optional chaining safeguards gw.resolveWebAppUrl?.() in 
+unGatewayTurn and handleGatewayCommand.
+  - Added unit test covering 
+esolveWebAppUrl() resolution and derivation in 	est/webapp.test.mjs.
+
+
 ## 0.4.28
 
 ### Features & Usability
