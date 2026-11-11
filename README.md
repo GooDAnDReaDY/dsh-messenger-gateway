@@ -51,6 +51,7 @@ Talk to your Harness agent from Telegram: text, voice, photos, documents, inline
 - Allowlist + pairing codes
 - Per-user or per-chat sessions (`sessionScope`)
 - Forum topics as separate sessions
+- Named sessions from chat metadata (`agent.sessionTitleFromChat`: `TG · @username` or `TG · Group › topic N`)
 - Quick actions reply keyboard (`/keyboard on|off`)
 - Multi-select interactive ask forms with checkboxes and pagination (`messenger_ask`)
 - Artifact & Mermaid diagram rendering (SVG cards) and monospace table formatting
@@ -139,6 +140,7 @@ In addition to Telegram, outbound messages can be dispatched to Discord and Slac
 ## Configuration notes
 
 - `sessionScope`: `user` (default) or `chat` — how group chats isolate sessions
+- `sessionTitleFromChat`: `false` (default) — name each new session after its originating chat (`TG · @user`, `TG · Group › topic N`) instead of generic generated titles
 - `voiceMode`: `mirror` / `always` / `off` — when to speak replies (also `/voice`)
 - `tts.enabled` / `tts.maxChars` — TTS gate and length cap
 - `notifyBridge` — forward non-messenger web session events to a home
