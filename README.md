@@ -48,7 +48,8 @@ Talk to your Harness agent from Telegram: text, voice, photos, documents, inline
 - Configurable proxy support: HTTP, HTTPS, SOCKS5, and SOCKS5h (`telegram.proxyUrl`)
 - Custom Bot API root URL (`telegram.apiRoot`) for reverse proxies and local Bot API servers
 - Multi-transport support: Telegram, Discord (Webhooks & Bot API), and Slack (Webhooks & Bot API)
-- Allowlist + pairing codes
+- Allowlist + pairing codes (with configurable `allowlistMode`: `open` | `closed`)
+- Conversation switching directly from chat (`/sessions` and `/resume <n|id>`)
 - Per-user or per-chat sessions (`sessionScope`)
 - Forum topics as separate sessions
 - Named sessions from chat metadata (`agent.sessionTitleFromChat`: `TG · @username` or `TG · Group › topic N`)
@@ -105,6 +106,8 @@ Spoken replies use Telegram `sendVoice`. If TTS returns MP3 (or other non-Opus a
 | `/start` `/help` | Help |
 | `/whoami` | Your Telegram user id |
 | `/new` | New agent session |
+| `/sessions` | List recent messenger conversations |
+| `/resume <n|id>` | Switch chat to previous session |
 | `/stop` | Abort the current turn |
 | `/model` | Interactive 2-step model picker (providers → models) or `/model <prov> <mod>` |
 | `/status` | Gateway status and session counters |
@@ -140,6 +143,8 @@ In addition to Telegram, outbound messages can be dispatched to Discord and Slac
 ## Configuration notes
 
 - `sessionScope`: `user` (default) or `chat` — how group chats isolate sessions
+- `allowlistMode`: `open` (default) or `closed` — in `closed` mode, an empty allowlist admits nobody (fail-closed)
+- `sessionList`: `true` (default) — enables `/sessions` and `/resume` commands in chat
 - `sessionTitleFromChat`: `false` (default) — name each new session after its originating chat (`TG · @user`, `TG · Group › topic N`) instead of generic generated titles
 - `voiceMode`: `mirror` / `always` / `off` — when to speak replies (also `/voice`)
 - `tts.enabled` / `tts.maxChars` — TTS gate and length cap
