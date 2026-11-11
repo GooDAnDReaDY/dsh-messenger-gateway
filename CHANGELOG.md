@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.31
+
+### Security & Hardening
+- **Fail-Closed Allowlist Mode & Startup Warning (lib/config.js, lib/adapters/telegram.js, lib/gateway.js, test/allowlist-mode.test.mjs, #182, GitHub #17):**
+  - Added `telegram.allowlistMode` setting with `'open'` (default) and `'closed'` modes.
+  - In `'closed'` mode, an empty allowlist admits nobody (fail-closed), routing all messages from unapproved senders to pairing/rejection.
+  - Added startup logger warning when `allowlistMode` is `'open'` and `allowedUserIds` is empty, alerting administrators to the open access configuration.
+  - Unit tests in `test/allowlist-mode.test.mjs` (6 tests).
+
+### Features & Usability
+- **Conversation Switching from Chat via `/sessions` and `/resume` (lib/gateway-commands.js, lib/commands.js, lib/config.js, lib/gateway.js, test/sessions-resume.test.mjs, #182, GitHub #18):**
+  - Added `/sessions` command: queries recent messenger conversations (`msgw-*`, unarchived) via host `sessionQuery`, formats a numbered list with titles and workspace directories, and remembers indices for the chat.
+  - Added `/resume <n|id>` command: safely transitions chat onto an existing conversation, reattaching sessions via `createChat(key, input, targetSessionId)` while keeping session/thread mappings consistent.
+  - Refuses session switching while a turn is actively running (`turnActive`).
+  - Added `agent.sessionList: boolean` configuration flag (default `true`).
+  - Registered `/sessions` and `/resume` in `DEFAULT_TELEGRAM_COMMANDS` and `/help`.
+  - Unit tests in `test/sessions-resume.test.mjs` (6 tests).
+
 ## 0.4.30
 
 ### Bug Fixes
