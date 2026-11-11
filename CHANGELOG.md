@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.30
+
+### Bug Fixes
+- **Stop Gateway on Plugin Dispose & Cancel In-Flight Long Poll (lib/index.js, lib/adapters/telegram.js, #180, GitHub #14):**
+  - Registered gateway teardown as an effect (`ctx.effect(() => () => { ... })`) because Cordis does not deliver a `dispose` event to `ctx.on('dispose')`.
+  - Added `pollAbort` (`AbortController`) to `TelegramAdapter` to immediately abort in-flight `getUpdates` requests during reload, preventing leaked long polls and conflicting update consumers.
+- **Detach Session Mappings Before Disposing Old Chat on `/new` (lib/gateway-commands.js, #180, GitHub #15):**
+  - Cleared all four session mappings (`chats`, `sessionToChat`, `sessionToThread`, `threadToSession`) before disposing the old chat.
+  - Deferred `chat.dispose()` out of band via `setImmediate` to prevent turn drain races where closing events were appended outside an active SessionStore.
+
+### Features & Usability
+- **Name Sessions After Originating Chat (lib/labels.js, lib/gateway.js, lib/adapters/telegram.js, lib/config.js, test/labels.test.mjs, #180, GitHub #16):**
+  - Added pure `chatLabel` utility (`lib/labels.js`) creating readable titles like `TG · @username` for direct messages or `TG · Group › topic N` for forum topics.
+  - Added `agent.sessionTitleFromChat: boolean` config option (default `false`) to rename new sessions via `sessionTitle.rename`.
+  - Added unit test suite `test/labels.test.mjs` (5 tests).
+
 ## 0.4.29
 
 ### Bug Fixes
