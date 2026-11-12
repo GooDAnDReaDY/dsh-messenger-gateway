@@ -35,8 +35,9 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "test:load": "node scripts/verify-dsh-load.mjs",
-    "test:all": "npm test && npm run test:load",
-    "smoke:http": "node scripts/smoke-http.mjs"
+    "test:all": "npm test && npm run test:load && npm run pack:check",
+    "smoke:http": "node scripts/smoke-http.mjs",
+    "pack:check": "node scripts/pack-check.mjs"
   },
   "dsh": {
     "bundle": {
