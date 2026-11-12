@@ -68,5 +68,9 @@
   },
   "bugs": {
     "url": "https://github.com/GooDAnDReaDY/dsh-messenger-gateway/issues"
+  },
+  "overrides": {
+    "zod": "^4.6.6",
+    "fast-uri": "^3.1.9"
   }
 }
