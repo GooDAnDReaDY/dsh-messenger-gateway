@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { timingSafeCompare, isTrustedSettingsRequest, readBody, isLoopback, isAuthorizedMessengerRequest, isPrivateAddress, isLoopbackOrLan } from '../lib/http.js'
+import { timingSafeCompare, isTrustedSettingsRequest, readBody, isLoopback, isAuthorizedMessengerRequest, isPrivateAddress } from '../lib/http.js'
 import { TelegramAdapter } from '../lib/adapters/telegram.js'
 
 test('timingSafeCompare strictly checks equality in constant time', () => {
@@ -375,7 +375,7 @@ test('Issue #102: isAuthorizedMessengerRequest forms fail-closed boundary for in
   )
 })
 
-test('Issue #143: isPrivateAddress and isLoopbackOrLan recognize RFC 1918, link-local, IPv6 ULA, and reject public WAN IPs', () => {
+test('Issue #143: isPrivateAddress recognizes RFC 1918, link-local, IPv6 ULA, and reject public WAN IPs', () => {
   // Loopback IPv4 and IPv6
   assert.equal(isPrivateAddress('127.0.0.1'), true)
   assert.equal(isPrivateAddress('127.10.20.30'), true)
@@ -424,7 +424,6 @@ test('Issue #143: isPrivateAddress and isLoopbackOrLan recognize RFC 1918, link-
   assert.equal(isPrivateAddress(undefined), false)
 
   // Alias verification
-  assert.equal(isLoopbackOrLan, isPrivateAddress)
 })
 
 test('Issue #143 & #157: isTrustedSettingsRequest rejects unauthenticated LAN requests and allows DSH sessions or secrets', () => {
