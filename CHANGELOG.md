@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.4.32
+
+### Features & Usability
+- **Native Approval & Terminal Outcome Telegram Notifications without External Hooks (lib/index.js, docs/migration-external-hooks.md, test/notify-bridge-extended.test.mjs, #187):**
+  - Enhanced `telegram.notifyBridge` to handle action approval requests (`approval/asked`, `approval/request`) and all terminal outcomes (`completed`, `error`, `blocked`, `max-tokens`) natively without relying on external hook scripts or deprecated settings files.
+  - Implemented replay prevention guard to eliminate duplicate notifications during projection replay.
+  - Ensured non-blocking asynchronous dispatch so agent turns are never delayed or stalled.
+  - Maintained complete isolation for messenger sessions (`excludeSessionPrefixes: ['msgw-']`) and respected Telegram home mute states.
+  - Added comprehensive test suite in `test/notify-bridge-extended.test.mjs` (7 tests).
+  - Added migration and duplicate-avoidance guide in `docs/migration-external-hooks.md`.
+
+### Security & Hardening
+- **Transitive Dependency Audit Fixes (zod & fast-uri) (package.json, package-lock.json, #186):**
+  - Added npm overrides for `zod: ^4.6.6` and `fast-uri: ^3.1.9`, resolving GHSA-mrhx-c7xc-m3w5 (memory exhaustion) and GHSA-w74x-v6f9-j3xg (scheme spoofing).
+  - `npm audit --omit=dev` reports 0 vulnerabilities with 0 runtime dependencies and all 9 peerDependencies intact.
+- **Path Resolution & Dead Export Clean-up (lib/file-manager.js, lib/http.js, lib/models.js, lib/stream.js, lib/workspace.js, #185):**
+  - Unified path containment check to use `resolveInside` in `file-manager.js` (`listFiles`, `getFileForDownload`).
+  - Wired `isPrivateAddress` into `isTrustedSettingsRequest` for explicit LAN rejection and removed unused alias `isLoopbackOrLan`.
+  - Wired `clearModelCatalogCache` to `Gateway.prototype.stop`.
+  - Wired `formatReasoningFinal` into `gateway-turn.js` final answer assembly, unifying thought block markup formatting.
+  - Removed unused dead function `resolveTopicWorkspacesStoragePath`.
+- **Preflight Clean-up & Empty Catch Elimination (lib/*.js):**
+  - Replaced all empty `catch` blocks across the codebase with debug logging or explicit void handlers.
+  - `preflight.sh` returns `FAIL=0` with clean package composition.
+
+### Build & Maintenance
+- **Pack Integrity & Tarball Artifact Elimination (scripts/pack-check.mjs, package.json, test/pack-check.test.mjs, docs/deployment.md, #184):**
+  - Removed legacy `.tgz` release archives from repository root.
+  - Added `scripts/pack-check.mjs` and `npm run pack:check` script (enforcing clean root checkout and file size limit ≤ 262,144 bytes).
+  - Added test suite in `test/pack-check.test.mjs` (2 tests).
+  - Documented packaging guidelines in `docs/deployment.md`.
+
 ## 0.4.31
 
 ### Security & Hardening
