@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-messenger-gateway",
-  "version": "0.4.31",
+  "version": "0.4.32",
   "description": "Telegram messenger bridge for DeepSeek Harness: sessions, steer, homes, inline asks, notify bridge, and optional TTS voice notes.",
   "license": "MIT",
   "type": "module",
@@ -35,8 +35,9 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "test:load": "node scripts/verify-dsh-load.mjs",
-    "test:all": "npm test && npm run test:load",
-    "smoke:http": "node scripts/smoke-http.mjs"
+    "test:all": "npm test && npm run test:load && npm run pack:check",
+    "smoke:http": "node scripts/smoke-http.mjs",
+    "pack:check": "node scripts/pack-check.mjs"
   },
   "dsh": {
     "bundle": {
@@ -67,5 +68,9 @@
   },
   "bugs": {
     "url": "https://github.com/GooDAnDReaDY/dsh-messenger-gateway/issues"
+  },
+  "overrides": {
+    "zod": "^4.6.6",
+    "fast-uri": "^3.1.9"
   }
 }
