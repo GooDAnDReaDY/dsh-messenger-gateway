@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.4.33
+
+### Bug Fixes & Reliability
+- **Gateway Constructor `recentSessions` Initialization (lib/gateway.js, #19):**
+  - Initialized `this.recentSessions = new Map()` in `Gateway` constructor and added `this.recentSessions.clear()` in `Gateway.prototype.stop()`.
+  - Fixes `TypeError: Cannot read properties of undefined (reading 'set')` when executing `/sessions`.
+- **Session Resume Delegation via `agents.resume` (lib/gateway.js, #20):**
+  - Updated `Gateway.prototype.createChat` to call `agents.resume` instead of `agents.create` when resuming existing sessions (`existingSessionId`).
+  - Fixes `Error: session "msgw-..." already exists` on `/resume <id|index>` and skips workspace registration and auto-rename on resume path.
+- **Session Auto-Title Derivation & Boilerplate Sanitization (lib/gateway-turn.js, lib/gateway-commands.js, #21):**
+  - Placed user prompt at the beginning of turn content parts, followed by `[MESSENGER_RELAY_INSTRUCTION]`, so DSH auto-titling derives from the user's actual request rather than fixed channel boilerplate.
+  - Sanitized `/sessions` view to filter out legacy boilerplate titles starting with `Channel: Messenger` or `[Channel: Messenger`, falling back to session IDs.
+- **Textual Model Catalog Listing via `/model list` (lib/gateway-commands.js, #22):**
+  - Added dedicated `/model list` (and `/model ls`, `/model all`) handler outputting a clean textual listing of providers and models with current model marked `✅` and runnable `<code>/model <provider> <model></code>` lines for tap-to-copy.
+- **Single-Writer Pattern for Model Selection Persistence (lib/gateway-commands.js, lib/gateway-callbacks.js, #23):**
+  - Consolidated `/model <provider> <model>` command and inline keyboard selection to use a single-writer strategy: `agentDefaultModel.saveSelection()` is primary, and `hooks.persistAgentModel()` serves as fallback only when `agentDefaultModel` is unavailable.
+  - Fixes `Error: HMR transactions cannot be nested` caused by dual sequential profile writes on consecutive switches.
+
+### Security & Hardening
+- **Comprehensive HTML Entity Escaping in Commands and File Manager (lib/file-manager.js, lib/gateway-callbacks.js, lib/gateway-commands.js):**
+  - Escaped all dynamic user inputs, file paths, model names, cron/reminder texts, and topic names when rendering Telegram HTML formatting, preventing Telegram HTML entity parse errors (`400 Bad Request: can't parse entities`) and markup injection.
+
 ## 0.4.32
 
 ### Features & Usability
