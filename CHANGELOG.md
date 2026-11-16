@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.36
+
+### Security & Hardening
+- **Archive Bomb Protection (#199):**
+  - Every ZIP entry inflate is capped with `maxOutputLength` and the archive carries an overall extraction budget counted against ACTUAL inflated bytes — the declared `uncompressedSize` in a ZIP header is attacker-controlled and no longer trusted. A lying header cannot balloon the heap (OOM) anymore.
+  - DOCX text extraction caps `word/document.xml` inflation at 16 MB.
+- **Proxy Credentials Masked (#200):**
+  - `telegram.proxyUrl` is now a `role('secret')` field: GET `/config` returns `proxyUrlConfigured` plus a masked value (`scheme://user:***@host:port`) instead of raw credentials, so passwords never reach the DOM, screenshots or reports.
+  - PUT `/config` treats an empty value or an echoed mask as "keep the configured proxy" (same semantics as `botToken`).
+- **Mini App Artifact Isolation (#201):**
+  - `/api/artifacts` and `/api/artifact` are chat-scoped: a Telegram user sees only artifacts produced in their own private chat; the full store is visible to allowlisted admins.
+  - Mini App authentication now delegates the allowlist check to `gw.isUserAllowed`, honoring `allowlistMode` — in the default closed mode an empty allowlist closes the artifacts API completely.
+
+### Documentation
+- DESIGN.md locked decisions extended; README.md documents proxy masking, archive caps and artifact isolation.
+
 ## 0.4.35
 
 ### Security & Hardening
