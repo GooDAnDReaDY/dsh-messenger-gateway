@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.4.34
+
+### Test Foundation & QA (#240, #245)
+- **Tests Execute Real Production Code (test/**, #240):**
+  - Removed test-local copies of production logic (approval gate with an outdated three-button contract, `releaseChatTurn`, photo-only predicate); suites now drive the real `answerApproval` (four-button fail-closed contract), `Gateway.handleMessage` photo-only gate and `releaseChatTurn` from `lib/gateway-commands.js`.
+  - Replaced source-text regex scans with behavioral coverage: real `runGatewayTurn` integration with a scripted fake agent (relay, answer delivery, abort cleanup, document injection), real `Gateway.handleHostEvent` collector flow, real `reapIdle` map cleanup and real browser-bundle execution (`lib/client.js`) through a minimal React replacement: seat registration order, snapshot status gating, save error collection, view branches, polling fetch signals.
+  - Added Windows-portable filename handling in the file-manager escaping test (POSIX-only dangerous-name flow plus a pure `escapeHtml` test), making the suite green on Windows and Linux.
+- **Worktree Hygiene (#245):**
+  - Removed completed worktree leftovers under `.worktrees/` (branches verified merged into `main`, issues closed, no open PRs) and deleted their merged local/remote branches.
+
+### CI & Tooling (#241)
+- **Gitea Actions CI Quality Gate (.gitea/workflows/ci.yml):**
+  - New pipeline on push/PR: dependency audit, ESLint, `tsc --checkJs`, unit tests with coverage report (artifact upload), and pack composition check.
+- **ESLint + TypeScript Checks (eslint.config.js, tsconfig.json, package.json):**
+  - Added devDependencies (`eslint`, `typescript`, `globals`, `@types/node`) and scripts `lint`, `typecheck`, `test:coverage`.
+  - Rules: `no-undef`, `no-unused-vars` (strict in `lib/`, warn-level in tests), no raw `rgba()`/hex colors in the settings card, banned `alpha.2` identifiers (`settingsNamespace`, `installSettingsSection`, `deepEqualJson`, `@deepseek-ai/dsh-settings` import).
+  - `tsc --noEmit` over `lib/` and `scripts/` (ES2024); the browser bundle `lib/client.js` is verified by runtime render tests and is typed with the client refactor (#239).
+- **Dead Code Cleaned (lib/, #234 partial):**
+  - Removed unused imports and declarations surfaced by the linter (`parseDocument`, `IMAGE_EXT_TO_MIME`, `VIDEO_EXT_TO_MIME`, `basename`, `classifyDocument`, `TEXT_INJECT_EXTS`, `escapeHtml`, `storeModelSelection`, `stripReasoningPreamble`, `processDiagramsAndTables`, `parseReasoningStream`, `normalize`, `useActiveLocale`, `turnStarts`, unused `webAppUrl` destructure and others).
+- **Latent Crash Fix (lib/gateway-turn.js):**
+  - `const answer` reassigned by the cost footer path (`answer += footer`) would have thrown `TypeError: Assignment to constant variable` whenever `telegram.costFooter` was enabled; the binding is now `let`.
+
 ## 0.4.33
 
 ### Bug Fixes & Reliability

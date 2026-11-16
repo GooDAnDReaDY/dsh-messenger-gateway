@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-messenger-gateway",
-  "version": "0.4.33",
+  "version": "0.4.34",
   "description": "Telegram messenger bridge for DeepSeek Harness: sessions, steer, homes, inline asks, notify bridge, and optional TTS voice notes.",
   "license": "MIT",
   "type": "module",
@@ -36,6 +36,9 @@
     "test": "node --test test/*.test.mjs",
     "test:load": "node scripts/verify-dsh-load.mjs",
     "test:all": "npm test && npm run test:load && npm run pack:check",
+    "test:coverage": "node --test --experimental-test-coverage test/*.test.mjs",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "smoke:http": "node scripts/smoke-http.mjs",
     "pack:check": "node scripts/pack-check.mjs"
   },
@@ -60,8 +63,8 @@
     "@deepseek-ai/dsh-llm": "^0.1.7-rc.2 || ^0.2.0-rc.1",
     "@deepseek-ai/dsh-session": "^0.1.7-rc.2 || ^0.2.0-rc.1",
     "@deepseek-ai/dsh-settings": "^0.1.7-rc.2 || ^0.2.0-rc.1",
-    "@deepseek-ai/schemastery": "^3.18.2",
-    "@deepseek-ai/dsh-tools": "^0.1.7-rc.2 || ^0.2.0-rc.1"
+    "@deepseek-ai/dsh-tools": "^0.1.7-rc.2 || ^0.2.0-rc.1",
+    "@deepseek-ai/schemastery": "^3.18.2"
   },
   "publishConfig": {
     "access": "public"
@@ -72,5 +75,11 @@
   "overrides": {
     "zod": "^4.6.6",
     "fast-uri": "^3.1.9"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "eslint": "^9.39.5",
+    "globals": "^15.15.0",
+    "typescript": "^5.9.3"
   }
 }
