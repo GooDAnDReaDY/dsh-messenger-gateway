@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.37
+
+### Documentation
+- README configuration notes gained the 0.4.36 hardening bullets: proxyUrl secret masking (keep-on-empty), archive extraction caps (per-entry and per-archive, actual bytes) and chat-scoped Mini App artifacts. No functional changes.
+
 ## 0.4.36
 
 ### Security & Hardening

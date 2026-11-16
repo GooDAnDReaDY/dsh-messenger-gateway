@@ -146,6 +146,9 @@ In addition to Telegram, outbound messages can be dispatched to Discord and Slac
 - `allowlistMode`: `closed` (default) or `open` — **closed** refuses every unknown user (fail-closed): a fresh install admits nobody until the admin approves a pairing code (`/start` → approve in the settings card); **open** admits all users when the allowlist is empty — enable it explicitly only for public assistant bots, the settings card and `/status` surface the exposure
 - `security.trustProxy`: `false` (default) — loopback-trusted requests must carry a pinned `localhost` / `127.0.0.1` / `[::1]` Host (DNS rebinding defense). Enable only behind a trusted local reverse proxy that rewrites the Host header
 - `/get` and `/files` require allowlisted users and never serve hidden (dot) files
+- `telegram.proxyUrl` is a secret: the settings API returns only a masked value and an empty field keeps the configured proxy
+- Inbound archives are extraction-capped (per-entry and per-archive budget verified against actual bytes — a lying ZIP header cannot balloon the heap)
+- Mini App artifacts are chat-scoped: a Telegram user sees only artifacts produced in their own chat; allowlisted admins see all
 - `sessionList`: `true` (default) — enables `/sessions` and `/resume` commands in chat
 - `sessionTitleFromChat`: `false` (default) — name each new session after its originating chat (`TG · @user`, `TG · Group › topic N`) instead of generic generated titles
 - `voiceMode`: `mirror` / `always` / `off` — when to speak replies (also `/voice`)
