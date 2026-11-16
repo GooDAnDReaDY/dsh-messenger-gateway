@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.35
+
+### Security & Hardening
+- **Allowlist Closed by Default (#196, BREAKING):**
+  - `telegram.allowlistMode` now defaults to `closed` (fail-closed): a fresh install with an empty `allowedUserIds` refuses every user instead of handing full agent control to anyone. Unknown users are onboarded via the pairing flow (`/start` → approve in the settings card).
+  - `open` remains an explicit opt-in for public assistant bots; a startup warning still logs the exposure, and `/status` now reports `allowlistMode` + `allowlistCount`.
+  - Missing `allowlistMode` falls back to `closed` in both `Gateway.isUserAllowed` and the Telegram adapter.
+- **DNS Rebinding Defense (#198):**
+  - Loopback-trusted HTTP requests now require pinned `localhost` / `127.0.0.1` / `[::1]` Host names; a rebound domain (resolving to `127.0.0.1`) with attacker-matched Host/Origin is rejected. `x-forwarded-host` is never trusted.
+  - `isAuthorizedMessengerRequest` gains origin validation for loopback remotes (previously none).
+  - New setting `security.trustProxy` (default `false`): explicit opt-in for trusted local reverse proxies, threaded through all admin, messenger, and Mini App routes.
+- **File Command Authorization (#197):**
+  - `/files` and `/get` now require `isUserAllowed` (previously any group member could read `agent.cwd`).
+  - Hidden (dot) files are never served: `/get .env`, `/files .git/config` and similar paths are rejected; listings already skipped them.
+
+### Documentation
+- README (EN/RU/ZH) and DESIGN.md document the closed default, pairing bootstrap, hidden-file policy, Host pinning and `security.trustProxy`.
+
 ## 0.4.34
 
 ### Test Foundation & QA (#240, #245)

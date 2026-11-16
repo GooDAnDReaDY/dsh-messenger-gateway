@@ -48,7 +48,7 @@ Talk to your Harness agent from Telegram: text, voice, photos, documents, inline
 - Configurable proxy support: HTTP, HTTPS, SOCKS5, and SOCKS5h (`telegram.proxyUrl`)
 - Custom Bot API root URL (`telegram.apiRoot`) for reverse proxies and local Bot API servers
 - Multi-transport support: Telegram, Discord (Webhooks & Bot API), and Slack (Webhooks & Bot API)
-- Allowlist + pairing codes (with configurable `allowlistMode`: `open` | `closed`)
+- Allowlist + pairing codes (fail-closed by default: a fresh install admits nobody until paired; `allowlistMode: open` is an explicit opt-in)
 - Conversation switching directly from chat (`/sessions` and `/resume <n|id>`)
 - Per-user or per-chat sessions (`sessionScope`)
 - Forum topics as separate sessions
@@ -143,7 +143,9 @@ In addition to Telegram, outbound messages can be dispatched to Discord and Slac
 ## Configuration notes
 
 - `sessionScope`: `user` (default) or `chat` — how group chats isolate sessions
-- `allowlistMode`: `open` (default) or `closed` — in `closed` mode, an empty allowlist admits nobody (fail-closed)
+- `allowlistMode`: `closed` (default) or `open` — **closed** refuses every unknown user (fail-closed): a fresh install admits nobody until the admin approves a pairing code (`/start` → approve in the settings card); **open** admits all users when the allowlist is empty — enable it explicitly only for public assistant bots, the settings card and `/status` surface the exposure
+- `security.trustProxy`: `false` (default) — loopback-trusted requests must carry a pinned `localhost` / `127.0.0.1` / `[::1]` Host (DNS rebinding defense). Enable only behind a trusted local reverse proxy that rewrites the Host header
+- `/get` and `/files` require allowlisted users and never serve hidden (dot) files
 - `sessionList`: `true` (default) — enables `/sessions` and `/resume` commands in chat
 - `sessionTitleFromChat`: `false` (default) — name each new session after its originating chat (`TG · @user`, `TG · Group › topic N`) instead of generic generated titles
 - `voiceMode`: `mirror` / `always` / `off` — when to speak replies (also `/voice`)
