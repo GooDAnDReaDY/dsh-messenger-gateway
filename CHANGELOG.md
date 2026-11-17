@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.4.42
+
+### Reliability
+- **Edit Scheduler Cancel (#216):**
+  - `createEditScheduler` gained `cancel()`: pending edits are dropped and the timer stopped. All exit paths of a turn (abort branch, error catch, finally) cancel the scheduler before finalize, so a stale stream edit can no longer overwrite the delivered message.
+- **Timer/Listener Leak Fixed (#220):**
+  - `whenIdleWithTimeout` now cleans up unconditionally: `clearTimeout` and abort-listener removal run on every resolution path (idle win, timeout, abort) — long-lived chats no longer accumulate timers and listeners.
+- **/fork Full Teardown (#214):**
+  - Before replacing the chat, `/fork` disposes the old chat agent and clears `sessionToChat`/`sessionToThread`/`threadToSession`/`pending` mappings, so ask/approvals from the old session no longer route into the new chat and the old agent stops consuming events.
+
+### Documentation
+- DESIGN.md locked decisions extended (scheduler cancel, timer cleanup, /fork teardown).
+
 ## 0.4.41
 
 ### Reliability & Concurrency
