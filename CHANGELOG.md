@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.47
+
+### Performance
+- **No Synchronous FS on the Hot Path (#225):**
+  - cwd resolution (`resolveEffectiveCwd`/`getCwdWarning`) is memoized for 10 s (bounded to 64 entries) — inbound messages no longer run `statSync`/`realpathSync` per message; the fallback warning logs once per cache lifetime instead of every message. Measured on a local FS: 5000 cached resolutions take ~0.7 ms vs ~28 ms uncached (the gap is far larger on network filesystems).
+  - Outbox persistence is batched: bursts of enqueues coalesce into one debounced (~250 ms) disk write under the multi-writer lock, with a merge-before-write so a deferred persist can never overwrite a newer on-disk state (`unsavedIds` protects locally added jobs); `flush()` keeps persisting on every dirty pass and `stop()` forces the last window out before exit.
+
+### Fixes
+- **Dispose and Route Guards (#230):**
+  - the dispose teardown now clears the gateway variable, so `getGw()` no longer hands out a stopped instance after reload/dispose (verified behaviorally: the messenger service reports `gateway not running` after dispose);
+  - every HTTP route registration is guarded — a profile without a webServer service loads the plugin with a warning instead of crashing (`registerRoute` helper for all config/webhook/pairing/webapp routes, the messenger API routes and the plugin updater).
+- **Dead Code Removed (#234):**
+  - the unused `Gateway.collectDynamicSkills` wrapper is removed (the logic lives in forum-mirror/integrations and the method had no callers);
+  - the never-filled `collector.parts` is gone — inline plugin image URLs are now extracted from the actual assistant text (`lastText`/`streamText`), wiring the previously dead branch to live data;
+  - the dead `ctx.get('messenger-gateway')` fallback in `getGw` is documented as the explicit integration seam and can no longer mask a stopped gateway after dispose.
+
+## 0.4.46
+
 ## 0.4.46
 
 ### Fixes
