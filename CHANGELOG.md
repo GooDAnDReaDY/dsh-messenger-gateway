@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.4.41
+
+### Reliability & Concurrency
+- **Per-Turn Ownership Token (#211):**
+  - Each dispatched turn stores its own AbortController as `chat.turnOwner`; the turn's finally block clears `turnActive`/`abort`/`pending` only if ownership still belongs to it. A stale turn finishing late can no longer strip the newer turn's abort/state or orphan its pending collector.
+- **/stop Keeps the Busy Chain (#213):**
+  - `/stop` no longer replaces `chat.busy` with a resolved promise (`releaseChatTurn` removed). The aborted run stays in the busy chain, so the next message starts only after the interrupted turn has fully drained — no second parallel `runTurn` over the same session with mixed answers.
+- **Single-Flight Chat Creation (#215):**
+  - `getOrCreateChat` coalesces concurrent callers per session key through an in-flight promise map. Webhook updates and media-group flushes hitting a new chat simultaneously create exactly one session; the losing agent is never created and never leaked.
+
+### Documentation
+- DESIGN.md locked decisions extended with the turn-ownership contract.
+
 ## 0.4.40
 
 ### Reliability & Hardening
