@@ -87,6 +87,7 @@ dsh plugin --profile web add @goodandready/dsh-messenger-gateway
 - `/get` 与 `/files` 命令仅对白名单用户可用，且永远不会返回隐藏文件（dotfiles，如 `.env`）；
 - 本地回环请求只接受固定的 Host（`localhost` / `127.0.0.1` / `[::1]`）— 防 DNS Rebinding；如需在受信任的本地反向代理后使用，可显式开启 `security.trustProxy`。
 - 持久化状态：写入先 fsync 再原子重命名，文件带 `schemaVersion`（旧格式自动迁移），每次保存保留 `.bak`，损坏文件以 `.corrupt-*` 保留并可从 `.bak` 恢复——绝不静默清空访问（fail-closed + 显式错误）；
+- 设置卡片由配置 schema 生成：所有设置均可见可编辑（高级区含白名单模式、机器人语言、审批灵敏度、流式回复、Mini App、成本页脚、预算告警、论坛镜像与记忆注入）；机密只以「已配置」标志形式报告，绝不返回浏览器；`/mute` 停止向该聊天的所有出站投递（notify bridge、messenger.send、HTTP、cron、论坛镜像），不影响实时对话；
 
 ---
 

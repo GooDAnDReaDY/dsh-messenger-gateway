@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.46
+
+### Fixes
+- **Mute Stops All Delivery (#231):**
+  - `/mute` now gates every outbound path through `messengerSend` (notify bridge, messenger tool, HTTP sends, cron prompts) and the forum mirror — delivery to a muted chat returns `{ok, muted}` instead of being silently ignored; the interactive turn conversation is unaffected.
+  - The Mini App dashboard shows REAL outbox counters (`status().pendingCount`/`dlqCount` — the old property reads were always 0) and surfaces the DLQ count next to the queue.
+- **Schema-Driven Config Projection (#232):**
+  - `publicConfig` now derives the client projection from the resolved config itself: every schema field is visible, secrets become `<field>Configured` flags (explicit `SECRET_FIELDS` list, proxy keeps its mask), and derived runtime values (homes, proxy status, effective cwd, internalBaseURL) are appended on top. A parity test asserts every resolved schema leaf is covered.
+  - Previously invisible settings are now projected: `defaultLocale`, `memory`, `webhooks`, `allowlistMode`, `webAppEnabled`, `costFooter`, `budgetAlertThresholdUsd`, `alerts`, and more.
+  - The dead nested `telegram.forumMirror` schema section is removed; the flat `forumMirrorEnabled`/`forumMirrorChatId` fields (what the code actually reads) remain.
+- **Settings Card Parity (#237):**
+  - The webhook secret badge and placeholder copy `webhookSecretConfigured`/`botTokenConfigured` from the server projection — no more permanent "Secret required" in webhook mode when the secret is set.
+  - Dead form fields that do not exist in the schema are removed (Discord channel list, Slack default channel) — input no longer goes nowhere.
+  - The advanced section now surfaces settings that had no UI: allowlist mode, bot language, approval sensitivity, streaming (+ edit interval, album debounce), Mini App on/off and URL, cost footer, budget alert threshold, forum mirror, and memory-brain injection.
+  - The card persists the new `defaultLocale` and `memory` sections; `memory.token` (secret) merges safely server-side and `telegram.proxyUrl`/`memory.token` are added to the secret-guard.
+
+## 0.4.45
+
 ## 0.4.45
 
 ### Reliability
