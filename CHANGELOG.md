@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.4.43
+
+### Reliability
+- **Outbox Multi-Writer Safety (#218):**
+  - All outbox mutations (enqueue, flush, retryDlq, clearDlq) take an exclusive lock file scoped to the queue path (stale locks stolen after 30s) and reload the on-disk state inside it. Two gateway processes sharing a home no longer play last-write-wins — no job loss, no duplicates.
+- **DLQ Alert Bypass & Rate Limit (#226):**
+  - DLQ alerts are sent directly via the adapter (bypassing the outbox they report on — the previous path re-enqueued the alert into the same failing queue) and are rate-limited to one alert per chat per 60 seconds.
+- **Guarantee Scope Documented (#217):**
+  - README and DESIGN.md now state explicitly: the outbox retry guarantee covers alerts, cron and autonomous messages; turn replies are streamed directly by design.
+
+### Documentation
+- DESIGN.md locked decisions and README reliability notes updated.
+
 ## 0.4.42
 
 ### Reliability

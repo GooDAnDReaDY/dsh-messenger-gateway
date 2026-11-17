@@ -157,6 +157,8 @@ In addition to Telegram, outbound messages can be dispatched to Discord and Slac
 - `telegram.apiRoot` with plain `http` is only accepted for loopback hosts (a local Bot API server); the webhook URL is logged without its secret path
 - `webhooks.enabled: false` removes the messenger write routes entirely; GET `/update` and `/messenger` require trusted callers
 - `webAppEnabled: false` takes the whole Mini App surface down (dashboard and every `/api/*` answer 404) and clears the menu button
+- The outbox queue (alerts, cron, autonomous messages) is multi-writer safe: all mutations take an exclusive lock and reload on-disk state, so two gateway processes sharing a home neither lose nor duplicate jobs; DLQ alerts bypass the queue and are rate-limited per chat
+- Note: turn replies to the user are streamed directly and are not covered by the outbox retry guarantee (by design — streaming edits cannot be replayed)
 - Inline keyboard `replyMarkup` sent via `/messenger/send` is schema-validated (button text/actions, sizes) before delivery
 - All state files (pairing, outbox, voice prefs) are written with `0600` permissions inside `0700` directories
 - `sessionList`: `true` (default) — enables `/sessions` and `/resume` commands in chat
