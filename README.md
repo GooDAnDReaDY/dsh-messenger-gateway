@@ -151,6 +151,9 @@ In addition to Telegram, outbound messages can be dispatched to Discord and Slac
 - Mini App artifacts are chat-scoped: a Telegram user sees only artifacts produced in their own chat; allowlisted admins see all
 - Mini App sign-in is hardened: `auth_date` required, 1h acceptance window, one-time `query_id` (replays rejected); `initData` in URL query is not accepted — the Mini App must send it via the `Authorization: tma` header
 - HITL approvals are fail-closed by default: in `mutations` sensitivity every tool that is not recognizably read-only (including network, send and MCP tools) asks for confirmation; a chat without a target refuses unconfirmed actions
+- Delivered updates are deduplicated across polling and webhook transports and the poll offset survives restarts — commands never execute twice
+- Artifact SVG entering the dashboard store is sanitized (script blocks, event handlers and `javascript:` URLs stripped)
+- Pending interactive asks are bounded (200 concurrent) and the ask timeout is clamped to 10 minutes
 - `telegram.apiRoot` with plain `http` is only accepted for loopback hosts (a local Bot API server); the webhook URL is logged without its secret path
 - `webhooks.enabled: false` removes the messenger write routes entirely; GET `/update` and `/messenger` require trusted callers
 - `webAppEnabled: false` takes the whole Mini App surface down (dashboard and every `/api/*` answer 404) and clears the menu button

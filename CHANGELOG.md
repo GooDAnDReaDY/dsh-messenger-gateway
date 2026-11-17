@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.4.40
+
+### Reliability & Hardening
+- **Update Deduplication & Offset Persistence (#208):**
+  - `update_id` deduplication moved into `dispatchUpdate` — shared by polling and webhook transports, so repeated deliveries never execute commands twice.
+  - The poll offset is persisted to `DSH_HOME/storages/telegram-offset.json` and survives restarts (no replay of the last batch).
+- **File & Document Layer Hardening (#209):**
+  - `/get` reads through a file descriptor opened after the boundary check — a symlink swap between check and read can no longer redirect the read.
+  - Pending interactive asks are bounded (200 concurrent) and the ask timeout is clamped to 10 minutes.
+  - The PDF stream parser uses a linear `indexOf` scan without lazy quantifiers (no catastrophic backtracking on crafted files).
+- **Dashboard SVG Sanitizer (#210):**
+  - Everything entering the artifact store passes `sanitizeSvgMarkup`: script blocks, `on*` event handlers and `javascript:` URLs are stripped, so the dashboard innerHTML path cannot become a stored-XSS sink.
+  - Dashboard metadata rendering uses `textContent` for dynamic values.
+
+### Documentation
+- DESIGN.md locked decisions and README security notes updated.
+
 ## 0.4.39
 
 ### Security & Hardening
