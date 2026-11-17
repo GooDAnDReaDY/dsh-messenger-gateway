@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.4.38
+
+### Security & Hardening
+- **Mini App initData Hardening (#202):**
+  - `auth_date` is now required — initData without it is rejected instead of living forever.
+  - Default acceptance window reduced from 24h to 1h.
+  - `query_id` is one-time: a replayed initData string is rejected (`replayed_query_id`), with automatic GC of expired ids.
+  - `initData` in the URL query string is no longer accepted (leaks into history/Referer/access logs); the Mini App must send it via the `Authorization: tma` header.
+- **HITL Approvals Fail-Closed and Allowlist-Based (#203):**
+  - Policy inverted: in `mutations` sensitivity every tool requires confirmation unless it is recognizably read-only (read/list/get/view/show/describe prefixes without write/exec/send hints). Network, send and MCP tools (`web_search`, `http_request`, `send_email`, `mcp__*`) now prompt.
+  - A chat without a target now fails closed (rejects the action) instead of silently executing.
+- **State File Permissions (#204):**
+  - All state files (pairing store, outbox queue, voice prefs, chat locales, workspaces) are created with mode `0600` inside `0700` directories, so message texts and approved user ids are no longer world-readable.
+
+### Documentation
+- DESIGN.md locked decisions and README security notes updated.
+
 ## 0.4.37
 
 ### Documentation

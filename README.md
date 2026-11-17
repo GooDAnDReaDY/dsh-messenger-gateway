@@ -149,6 +149,9 @@ In addition to Telegram, outbound messages can be dispatched to Discord and Slac
 - `telegram.proxyUrl` is a secret: the settings API returns only a masked value and an empty field keeps the configured proxy
 - Inbound archives are extraction-capped (per-entry and per-archive budget verified against actual bytes — a lying ZIP header cannot balloon the heap)
 - Mini App artifacts are chat-scoped: a Telegram user sees only artifacts produced in their own chat; allowlisted admins see all
+- Mini App sign-in is hardened: `auth_date` required, 1h acceptance window, one-time `query_id` (replays rejected); `initData` in URL query is not accepted — the Mini App must send it via the `Authorization: tma` header
+- HITL approvals are fail-closed by default: in `mutations` sensitivity every tool that is not recognizably read-only (including network, send and MCP tools) asks for confirmation; a chat without a target refuses unconfirmed actions
+- All state files (pairing, outbox, voice prefs) are written with `0600` permissions inside `0700` directories
 - `sessionList`: `true` (default) — enables `/sessions` and `/resume` commands in chat
 - `sessionTitleFromChat`: `false` (default) — name each new session after its originating chat (`TG · @user`, `TG · Group › topic N`) instead of generic generated titles
 - `voiceMode`: `mirror` / `always` / `off` — when to speak replies (also `/voice`)
