@@ -162,6 +162,8 @@ In addition to Telegram, outbound messages can be dispatched to Discord and Slac
 - Note: turn replies to the user are streamed directly and are not covered by the outbox retry guarantee (by design — streaming edits cannot be replayed)
 - Inline keyboard `replyMarkup` sent via `/messenger/send` is schema-validated (button text/actions, sizes) before delivery
 - All state files (pairing, outbox, voice prefs) are written with `0600` permissions inside `0700` directories
+- State persistence is durable and versioned: every write is fsynced before the rename (directory fsynced after), each save keeps a `.bak` of the previous good version, files carry a `schemaVersion` with migrations from legacy formats, and a corrupted file is preserved as `.corrupt-<ts>` and recovered from `.bak` — pairing never silently wipes access (fail-closed with an explicit error)
+- Config sync is granular: changes that do not touch the transport slice (tokens, proxy, Bot API root, poll/webhook mode, adapter enablement, session scope) are applied live on the running gateway — active dialogs, streaming replies, pending asks and the Telegram polling offset survive a settings save; only transport changes recreate the gateway, and recreation is serialized (single-flight)
 - `sessionList`: `true` (default) — enables `/sessions` and `/resume` commands in chat
 - `sessionTitleFromChat`: `false` (default) — name each new session after its originating chat (`TG · @user`, `TG · Group › topic N`) instead of generic generated titles
 - `voiceMode`: `mirror` / `always` / `off` — when to speak replies (also `/voice`)

@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4.45
+
+### Reliability
+- **Idempotent Settings Lifecycle (#223):**
+  - settings-bridge bus subscriptions (loader/volatile-update, internal/update, app-boot/config-reload) register inside a `ctx.effect`, so a disposed plugin instance never keeps stale listeners; repeated mounts of the settings service no longer duplicate subscriptions.
+- **Granular Config Sync (#224):**
+  - a settings change that does not touch the transport-critical slice (tokens, proxy, apiRoot, poll/webhook transport, adapter enablement, session scope) is applied LIVE on the running gateway: active dialogs, streaming replies, pending asks and the Telegram polling offset survive; gateway recreation is serialized (single-flight) so concurrent sync events can no longer race stop()/start() cycles.
+- **Durable State Persistence (#227):**
+  - every state file write is fsynced before the rename and the directory is fsynced after; the previous good version is kept as `.bak`; all stores carry a `schemaVersion` envelope with migrations from legacy files; a corrupted state file is preserved as `.corrupt-<ts>`, recovered from `.bak` when possible, and NEVER silently replaced by empty state — pairing fails closed with an explicit error.
+  - Fixed a latent bug: the topic-workspace store called an unimported `writeJsonAtomicSync` (ReferenceError swallowed by its save guard), so topic workspace bindings were never persisted.
+
+### Fixes
+- Sync now applies non-transport changes (tts, agent model/cwd, homes, allowlist, quick actions, security) without dropping the live Telegram session (#224).
+
+
 ## 0.4.44
 
 ### Reliability

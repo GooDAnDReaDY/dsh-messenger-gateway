@@ -86,6 +86,7 @@ dsh plugin --profile web add @goodandready/dsh-messenger-gateway
 - **默认关闭白名单模式（`allowlistMode: closed`，fail-closed）**：全新安装不会响应任何用户，直到管理员批准配对码；`open` 模式（空列表时放行所有人）必须显式开启，仅适用于公共助手机器人；
 - `/get` 与 `/files` 命令仅对白名单用户可用，且永远不会返回隐藏文件（dotfiles，如 `.env`）；
 - 本地回环请求只接受固定的 Host（`localhost` / `127.0.0.1` / `[::1]`）— 防 DNS Rebinding；如需在受信任的本地反向代理后使用，可显式开启 `security.trustProxy`。
+- 持久化状态：写入先 fsync 再原子重命名，文件带 `schemaVersion`（旧格式自动迁移），每次保存保留 `.bak`，损坏文件以 `.corrupt-*` 保留并可从 `.bak` 恢复——绝不静默清空访问（fail-closed + 显式错误）；
 
 ---
 
