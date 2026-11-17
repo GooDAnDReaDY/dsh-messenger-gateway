@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.4.44
+
+### Reliability
+- **Settings Write Mutex (#221):**
+  - All settings writers (PUT /config, persist hooks for allowlist/home/homes/model/voice summary/quick actions) serialize through a single `writeExclusive` mutex and each re-reads the current config at execution time — concurrent chat commands and card saves no longer lose updates.
+- **Telegram Message Chunking by Source (#229):**
+  - `/get`-style replies and turn answers now split the RAW markdown into chunks whose FORMATTED HTML stays within the Telegram limit — an HTML tag can no longer be cut at a chunk boundary; fenced blocks are never split across messages.
+
+### Fixes
+- **Runtime Toggles Persist (#222):**
+  - `/voice summary on|off` and `/keyboard on|off` now persist through the settings writer hooks, so they survive config syncs and `/config` reports the live state.
+- **HTML Fallback Chunk Alignment:**
+  - The plain-text fallback on HTML parse errors now uses the same source chunking, eliminating the HTML/plain chunk misalignment.
+
+### Documentation
+- DESIGN.md locked decisions and README notes updated.
+
 ## 0.4.43
 
 ### Reliability

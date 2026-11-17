@@ -154,6 +154,7 @@ In addition to Telegram, outbound messages can be dispatched to Discord and Slac
 - Delivered updates are deduplicated across polling and webhook transports and the poll offset survives restarts — commands never execute twice
 - Artifact SVG entering the dashboard store is sanitized (script blocks, event handlers and `javascript:` URLs stripped)
 - Pending interactive asks are bounded (200 concurrent) and the ask timeout is clamped to 10 minutes
+- Long replies are chunked by raw markdown (fence-aware) so no HTML tag is ever cut at a message boundary; `/voice summary` and `/keyboard` persist through the settings writer
 - `telegram.apiRoot` with plain `http` is only accepted for loopback hosts (a local Bot API server); the webhook URL is logged without its secret path
 - `webhooks.enabled: false` removes the messenger write routes entirely; GET `/update` and `/messenger` require trusted callers
 - `webAppEnabled: false` takes the whole Mini App surface down (dashboard and every `/api/*` answer 404) and clears the menu button
