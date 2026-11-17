@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.39
+
+### Security & Hardening
+- **apiRoot Transport & Log Redaction (#205):**
+  - Plain `http` apiRoot is only accepted for loopback hosts (a local Bot API server); remote plain-text endpoints are rejected because the bot token travels in the URL path.
+  - The webhook URL is logged without its secret token path (`origin/***`).
+- **Route Switches & Auth (#206):**
+  - GET `/messenger` (API schema) and GET/HEAD `/update` now require the same trusted-caller gate as other admin reads.
+  - `webhooks.enabled: false` removes the messenger write routes entirely (404) instead of leaving them trusted-accessible.
+  - `replyMarkup` passed to `/messenger/send` is schema-validated (button text/action/size limits) so phishing-shaped inline keyboards are rejected before delivery.
+- **webAppEnabled Takes the Surface Down (#207):**
+  - `telegram.webAppEnabled: false` now answers 404 for the dashboard and every `/webapp/api/*` endpoint, clears the adapter-derived webAppUrl and stops the menu button from being set.
+
+### Documentation
+- README and DESIGN.md document the apiRoot policy, route switches, replyMarkup validation and webAppEnabled semantics.
+
 ## 0.4.38
 
 ### Security & Hardening

@@ -151,6 +151,10 @@ In addition to Telegram, outbound messages can be dispatched to Discord and Slac
 - Mini App artifacts are chat-scoped: a Telegram user sees only artifacts produced in their own chat; allowlisted admins see all
 - Mini App sign-in is hardened: `auth_date` required, 1h acceptance window, one-time `query_id` (replays rejected); `initData` in URL query is not accepted — the Mini App must send it via the `Authorization: tma` header
 - HITL approvals are fail-closed by default: in `mutations` sensitivity every tool that is not recognizably read-only (including network, send and MCP tools) asks for confirmation; a chat without a target refuses unconfirmed actions
+- `telegram.apiRoot` with plain `http` is only accepted for loopback hosts (a local Bot API server); the webhook URL is logged without its secret path
+- `webhooks.enabled: false` removes the messenger write routes entirely; GET `/update` and `/messenger` require trusted callers
+- `webAppEnabled: false` takes the whole Mini App surface down (dashboard and every `/api/*` answer 404) and clears the menu button
+- Inline keyboard `replyMarkup` sent via `/messenger/send` is schema-validated (button text/actions, sizes) before delivery
 - All state files (pairing, outbox, voice prefs) are written with `0600` permissions inside `0700` directories
 - `sessionList`: `true` (default) — enables `/sessions` and `/resume` commands in chat
 - `sessionTitleFromChat`: `false` (default) — name each new session after its originating chat (`TG · @user`, `TG · Group › topic N`) instead of generic generated titles
