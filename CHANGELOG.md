@@ -1,44 +1,8 @@
 # Changelog
 
-## 0.7.0
+## 0.4.49
 
-Minor release: third cycle. Settings-card CSS markers and locale strings, the market host requirement, plus the label-registry dedup (repo infrastructure, no code).
-
-### Fixes
-- **Settings-Card Marker Classes and Locale Strings (#239):**
-  - The five rule-less marker classes (`msgw-card/head/title/body/foot`) now have `ensureCss` rules identical to their inline styles — visual output unchanged, classes keep serving as test hooks.
-  - The error-boundary Retry button renders through `t('settings.retry')` (existing en+zh key) and "Save failed — {list}" became the `save.failed` locale key (en+zh).
-  - The "split into modules" criterion is intentionally not fulfilled: the kernel loads `lib/client.js` via the `window.__ModuleLoader__.load({ id, factory })` contract (single file, no build step). Recorded as a Locked Design Decision in DESIGN.md.
-
-### Packaging
-- **`engines.dsh` Declared (#248):** `package.json` now states `engines: { dsh: ">=0.2.0" }`, so the market index can communicate the host requirement (aligns with the supported peer line).
-
-### Repository infrastructure (no code)
-- **Label Registry Dedup (#247):** the duplicate `type/security` and `type/tech-debt` labels were merged into their canonical ids across 16 issues and the duplicates deleted; `PUT /issues/{n}/labels` no longer double-tags.
-
-## 0.6.0
-
-Minor release: second cycle (batch #2 + post-merge audit). Group-gate hardening, settings-card accessibility, docs brought in line with the code.
-
-### Fixes
-- **Group Reply Gate Fails Closed (#212):**
-  - A group message that is a REPLY now passes only when it is addressed to OUR bot: `isReplyToBot` requires an exact sender-id match with the resolved `botId` and no longer treats any bot's `is_bot` flag as sufficient.
-  - While the bot identity is unknown (`getMe` not resolved), the reply gate stays off (fail closed). Replies to third-party bots can no longer start a turn — no more bot-linking loops and no prompt-injection surface through other bots.
-- **Settings Card Accessibility (#238):**
-  - Every Field associates its label with the control (`htmlFor`/`id`, id derived from the label text; single labelable controls only) — clicking a label focuses the input, screen readers pair text with fields.
-  - Error banners announce via `role=alert`, success banners via `role=status` + `aria-live=polite` (save/update/error-boundary).
-  - The Advanced disclosure exposes `aria-expanded` + `aria-controls` and the panel id, so collapsed/expanded state is announced.
-
-### Docs
-- **Documentation Matches the Code (#243):**
-  - README describes the actual settings seats (`plugins.row.config` + `plugins.item`, legacy `settings.plugin.item` fallback) and now documents ALL 43 registry commands (including `/app`, `/dashboard`, `/lang`, `/bind`, `/preset`, `/project`, `/memory`, `/forget`, `/outbox`, `/cost`, `/cron`, `/update`, `/pair`, `/mute`, `/unmute`).
-  - DESIGN.md no longer lists `/files` and `/get` as REST endpoints (they are Telegram commands); the route/security table now covers the real route set (`/pairing` list, `/messenger` schema, `/webapp` initData gate, `/update`) and drops the stale `/pairing/pending` shape.
-  - AGENTS.md references npm commands (repo and CI are npm-based).
-  - NEW `test/docs-parity.test.mjs` keeps the docs honest in CI: every registry command must appear in README, the DESIGN endpoint enumeration must not contain Telegram commands, the security table must reference the full real route set.
-
-## 0.5.0
-
-Minor release: the first cycle under the new release cadence (3+ issues per release, minor bump). Batch #1 (reliability + tooling) and the post-merge audit fix batch.
+Patch release on the 0.4 line: three reliability/quality batches (PR #266, #270, #271, #273) released together after the unapproved minor-line versions were revoked.
 
 ### Fixes
 - **429 retry_after Honored on the Direct Send Path (#219):**
@@ -49,6 +13,15 @@ Minor release: the first cycle under the new release cadence (3+ issues per rele
   - A text update no longer overtakes an album buffered in the media-group debounce: `dispatchUpdate` flushes the pending groups of the SAME chat before handling a non-album message (per-chat ordering, other chats unaffected).
   - `stop()` is async and flushes all pending albums before clearing the buffer (the gateway awaits adapter stops BEFORE disposing chats) — a config change or restart delivers in-flight albums instead of dropping them.
 
+### Fixes
+- **Group Reply Gate Fails Closed (#212):**
+  - A group message that is a REPLY now passes only when it is addressed to OUR bot: `isReplyToBot` requires an exact sender-id match with the resolved `botId` and no longer treats any bot's `is_bot` flag as sufficient.
+  - While the bot identity is unknown (`getMe` not resolved), the reply gate stays off (fail closed). Replies to third-party bots can no longer start a turn — no more bot-linking loops and no prompt-injection surface through other bots.
+- **Settings Card Accessibility (#238):**
+  - Every Field associates its label with the control (`htmlFor`/`id`, id derived from the label text; single labelable controls only) — clicking a label focuses the input, screen readers pair text with fields.
+  - Error banners announce via `role=alert`, success banners via `role=status` + `aria-live=polite` (save/update/error-boundary).
+  - The Advanced disclosure exposes `aria-expanded` + `aria-controls` and the panel id, so collapsed/expanded state is announced.
+
 ### Tooling
 - **Preflight Scripts Verify Real Guarantees (#244):**
   - pack-check validates the package CONTENT against an explicit allowlist plus the unconditional npm denylist (AGENTS.md, docs/, test/, scripts/, lockfiles, maps, logs, archives, secret files) — unexpected or forbidden paths FAIL the check, not just oversized files.
@@ -58,6 +31,22 @@ Minor release: the first cycle under the new release cadence (3+ issues per rele
 ### Cleanup (post-merge audit)
 - **Dead Exports Removed (#268):** `processDiagramsAndTables` (sync) and `isSensitiveTool` had zero production callers — their coverage lived only in tests. Removed; the mermaid-extraction test now covers the async production path, approval behavior stays covered by the sensitivity/isSafeReadOnlyTool tests.
 - **Comments in English (#269):** all Cyrillic comments in lib/ translated; the bilingual memory-command patterns in memory-brain.js are documented functional data (Locked Design Decision in DESIGN.md).
+
+### Docs
+- **Documentation Matches the Code (#243):**
+  - README describes the actual settings seats (`plugins.row.config` + `plugins.item`, legacy `settings.plugin.item` fallback) and now documents ALL 43 registry commands (including `/app`, `/dashboard`, `/lang`, `/bind`, `/preset`, `/project`, `/memory`, `/forget`, `/outbox`, `/cost`, `/cron`, `/update`, `/pair`, `/mute`, `/unmute`).
+  - DESIGN.md no longer lists `/files` and `/get` as REST endpoints (they are Telegram commands); the route/security table now covers the real route set (`/pairing` list, `/messenger` schema, `/webapp` initData gate, `/update`) and drops the stale `/pairing/pending` shape.
+  - AGENTS.md references npm commands (repo and CI are npm-based).
+  - NEW `test/docs-parity.test.mjs` keeps the docs honest in CI: every registry command must appear in README, the DESIGN endpoint enumeration must not contain Telegram commands, the security table must reference the full real route set.
+
+### Fixes
+- **Settings-Card Marker Classes and Locale Strings (#239):**
+  - The five rule-less marker classes (`msgw-card/head/title/body/foot`) now have `ensureCss` rules identical to their inline styles — visual output unchanged, classes keep serving as test hooks.
+  - The error-boundary Retry button renders through `t('settings.retry')` (existing en+zh key) and "Save failed — {list}" became the `save.failed` locale key (en+zh).
+  - The "split into modules" criterion is intentionally not fulfilled: the kernel loads `lib/client.js` via the `window.__ModuleLoader__.load({ id, factory })` contract (single file, no build step). Recorded as a Locked Design Decision in DESIGN.md.
+
+### Packaging
+- **`engines.dsh` Declared (#248):** `package.json` now states `engines: { dsh: ">=0.2.0" }`, so the market index can communicate the host requirement (aligns with the supported peer line).
 
 ## 0.4.48
 
