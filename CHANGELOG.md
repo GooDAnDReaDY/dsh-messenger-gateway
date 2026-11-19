@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.4.48
+
+### Refactoring
+- **Modular Entry Point (#233):**
+  - `lib/index.js` is reduced from 805 to 253 lines and now contains only plugin registration and lifecycle. Route handlers moved to `lib/routes.js` (admin endpoints, messenger API, Mini App dashboard, plugin updater), the notify bridge to `lib/notify-bridge.js`, the config projection to `lib/config-projection.js`, the static gateway persist hooks to `lib/persist-hooks.js` and the `messenger_ask` tool to `lib/tools.js`.
+  - Public API is unchanged (same exports), behavior is covered by the existing test suite.
+
+### Features
+- **Single Command Registry (#235):**
+  - `COMMAND_REGISTRY` in `lib/commands.js` is now the single source of truth: the `/help` text and the Telegram autocomplete list (`setMyCommands`) are both derived from it, so a new command can no longer be added in one place and forgotten in the other.
+  - Commands that were missing from help and/or autocomplete — `/app`, `/dashboard`, `/lang`, `/home`, `/alert`, `/update`, `/topic` — are now visible to users.
+  - A parity test (`test/commands-parity.test.mjs`) enforces registry ↔ help ↔ autocomplete ↔ handler consistency.
+
+### Fixes
+- **Discord and Slack Declared Send-Only (#236):**
+  - The Discord and Slack adapters are now explicitly send-only transports: they have no inbound path (no interactions endpoint / Slack events API), so interactive features are no longer offered there — `messenger_ask` and approval cards fail fast instead of hanging for the full 5-minute timeout; approvals auto-reject (fail-closed).
+  - `/status`, `GET /status` and the Mini App dashboard distinguish send-only adapters from bidirectional ones (`discord (send-only)` instead of an undifferentiated "active" list).
+  - README and DESIGN.md now state that Telegram is the only bidirectional transport.
+
 ## 0.4.47
 
 ### Performance
@@ -18,7 +37,6 @@
 
 ## 0.4.46
 
-## 0.4.46
 
 ### Fixes
 - **Mute Stops All Delivery (#231):**

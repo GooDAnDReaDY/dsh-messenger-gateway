@@ -47,7 +47,7 @@ Talk to your Harness agent from Telegram: text, voice, photos, documents, inline
 - Long-poll or webhook Telegram bot
 - Configurable proxy support: HTTP, HTTPS, SOCKS5, and SOCKS5h (`telegram.proxyUrl`)
 - Custom Bot API root URL (`telegram.apiRoot`) for reverse proxies and local Bot API servers
-- Multi-transport support: Telegram, Discord (Webhooks & Bot API), and Slack (Webhooks & Bot API)
+- Multi-transport support: Telegram (bidirectional), Discord and Slack (send-only outbound)
 - Allowlist + pairing codes (fail-closed by default: a fresh install admits nobody until paired; `allowlistMode: open` is an explicit opt-in)
 - Conversation switching directly from chat (`/sessions` and `/resume <n|id>`)
 - Per-user or per-chat sessions (`sessionScope`)
@@ -71,7 +71,7 @@ Talk to your Harness agent from Telegram: text, voice, photos, documents, inline
 - Inbound voice → STT (`dsh-voice`), photos → vision (`dsh-vision-bridge`)
 - Optional TTS replies (`dsh-tts`); mp3 is converted to OGG/Opus via `ffmpeg` for Telegram voice notes
 
-Discord and Slack adapters are available as outbound transports (Webhooks or Bot REST APIs).
+Discord and Slack adapters are available as outbound transports (Webhooks or Bot REST APIs). They are **send-only** (#236): there is no inbound path, so interactive features (`messenger_ask`, approval cards) are unavailable there and `/status` labels these adapters as send-only. Telegram is the only bidirectional transport.
 
 ## Install
 
@@ -133,6 +133,8 @@ Spoken replies use Telegram `sendVoice`. If TTS returns MP3 (or other non-Opus a
 In addition to Telegram, outbound messages can be dispatched to Discord and Slack via Webhooks or Bot APIs:
 - **Discord:** set `discord.enabled: true`, provide either `webhookUrl` or `botToken`. Target channels via `chatId: "<channel_id>"`.
 - **Slack:** set `slack.enabled: true`, provide either `webhookUrl` or `botToken`. Target channels via `chatId: "<channel_id>"` or threads via `threadId: "<thread_ts>"`.
+
+> **Send-only transports (#236):** Discord and Slack have no inbound path (no interactions endpoint / events API), so they deliver notifications and replies but cannot receive button clicks. `messenger_ask` and approval cards are not offered on these transports (requests fail fast), and `/status` + the web dashboard label them as `send-only`.
 
 ## Agent tools & HTTP
 
