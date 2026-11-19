@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.50
+
+Patch release: CHANGELOG completeness guard and a reliable deploy healthcheck.
+
+### Docs
+- **CHANGELOG completeness (#242):** the skipped releases 0.4.8 (PR #108) and 0.3.14 (PR #48) are backfilled from the tag history with explicit notes; an `Unreleased` section now exists for merged-to-main work; the empty duplicate 0.4.45 header is gone; `test/changelog-hygiene.test.mjs` keeps the file complete in CI (no duplicate headers, shipped version documented, backfills in place). The semver-policy part of the issue is closed by the owner's decision: the project stays on the 0.4.x patch line, minor bumps require explicit approval.
+
+### Tooling
+- **deploy.sh healthcheck retry (#274):** the single status check 3 s after the restart is replaced by a poll loop (every 2 s, up to 30 s) — the service boots in 8–12 s and four healthy deploys on 2026-11-19 were falsely reported as failures; verified live.
+
 ## 0.4.49
 
 Patch release on the 0.4 line: three reliability/quality batches (PR #266, #270, #271, #273) released together after the unapproved minor-line versions were revoked.
@@ -99,8 +109,6 @@ Patch release on the 0.4 line: three reliability/quality batches (PR #266, #270,
   - Dead form fields that do not exist in the schema are removed (Discord channel list, Slack default channel) — input no longer goes nowhere.
   - The advanced section now surfaces settings that had no UI: allowlist mode, bot language, approval sensitivity, streaming (+ edit interval, album debounce), Mini App on/off and URL, cost footer, budget alert threshold, forum mirror, and memory-brain injection.
   - The card persists the new `defaultLocale` and `memory` sections; `memory.token` (secret) merges safely server-side and `telegram.proxyUrl`/`memory.token` are added to the secret-guard.
-
-## 0.4.45
 
 ## 0.4.45
 
@@ -660,6 +668,12 @@ etry_after header adherence.
 - **Normalize Volatile Fields and Prevent DataCloneError (`lib/index.js`, #106):** Unwrapped Cordis `Volatile` boxes using `plainConfig()` before calling `structuredClone(config)` during plugin activation in `apply()`. Normalized raw configuration in `resolveConfig()` before passing to schemastery to avoid `ValidationError` on live volatile box objects.
 - **Settings and Volatile Update Subscriptions (`lib/settings-bridge.js`, #106):** Subscribed to Cordis `loader/volatile-update`, `internal/update`, `app-boot/config-reload`, and `settings/document-updated` in `setupSettings()`, ensuring that live settings updates applied via the UI or Loader take effect immediately without requiring a full harness restart.
 
+## 0.4.8
+
+Backfilled (#242): the release shipped without a CHANGELOG entry. Content restored from PR #108 (merge c39cc29).
+
+- **Settings form under the entry id (PR #108):** the settings form is served under the plugin entry id on both DSH 0.1.7-rc.2 and 0.2.0, so the card resolves on either host line.
+
 ## 0.4.7
 
 ### Fixed
@@ -802,6 +816,15 @@ Stability, Flood Control, Atomic Persistence and UX Polish (#48).
 - **Memory Leak Protection (`lib/gateway.js`):** Enabled a 24-hour default `idleTimeoutMs = 86400000` to periodically reap abandoned agent sessions and chat memory during long daemon uptimes.
 - **Structured Help Command (`lib/gateway.js`):** Reorganized Telegram `/help` command output into clean functional groups (Dialog, Tools & Files, Settings, Access & Channels).
 - **Design Contract Alignment (`docs/design/DESIGN.md`):** Updated design contract with locking decisions for atomic storage and stream resilience.
+
+## 0.3.14
+
+Backfilled (#242): the release shipped without a CHANGELOG entry. Content restored from PR #48 (merge bf926ee).
+
+- **Atomic file storage (`lib/storage-atomic.js`):** safe JSON atomic writes via temp file + rename for scheduler, pairing and voice prefs — no state corruption on restarts or concurrent writes.
+- **Telegram flood control & guaranteed final delivery (`lib/stream.js`):** the edit scheduler respects Telegram 429 `retry_after` and guarantees final turn message delivery on `flush()`.
+- **Memory leak protection (`lib/gateway.js`):** default `idleTimeoutMs = 86400000` (24 h) reaps abandoned agent sessions and chat memory on long daemon uptimes.
+- **Structured help command:** `/help` output reorganized into functional groups (Dialog, Tools & Files, Settings, Access & Channels).
 
 ## 0.3.13
 
