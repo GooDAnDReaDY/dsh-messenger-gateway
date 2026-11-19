@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.7.0
+
+Minor release: third cycle. Settings-card CSS markers and locale strings, the market host requirement, plus the label-registry dedup (repo infrastructure, no code).
+
+### Fixes
+- **Settings-Card Marker Classes and Locale Strings (#239):**
+  - The five rule-less marker classes (`msgw-card/head/title/body/foot`) now have `ensureCss` rules identical to their inline styles — visual output unchanged, classes keep serving as test hooks.
+  - The error-boundary Retry button renders through `t('settings.retry')` (existing en+zh key) and "Save failed — {list}" became the `save.failed` locale key (en+zh).
+  - The "split into modules" criterion is intentionally not fulfilled: the kernel loads `lib/client.js` via the `window.__ModuleLoader__.load({ id, factory })` contract (single file, no build step). Recorded as a Locked Design Decision in DESIGN.md.
+
+### Packaging
+- **`engines.dsh` Declared (#248):** `package.json` now states `engines: { dsh: ">=0.2.0" }`, so the market index can communicate the host requirement (aligns with the supported peer line).
+
+### Repository infrastructure (no code)
+- **Label Registry Dedup (#247):** the duplicate `type/security` and `type/tech-debt` labels were merged into their canonical ids across 16 issues and the duplicates deleted; `PUT /issues/{n}/labels` no longer double-tags.
+
 ## 0.6.0
 
 Minor release: second cycle (batch #2 + post-merge audit). Group-gate hardening, settings-card accessibility, docs brought in line with the code.
