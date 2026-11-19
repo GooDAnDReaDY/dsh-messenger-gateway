@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.5.0
+
+Minor release: the first cycle under the new release cadence (3+ issues per release, minor bump). Batch #1 (reliability + tooling) and the post-merge audit fix batch.
+
+### Fixes
+- **429 retry_after Honored on the Direct Send Path (#219):**
+  - The adapter attaches the structured Telegram response fields (`parameters.retry_after`, status code) to thrown errors — `call()`/`callMultipart()` no longer drop them into a description string.
+  - `sendWithRetry` waits `retry_after` (+jitter, capped at 60 s) and retries: a 429 is rejected BEFORE processing, so resending cannot duplicate a message. Previously the direct send path failed fast and doubled requests during throttle windows.
+  - The HTML→plain fallback fires only for parse rejections (`can't parse entities` / empty text) where the formatted message was never delivered — a blind plain resend can no longer duplicate a delivered message.
+- **Album Ordering and Flush-on-Stop (#228):**
+  - A text update no longer overtakes an album buffered in the media-group debounce: `dispatchUpdate` flushes the pending groups of the SAME chat before handling a non-album message (per-chat ordering, other chats unaffected).
+  - `stop()` is async and flushes all pending albums before clearing the buffer (the gateway awaits adapter stops BEFORE disposing chats) — a config change or restart delivers in-flight albums instead of dropping them.
+
+### Tooling
+- **Preflight Scripts Verify Real Guarantees (#244):**
+  - pack-check validates the package CONTENT against an explicit allowlist plus the unconditional npm denylist (AGENTS.md, docs/, test/, scripts/, lockfiles, maps, logs, archives, secret files) — unexpected or forbidden paths FAIL the check, not just oversized files.
+  - verify-dsh-load performs a real `apply()` into a Cordis-like mock host (messenger service provided, admin routes registered, notify bridge subscribed, clean dispose) and exits non-zero on any load failure.
+  - smoke-http checks the fail-closed auth boundaries the plugin actually serves: the Telegram webhook and /events reject unauthenticated writes, a malformed PUT /config is rejected with 400 and leaves the stored config byte-identical. The aspirational `/plugins/.../client.js` probe is removed (the settings card is delivered by the DSH core slot surface).
+
+### Cleanup (post-merge audit)
+- **Dead Exports Removed (#268):** `processDiagramsAndTables` (sync) and `isSensitiveTool` had zero production callers — their coverage lived only in tests. Removed; the mermaid-extraction test now covers the async production path, approval behavior stays covered by the sensitivity/isSafeReadOnlyTool tests.
+- **Comments in English (#269):** all Cyrillic comments in lib/ translated; the bilingual memory-command patterns in memory-brain.js are documented functional data (Locked Design Decision in DESIGN.md).
+
 ## 0.4.48
 
 ### Refactoring
