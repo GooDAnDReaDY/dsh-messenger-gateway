@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.6.0
+
+Minor release: second cycle (batch #2 + post-merge audit). Group-gate hardening, settings-card accessibility, docs brought in line with the code.
+
+### Fixes
+- **Group Reply Gate Fails Closed (#212):**
+  - A group message that is a REPLY now passes only when it is addressed to OUR bot: `isReplyToBot` requires an exact sender-id match with the resolved `botId` and no longer treats any bot's `is_bot` flag as sufficient.
+  - While the bot identity is unknown (`getMe` not resolved), the reply gate stays off (fail closed). Replies to third-party bots can no longer start a turn — no more bot-linking loops and no prompt-injection surface through other bots.
+- **Settings Card Accessibility (#238):**
+  - Every Field associates its label with the control (`htmlFor`/`id`, id derived from the label text; single labelable controls only) — clicking a label focuses the input, screen readers pair text with fields.
+  - Error banners announce via `role=alert`, success banners via `role=status` + `aria-live=polite` (save/update/error-boundary).
+  - The Advanced disclosure exposes `aria-expanded` + `aria-controls` and the panel id, so collapsed/expanded state is announced.
+
+### Docs
+- **Documentation Matches the Code (#243):**
+  - README describes the actual settings seats (`plugins.row.config` + `plugins.item`, legacy `settings.plugin.item` fallback) and now documents ALL 43 registry commands (including `/app`, `/dashboard`, `/lang`, `/bind`, `/preset`, `/project`, `/memory`, `/forget`, `/outbox`, `/cost`, `/cron`, `/update`, `/pair`, `/mute`, `/unmute`).
+  - DESIGN.md no longer lists `/files` and `/get` as REST endpoints (they are Telegram commands); the route/security table now covers the real route set (`/pairing` list, `/messenger` schema, `/webapp` initData gate, `/update`) and drops the stale `/pairing/pending` shape.
+  - AGENTS.md references npm commands (repo and CI are npm-based).
+  - NEW `test/docs-parity.test.mjs` keeps the docs honest in CI: every registry command must appear in README, the DESIGN endpoint enumeration must not contain Telegram commands, the security table must reference the full real route set.
+
 ## 0.5.0
 
 Minor release: the first cycle under the new release cadence (3+ issues per release, minor bump). Batch #1 (reliability + tooling) and the post-merge audit fix batch.

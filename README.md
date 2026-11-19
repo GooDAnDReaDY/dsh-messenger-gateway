@@ -101,32 +101,51 @@ Spoken replies use Telegram `sendVoice`. If TTS returns MP3 (or other non-Opus a
 
 ## Commands (Telegram)
 
+The command surface is driven by a single registry (`COMMAND_REGISTRY` in `lib/commands.js`) — `/help` and the Telegram autocomplete list are derived from it, so the table below is always in sync.
+
 | Command | Description |
 |---------|-------------|
-| `/start` `/help` | Help |
-| `/whoami` | Your Telegram user id |
-| `/new` | New agent session |
-| `/sessions` | List recent messenger conversations |
-| `/resume <n|id>` | Switch chat to previous session |
-| `/stop` | Abort the current turn |
-| `/model` | Interactive 2-step model picker (providers → models) or `/model <prov> <mod>` |
-| `/status` | Gateway status and session counters |
-| `/top` | Live server resources: RSS/Heap memory, uptime, active chats, reminders |
-| `/topic <name>` | Create a new Telegram forum topic in supergroups and start an isolated session |
-| `/role [name]` | Switch agent persona (`coder`, `architect`, `reviewer`, `writer`, `translator`, `concise`) |
-| `/skills` `/tools` | List active agent tools and capabilities |
-| `/fork` | Fork current session into a new independent session |
-| `/export` | Export session dialogue history to Markdown |
-| `/rewind [N]` | Rewind last N conversation turns |
-| `/files [dir]` | Workspace file manager |
-| `/get <path>` | Download file from workspace |
+| `/help` | Show commands help |
+| `/new` | Start a fresh session |
+| `/sessions` | List recent conversations |
+| `/resume <n\|id>` | Switch chat to a previous session |
+| `/stop` | Interrupt the current response |
+| `/model [list\|<prov> <mod>]` | Interactive model selector |
+| `/role [name]` | Switch persona or role (`/role list`) |
+| `/bind [role]` | Bind persona to topic / chat |
+| `/preset [name]` | Bind preset to topic / chat |
+| `/lang [en\|zh]` | Switch user language |
+| `/rewind [N]` | Rewind last N turns |
+| `/fork` | Fork the session into a new branch |
+| `/export` | Export history to Markdown |
+| `/skills` | List active tools & skills |
+| `/tools` | List active tools |
+| `/project` | Topic workspace binding (`/project bind <path>`) |
+| `/memory [add <fact>]` | Show / add remembered user facts |
+| `/forget <id\|all>` | Delete stored user facts |
+| `/outbox [retry\|clear]` | Transactional queue & DLQ |
+| `/cost` | Session token usage & estimated cost |
+| `/cwd` | Show the working directory |
+| `/files [dir]` | Workspace file explorer |
+| `/get <path>` | Download a file to the chat |
 | `/remind <time> <text>` | Set a reminder (e.g. `/remind 15m Call client`) |
-| `/setalert` `/alert` | Configure admin alert channel and send test alert |
-| `/keyboard on\|off` | Toggle quick actions reply keyboard |
+| `/cron` | Manage recurring autonomous tasks |
+| `/topic <name>` | Create a forum topic with an isolated session |
+| `/status` | Gateway and active model status |
+| `/top` | Live server resources: RAM, uptime, chats |
+| `/app`, `/dashboard` | Open the Mini App dashboard |
+| `/keyboard on\|off` | Toggle the quick-actions keyboard |
 | `/voice on\|off` | Per-user spoken replies |
-| `/tts on\|off\|status` | Per-chat spoken replies |
-| `/sethome [name]` | Bind current chat/topic as a named home |
+| `/tts on\|off\|status` | Per-chat speech synthesis |
+| `/mute` / `/unmute` | Mute / unmute notifications in this chat |
+| `/update [now]` | Check or install a plugin update |
+| `/start` | Connect and show greeting |
+| `/whoami` | Your messenger user id |
+| `/pair CODE` | Approve a pairing code |
+| `/sethome [name]` | Bind the current chat/topic as a named home |
 | `/home` | List homes |
+| `/setalert` | Configure the admin alert channel |
+| `/alert [test]` | Alert channel status / test alert |
 
 ## Multi-Transport Support (Discord & Slack)
 
@@ -180,7 +199,7 @@ In addition to Telegram, outbound messages can be dispatched to Discord and Slac
 
 ## Client UI & Settings Card
 
-- Mounted into `settings.plugin.item` on the Plugins tab (`key: dsh-messenger-gateway`).
+- Mounted on the Plugins tab: a summary row (`plugins.row.config`) and the full settings page (`plugins.item`), with the legacy `settings.plugin.item` slot kept as a fallback for older DSH builds.
 - Configuration is managed reactively via `settingsScope.bind({ namespace: 'dsh-messenger-gateway' })` with snapshot status checking (`loading`, `unavailable`, `ready`).
 - Protected dictionary registration: duplicate registration attempts on page reload are safely caught with non-fatal warnings, ensuring the settings card never fails to mount.
 
